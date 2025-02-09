@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { getRepoContributorsWithRepos } from "./github"
-import type { GraphQlQueryResponseData } from "@octokit/graphql"
+import { getRepoContributorsWithContributedRepos } from "./github"
 
 import Network from "./Network"
 
@@ -507,12 +506,11 @@ const graphData = {
 }
 
 const App: React.FC = () => {
-  const [repoInput, setRepoInput] = useState<string>("isserge/org-metrics");
+  const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
   const [fetching, setFetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<GraphQlQueryResponseData | null>(null);  // Store raw JSON data
-
-  console.log(data);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const [data, setData] = useState<any | null>(null);  // Store raw JSON data
 
   // Effect to fetch data when a valid repo input is provided
   useEffect(() => {
@@ -530,7 +528,7 @@ const App: React.FC = () => {
       setData(null);
 
       try {
-        const response = await getRepoContributorsWithRepos(owner, name);
+        const response = await getRepoContributorsWithContributedRepos(owner, name);
         setData(response);  // Save raw data
       } catch {
         setError("Failed to fetch repository data. Please check the repo name.");
@@ -560,7 +558,10 @@ const App: React.FC = () => {
       {error && <div className="text-red-500">{error}</div>}
 
       {/* Raw JSON Data */}
-      {/* {data && (
+      <div className="h-96">
+        <Network data={graphData} />
+      </div>
+      {data && (
         <pre
         className="mt-4 p-4 bg-gray-800 border rounded overflow-x-auto text-sm leading-relaxed text-green-300"
         style={{
@@ -570,10 +571,7 @@ const App: React.FC = () => {
       >
         {JSON.stringify(data, null, 2)}
       </pre>
-      )} */}
-      <div className="h-96">
-        <Network data={graphData} />
-      </div>
+      )}
     </div>
   );
 };

@@ -1,20 +1,39 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
+import { CoontributorsWithRepos, Repo } from "./types";
 
 // Your GitHub token from environment variables
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
 // Initialize REST API client (Octokit)
-export const octokit = new Octokit({
+const octokit = new Octokit({
   auth: githubToken,
 });
 
 // Initialize GraphQL client with authentication
-export const graphqlWithAuth = graphql.defaults({
+const graphqlWithAuth = graphql.defaults({
   headers: {
     authorization: `token ${githubToken}`,
   },
 });
+
+export const getRepository = async (owner: string, repo: string) => {
+  const query = `
+    query getRepository($owner: String!, $repo: String!) {
+      repository(owner: $owner, name: $repo) {
+        id
+        name
+        stargazerCount
+        description
+        primaryLanguage {
+          name
+        }
+      }
+    }
+  `;
+
+  return graphqlWithAuth<{ repository: Repo }>(query, { owner, repo });
+}
 
 /**
  * Uses the REST API to fetch all contributors for a given repository.
@@ -30,7 +49,7 @@ export async function getRepoContributors(
   const response = await octokit.rest.repos.listContributors({
     owner: repoOwner,
     repo: repoName,
-    per_page: 100, // adjust if necessary
+    per_page: 2, // adjust if necessary
   });
   // Map to only the fields you need
   return response.data.map((contributor) => ({ login: contributor.login ??  "Unknown" }));
@@ -46,6 +65,10 @@ type UserContributedReposResponse = {
         id: string;
         name: string;
         stargazerCount: number;
+        description: string;
+        primaryLanguage: {
+          name: string;
+        };
       }[];
     };
   };
@@ -63,11 +86,15 @@ export async function getUserContributedRepos(
   const query = `
     query getUserContributedRepos($username: String!) {
       user(login: $username) {
-        repositoriesContributedTo(first: 50, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
+        repositoriesContributedTo(first: 2, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
           nodes {
             id
             name
             stargazerCount
+            description
+            primaryLanguage {
+              name
+            }
           }
         }
       }
@@ -97,12 +124,7 @@ export async function getUserContributedRepos(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string
-): Promise<
-  {
-    login: string;
-    contributedRepos: { id: string; name: string; stargazerCount: number }[];
-  }[]
-> {
+): Promise<CoontributorsWithRepos[]> {
   // 1. Get all contributors from the repository using REST
   const contributors = await getRepoContributors(repoOwner, repoName);
 

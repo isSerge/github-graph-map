@@ -1,508 +1,48 @@
 import React, { useState, useEffect } from "react"
-import { getRepoContributorsWithContributedRepos } from "./github"
-
+import { getRepoContributorsWithContributedRepos, getRepository } from "./github"
+import { NetworkNode, NetworkLink, Repo, CoontributorsWithRepos } from './types'
 import Network from "./Network"
 
-const graphData = {
-  "nodes": [
-    {
-      "id": "Node 1",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 2",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 3",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 4",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 5",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 6",
-      "height": 1,
-      "size": 24,
-      "color": "rgb(97, 205, 187)"
-    },
-    {
-      "id": "Node 0",
-      "height": 2,
-      "size": 32,
-      "color": "rgb(244, 117, 96)"
-    },
-    {
-      "id": "Node 1.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.3",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.4",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.5",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.6",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 1.7",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 2.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 2.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 2.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.3",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.4",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.5",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 3.6",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.3",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.4",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.5",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.6",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.7",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 4.8",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.3",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.4",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.5",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.6",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 5.7",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 6.0",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 6.1",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    },
-    {
-      "id": "Node 6.2",
-      "height": 0,
-      "size": 12,
-      "color": "rgb(232, 193, 160)"
-    }
-  ],
-  "links": [
-    {
-      "source": "Node 0",
-      "target": "Node 1",
-      "distance": 80
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.2",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.3",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.4",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.5",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.6",
-      "distance": 50
-    },
-    {
-      "source": "Node 1",
-      "target": "Node 1.7",
-      "distance": 50
-    },
-    {
-      "source": "Node 0",
-      "target": "Node 2",
-      "distance": 80
-    },
-    {
-      "source": "Node 2",
-      "target": "Node 2.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 2",
-      "target": "Node 2.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 2",
-      "target": "Node 2.2",
-      "distance": 50
-    },
-    {
-      "source": "Node 0",
-      "target": "Node 3",
-      "distance": 80
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 1",
-      "distance": 80
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.2",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.3",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.4",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.5",
-      "distance": 50
-    },
-    {
-      "source": "Node 3",
-      "target": "Node 3.6",
-      "distance": 50
-    },
-    {
-      "source": "Node 0",
-      "target": "Node 4",
-      "distance": 80
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.2",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.3",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.4",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.5",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.6",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.7",
-      "distance": 50
-    },
-    {
-      "source": "Node 4",
-      "target": "Node 4.8",
-      "distance": 50
-    },
-    {
-      "source": "Node 0",
-      "target": "Node 5",
-      "distance": 80
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.2",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.3",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.4",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.5",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.6",
-      "distance": 50
-    },
-    {
-      "source": "Node 5",
-      "target": "Node 5.7",
-      "distance": 50
-    },
-    {
-      "source": "Node 0",
-      "target": "Node 6",
-      "distance": 80
-    },
-    {
-      "source": "Node 6",
-      "target": "Node 6.0",
-      "distance": 50
-    },
-    {
-      "source": "Node 6",
-      "target": "Node 6.1",
-      "distance": 50
-    },
-    {
-      "source": "Node 6",
-      "target": "Node 6.2",
-      "distance": 50
-    }
-  ]
+function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo) {
+  const nodes: NetworkNode[] = [];
+  const links: NetworkLink[] = [];
+
+  // Add the selected repository node
+  nodes.push({
+      id: selectedRepo.id,
+      size: 50, // Adjust size as needed
+      color: "#ff7f0e" // Highlight color for the selected repository
+  });
+
+  // Create a map to keep track of processed repositories
+  const repoSet = new Set<string>();
+  repoSet.add(selectedRepo.id);
+
+  // Iterate through contributors to build repository nodes and links
+  apiResponse.forEach((contributor) => {
+      contributor.contributedRepos.forEach((repo) => {
+          if (!repoSet.has(repo.id)) {
+              // Add a node for each new repository
+              nodes.push({
+                  id: repo.id,
+                  size: 24,
+                  color: "rgb(97, 205, 187)" // Color for other repositories
+              });
+              repoSet.add(repo.id);
+          }
+
+          // Create a link between the selected repository and other repositories via shared contributors
+          if (repo.id !== selectedRepo.id) {
+              links.push({
+                  source: selectedRepo.id,
+                  target: repo.id,
+                  distance: 50
+              });
+          }
+      });
+  });
+
+  return { nodes, links };
 }
 
 const App: React.FC = () => {
@@ -511,6 +51,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const [data, setData] = useState<any | null>(null);  // Store raw JSON data
+  const [selectedRepo, setSelectedRepo] = useState<any | null>(null);
 
   // Effect to fetch data when a valid repo input is provided
   useEffect(() => {
@@ -528,7 +69,9 @@ const App: React.FC = () => {
       setData(null);
 
       try {
+        const {repository} = await getRepository(owner, name);
         const response = await getRepoContributorsWithContributedRepos(owner, name);
+        setSelectedRepo(repository);
         setData(response);  // Save raw data
       } catch {
         setError("Failed to fetch repository data. Please check the repo name.");
@@ -539,6 +82,10 @@ const App: React.FC = () => {
 
     fetchData();
   }, [repoInput]);
+
+  const graphData = data && selectedRepo ? transformData(data, selectedRepo) : null;
+
+  console.log(graphData);
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
@@ -558,9 +105,22 @@ const App: React.FC = () => {
       {error && <div className="text-red-500">{error}</div>}
 
       {/* Raw JSON Data */}
-      <div className="h-96">
+      {graphData && (
+        <div className="h-96">
         <Network data={graphData} />
       </div>
+    )}
+      {selectedRepo && (
+        <pre
+        className="mt-4 p-4 bg-gray-800 border rounded overflow-x-auto text-sm leading-relaxed text-green-300"
+        style={{
+          maxHeight: "500px",
+          fontFamily: "Courier New, monospace",
+        }}
+      >
+        {JSON.stringify(selectedRepo, null, 2)}
+      </pre>
+      )}
       {data && (
         <pre
         className="mt-4 p-4 bg-gray-800 border rounded overflow-x-auto text-sm leading-relaxed text-green-300"

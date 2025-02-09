@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { getRepoContributorsWithRepos } from "./github";
+import React, { useState, useEffect } from "react"
+import { getRepoContributorsWithRepos } from "./github"
+import type { GraphQlQueryResponseData } from "@octokit/graphql"
 
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("isserge/org-metrics");
   const [fetching, setFetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);  // Store raw JSON data
+  const [data, setData] = useState<GraphQlQueryResponseData | null>(null);  // Store raw JSON data
 
   // Effect to fetch data when a valid repo input is provided
   useEffect(() => {
@@ -25,7 +26,7 @@ const App: React.FC = () => {
       try {
         const response = await getRepoContributorsWithRepos(owner, name);
         setData(response);  // Save raw data
-      } catch (err) {
+      } catch {
         setError("Failed to fetch repository data. Please check the repo name.");
       } finally {
         setFetching(false);

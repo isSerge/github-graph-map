@@ -4,7 +4,6 @@ interface NetworkNode extends InputNode {
     id: string
     size: number
     color: string
-    height: number
 }
 
 interface NetworkLink extends InputLink {
@@ -33,7 +32,6 @@ const Network = ({ data }: NetworkDataProps<NetworkNode, NetworkLink>) => (
                 ]
             ]
         }}
-        linkThickness={n=>2+2*n.target.data.height}
         linkBlendMode="multiply"
         motionConfig="wobbly"
     />

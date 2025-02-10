@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Network from "./Network";
 import Sidebar from "./Sidebar";
 import { useRepoData } from "./useRepoData";
-
+import { useNetworkControls } from "./useNetworkControls";
 
 type JsonDisplayProps = {
   title?: string;
@@ -29,6 +29,14 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ title, data }) => {
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
   const { fetching, error, graphData, selectedRepo } = useRepoData(repoInput);
+  const {
+    linkDistanceMultiplier,
+    repulsivity,
+    centeringStrength,
+    setLinkDistanceMultiplier,
+    setRepulsivity,
+    setCenteringStrength,
+  } = useNetworkControls();
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
@@ -51,7 +59,12 @@ const App: React.FC = () => {
         {/* Network Graph */}
         <div className="flex-1">
           {graphData ? (
-            <Network data={graphData} />
+            <Network
+              data={graphData}
+              linkDistanceMultiplier={linkDistanceMultiplier}
+              repulsivity={repulsivity}
+              centeringStrength={centeringStrength}
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
               No graph data available.
@@ -59,7 +72,15 @@ const App: React.FC = () => {
           )}
         </div>
         {/* Sidebar */}
-        <Sidebar repo={selectedRepo} />
+        <Sidebar 
+          repo={selectedRepo}
+          linkDistanceMultiplier={linkDistanceMultiplier}
+          repulsivity={repulsivity}
+          centeringStrength={centeringStrength}
+          setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+          setRepulsivity={setRepulsivity}
+          setCenteringStrength={setCenteringStrength}
+        />
       </div>
       {/* JSON Previews */}
       {selectedRepo && (

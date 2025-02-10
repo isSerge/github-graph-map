@@ -1,42 +1,41 @@
+import NetworkControls from "./NetworkControls";
+import RepoInfo from "./RepoInfo";
 import { RepoData } from "./types";
 
 type SidebarProps = {
-  repo: RepoData | null;
-};
+    repo: RepoData | null;
+    linkDistanceMultiplier: number;
+    repulsivity: number;
+    centeringStrength: number;
+    setLinkDistanceMultiplier: (value: number) => void;
+    setRepulsivity: (value: number) => void;
+    setCenteringStrength: (value: number) => void;
+  };
 
-const Sidebar: React.FC<SidebarProps> = ({ repo }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+    repo,
+    linkDistanceMultiplier,
+    repulsivity,
+    centeringStrength,
+    setLinkDistanceMultiplier,
+    setRepulsivity,
+    setCenteringStrength,
+ }) => {
   if (!repo) return null;
 
   return (
     <aside className="w-sm p-4 bg-gray-800 text-white overflow-auto">
-      <h2 className="text-xl font-bold mb-4">Repository Info</h2>
-      <div className="mb-2">
-        <span className="font-semibold">Name: </span>
-        {repo.name}
-      </div>
-      <div className="mb-2">
-        <span className="font-semibold">Stars: </span>
-        {repo.stargazerCount}
-      </div>
-      <div className="mb-2">
-        <span className="font-semibold">Primary Language: </span>
-        {repo.primaryLanguage.name}
-      </div>
-      <div className="mb-2">
-        <span className="font-semibold">Description: </span>
-        {repo.description}
-      </div>
-      <div className="mb-2">
-        <span className="font-semibold">URL: </span>
-        <a
-          href={repo.url}
-          className="text-blue-400 hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {repo.url}
-        </a>
-      </div>
+        <NetworkControls 
+            linkDistanceMultiplier={linkDistanceMultiplier}
+            repulsivity={repulsivity}
+            centeringStrength={centeringStrength}
+            setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+            setRepulsivity={setRepulsivity}
+            setCenteringStrength={setCenteringStrength}
+        />
+        {repo && (
+            <RepoInfo  repo={repo} />
+        )}
     </aside>
   );
 };

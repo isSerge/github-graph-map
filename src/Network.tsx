@@ -43,18 +43,30 @@ const NodeComponent = ({ node, onClick }:  NodeProps<Node>) => {
   return isRepoNode(node.data) ? repoNode : contributorNode;
 }
 
-const Network = ({ data }: NetworkDataProps<Node, NetworkLink>) => (
+type NetworkProps = NetworkDataProps<Node, NetworkLink> & {
+  linkDistanceMultiplier?: number;
+  repulsivity?: number;
+  centeringStrength?: number;
+};
+
+const Network = ({ data,
+  linkDistanceMultiplier = 1,
+  repulsivity = 300,
+  centeringStrength = 0.5, 
+}: NetworkProps) => (
     <ResponsiveNetwork
         theme={theme}
         data={data}
         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-        linkDistance={e=>e.distance}
+        // Multiply the default distance by the multiplier
+        linkDistance={(e) => e.distance * linkDistanceMultiplier}
         nodeColor={e=>e.color}
         linkColor="rgb(255, 230, 0)"
-        repulsivity={300}
-        centeringStrength={0.5}
+        repulsivity={repulsivity}
+        centeringStrength={centeringStrength}
         nodeComponent={NodeComponent}
         onClick={(node) => console.log(node)}
+        nodeSize={10}
     />
 )
 

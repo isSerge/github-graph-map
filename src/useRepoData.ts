@@ -63,7 +63,7 @@ function transformData(
         linksMap.set(contributorToRepoKey, {
           source: contributorId,
           target: repo.name,
-          distance: 50,
+          distance: 20,
         });
       }
     });

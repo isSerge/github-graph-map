@@ -2,8 +2,19 @@ import { InputNode, InputLink } from '@nivo/network'
 
 export interface NetworkNode extends InputNode {
     id: string
-    size: number
     color: string
+}
+
+export interface RepoNode extends NetworkNode {
+    id: string
+    name: string
+    stargazerCount: number
+    description: string
+    primaryLanguage: string
+}
+
+export interface ContributorNode extends NetworkNode {
+    login: string
 }
 
 export interface NetworkLink extends InputLink {
@@ -12,7 +23,7 @@ export interface NetworkLink extends InputLink {
     distance: number
 }
 
-export interface Repo {
+export interface RepoData {
     id: string
     name: string
     stargazerCount: number
@@ -22,5 +33,5 @@ export interface Repo {
 
 export interface ContributorsWithRepos {
     login: string;
-    contributedRepos: { id: string; name: string; stargazerCount: number }[];
+    contributedRepos: RepoData[];
 }

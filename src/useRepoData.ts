@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react"
 import { getRepoContributorsWithContributedRepos, getRepository } from "./github"
-import { NetworkNode, NetworkLink, Repo, ContributorsWithRepos } from './types'
+import { NetworkLink, RepoData, ContributorsWithRepos, RepoNode, ContributorNode } from './types'
 
-function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo) {
-    const nodes: NetworkNode[] = [];
+const REPO_COLOR = "rgb(97, 205, 187)";
+const SELECTED_REPO_COLOR = "rgb(255, 230, 0)";
+const CONTRIBUTOR_COLOR = "#f47560";
+
+function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: RepoData) {
+    const nodes: (RepoNode | ContributorNode)[] = [];
     const links: NetworkLink[] = [];
 
     // Add the selected repository node
     nodes.push({
+        ...selectedRepo,
         id: selectedRepo.name,
-        size: 50, // Adjust size as needed
-        color: "#ff7f0e", // Highlight color for the selected repository
+        color: SELECTED_REPO_COLOR,
     });
 
     const nodeSet = new Set<string>();
@@ -23,8 +27,8 @@ function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo)
         if (!nodeSet.has(contributor.login)) {
             nodes.push({
                 id: contributor.login,
-                size: 30, // Adjust size as needed
-                color: "#f47560", // Contributor node color
+                color: CONTRIBUTOR_COLOR,
+                login: contributor.login,
             });
             nodeSet.add(contributor.login);
         }
@@ -41,9 +45,9 @@ function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo)
             // Add repository node if not already processed
             if (!nodeSet.has(repo.name)) {
                 nodes.push({
+                    ...repo,
                     id: repo.name,
-                    size: Math.log(repo.stargazerCount + 1) * 10, // Use log scale for size
-                    color: "rgb(97, 205, 187)", // Repository node color
+                    color: REPO_COLOR,
                 });
                 nodeSet.add(repo.name);
             }
@@ -64,7 +68,7 @@ export function useRepoData(repoInput: string) {
     const [fetching, setFetching] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<ContributorsWithRepos[] | null>(null);
-    const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null);
+    const [selectedRepo, setSelectedRepo] = useState<RepoData | null>(null);
   
     useEffect(() => {
       const fetchData = async () => {

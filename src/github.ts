@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import { ContributorsWithRepos, Repo } from "./types";
+import { ContributorsWithRepos, RepoData } from "./types";
 
 // Your GitHub token from environment variables
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -33,7 +33,7 @@ export const getRepository = async (owner: string, repo: string) => {
     }
   `;
 
-  return graphqlWithAuth<{ repository: Repo }>(query, { owner, repo });
+  return graphqlWithAuth<{ repository: RepoData }>(query, { owner, repo });
 }
 
 /**
@@ -84,7 +84,7 @@ type UserContributedReposResponse = {
  */
 export async function getUserContributedRepos(
   username: string
-): Promise<{ id: string; name: string; stargazerCount: number }[]> {
+): Promise<RepoData[]> {
   const query = `
     query getUserContributedRepos($username: String!) {
       user(login: $username) {
@@ -110,8 +110,14 @@ export async function getUserContributedRepos(
   if (!data.user) {
     return [];
   }
-  
-  return data.user.repositoriesContributedTo.nodes;
+
+  return data.user.repositoriesContributedTo.nodes.map((repo) => ({
+    id: repo.id,
+    name: repo.name,
+    stargazerCount: repo.stargazerCount,
+    description: repo.description ?? "",
+    primaryLanguage: repo.primaryLanguage?.name ?? "",
+  }));
 }
 
 /**

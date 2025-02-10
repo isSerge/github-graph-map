@@ -1,6 +1,8 @@
-import React, { useState } from "react"
-import Network from "./Network"
-import { useRepoData } from "./useRepoData"
+import React, { useState } from "react";
+import Network from "./Network";
+import Sidebar from "./Sidebar";
+import { useRepoData } from "./useRepoData";
+
 
 type JsonDisplayProps = {
   title?: string;
@@ -36,22 +38,29 @@ const App: React.FC = () => {
         placeholder="Enter repository (e.g., facebook/react)"
         value={repoInput}
         onChange={(e) => setRepoInput(e.target.value)}
-        className="border p-2 rounded w-full mb-2"
+        className="border p-2 rounded w-full mb-4"
       />
 
-      {/* Loading Indicator */}
-      {fetching && <div className="text-blue-500">Fetching data...</div>}
+      {/* Display error or loading */}
+      {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      {/* Error Message */}
-      {error && <div className="text-red-500">{error}</div>}
-
-      {/* Network Graph */}
-      {graphData && (
-        <div className="h-screen">
-          <Network data={graphData} />
+      {/* Main Layout: Sidebar and Network Graph */}
+      <div className="flex flex-col md:flex-row h-[80vh]">
+        
+        {/* Network Graph */}
+        <div className="flex-1">
+          {graphData ? (
+            <Network data={graphData} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              No graph data available.
+            </div>
+          )}
         </div>
-      )}
-
+        {/* Sidebar */}
+        <Sidebar repo={selectedRepo} />
+      </div>
       {/* JSON Previews */}
       {selectedRepo && (
         <JsonDisplay title="Selected Repo" data={selectedRepo} />

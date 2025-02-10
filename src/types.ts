@@ -10,7 +10,9 @@ export interface RepoNode extends NetworkNode {
     name: string
     stargazerCount: number
     description: string
-    primaryLanguage: string
+    primaryLanguage: {
+        name: string
+    }
 }
 
 export interface ContributorNode extends NetworkNode {
@@ -28,7 +30,10 @@ export interface RepoData {
     name: string
     stargazerCount: number
     description: string
-    primaryLanguage: string
+    primaryLanguage: {
+        name: string
+    }
+    url: string
 }
 
 export interface ContributorsWithRepos {

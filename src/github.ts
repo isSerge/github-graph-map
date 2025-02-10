@@ -111,13 +111,7 @@ export async function getUserContributedRepos(
     return [];
   }
 
-  return data.user.repositoriesContributedTo.nodes.map((repo) => ({
-    id: repo.id,
-    name: repo.name,
-    stargazerCount: repo.stargazerCount,
-    description: repo.description ?? "",
-    primaryLanguage: repo.primaryLanguage?.name ?? "",
-  }));
+  return data.user.repositoriesContributedTo.nodes;
 }
 
 /**

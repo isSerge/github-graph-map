@@ -10,6 +10,7 @@ export interface NetworkLink extends InputLink {
     source: string
     target: string
     distance: number
+    contributorsCount: number
 }
 
 export interface Repo {
@@ -20,7 +21,7 @@ export interface Repo {
     primaryLanguage: string
 }
 
-export interface CoontributorsWithRepos {
+export interface ContributorsWithRepos {
     login: string;
     contributedRepos: { id: string; name: string; stargazerCount: number }[];
 }

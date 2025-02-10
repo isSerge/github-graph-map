@@ -2,6 +2,7 @@ import { ResponsiveNetwork, NetworkDataProps } from '@nivo/network'
 import { NetworkNode, NetworkLink } from './types'
 
 const theme = {
+  background: '#fff',
   tooltip: {
     container: {
       color: 'black',
@@ -19,6 +20,8 @@ const Network = ({ data }: NetworkDataProps<NetworkNode, NetworkLink>) => (
         nodeBorderWidth={1}
         linkBlendMode="multiply"
         motionConfig="wobbly"
+        linkThickness={e=>e.data.contributorsCount}
+        linkColor="rgb(255, 230, 0)"
     />
 )
 

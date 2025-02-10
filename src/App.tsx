@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react"
 import { getRepoContributorsWithContributedRepos, getRepository } from "./github"
-import { NetworkNode, NetworkLink, Repo, CoontributorsWithRepos } from './types'
+import { NetworkNode, NetworkLink, Repo, ContributorsWithRepos } from './types'
 import Network from "./Network"
 
-function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo) {
+function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo) {
   const nodes: NetworkNode[] = [];
-  const links: NetworkLink[] = [];
+  // const links: NetworkLink[] = [];
+  const linksMap: Map<string, NetworkLink> = new Map();
 
   // Add the selected repository node
   nodes.push({
@@ -21,7 +22,7 @@ function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo
   // Iterate through contributors to build repository nodes and links
   apiResponse.forEach((contributor) => {
       contributor.contributedRepos.forEach((repo) => {
-          if (!repoSet.has(repo.id)) {
+          if (!repoSet.has(repo.name)) {
               // Add a node for each new repository
               nodes.push({
                   id: repo.name,
@@ -33,14 +34,25 @@ function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo
 
           // Create a link between the selected repository and other repositories via shared contributors
           if (repo.id !== selectedRepo.id) {
-              links.push({
+            const linkKey = `${selectedRepo.name}-${repo.name}`;
+
+            if (!linksMap.has(linkKey)) {
+              linksMap.set(linkKey, {
                   source: selectedRepo.name,
                   target: repo.name,
-                  distance: 50
+                  distance: 50,
+                  contributorsCount: 1
               });
+          } else {
+              // Increment contributors count if the link already exists
+              linksMap.get(linkKey)!.contributorsCount += 1;
+          }
           }
       });
   });
+
+  // Convert links map to an array
+  const links: NetworkLink[] = Array.from(linksMap.values());
 
   return { nodes, links };
 }

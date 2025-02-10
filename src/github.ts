@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import { CoontributorsWithRepos, Repo } from "./types";
+import { ContributorsWithRepos, Repo } from "./types";
 
 // Your GitHub token from environment variables
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -124,7 +124,7 @@ export async function getUserContributedRepos(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string
-): Promise<CoontributorsWithRepos[]> {
+): Promise<ContributorsWithRepos[]> {
   // 1. Get all contributors from the repository using REST
   const contributors = await getRepoContributors(repoOwner, repoName);
 

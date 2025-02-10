@@ -17,10 +17,9 @@ const Network = ({ data }: NetworkDataProps<NetworkNode, NetworkLink>) => (
         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
         linkDistance={e=>e.distance}
         nodeColor={e=>e.color}
-        nodeBorderWidth={1}
-        linkBlendMode="multiply"
-        motionConfig="wobbly"
         linkColor="rgb(255, 230, 0)"
+        repulsivity={100}
+        centeringStrength={0.5}
     />
 )
 

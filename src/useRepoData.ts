@@ -33,7 +33,7 @@ function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo)
         links.push({
             source: selectedRepo.name,
             target: contributor.login,
-            distance: 50,
+            distance: 100,
         });
 
         // Iterate through the repositories the contributor has contributed to

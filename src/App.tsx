@@ -47,7 +47,7 @@ const App: React.FC = () => {
 
       {/* Network Graph */}
       {graphData && (
-        <div className="h-96">
+        <div className="h-screen">
           <Network data={graphData} />
         </div>
       )}

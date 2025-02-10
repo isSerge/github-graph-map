@@ -23,6 +23,7 @@ export const getRepository = async (owner: string, repo: string) => {
       repository(owner: $owner, name: $repo) {
         id
         name
+        url
         stargazerCount
         description
         primaryLanguage {
@@ -69,6 +70,7 @@ type UserContributedReposResponse = {
         primaryLanguage: {
           name: string;
         };
+        url: string;
       }[];
     };
   };
@@ -92,6 +94,7 @@ export async function getUserContributedRepos(
             name
             stargazerCount
             description
+            url
             primaryLanguage {
               name
             }

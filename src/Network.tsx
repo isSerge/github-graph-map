@@ -18,7 +18,7 @@ const Network = ({ data }: NetworkDataProps<NetworkNode, NetworkLink>) => (
         linkDistance={e=>e.distance}
         nodeColor={e=>e.color}
         linkColor="rgb(255, 230, 0)"
-        repulsivity={100}
+        repulsivity={200}
         centeringStrength={0.5}
     />
 )

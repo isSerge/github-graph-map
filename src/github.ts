@@ -88,7 +88,7 @@ export async function getUserContributedRepos(
   const query = `
     query getUserContributedRepos($username: String!) {
       user(login: $username) {
-        repositoriesContributedTo(first: 2, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
+        repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
           nodes {
             id
             name

@@ -7,59 +7,71 @@ const SELECTED_REPO_COLOR = "rgb(255, 230, 0)";
 const CONTRIBUTOR_COLOR = "#f47560";
 
 function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: RepoData) {
-    const nodes: (RepoNode | ContributorNode)[] = [];
-    const links: NetworkLink[] = [];
+    const nodeSet: Set<RepoNode | ContributorNode> = new Set();
+    const linkSet: Set<NetworkLink> = new Set();
 
     // Add the selected repository node
-    nodes.push({
+    const selectedRepoNode: RepoNode = {
         ...selectedRepo,
         id: selectedRepo.name,
         color: SELECTED_REPO_COLOR,
-    });
+    };
+    nodeSet.add(selectedRepoNode);
 
-    const nodeSet = new Set<string>();
-
-    nodeSet.add(selectedRepo.name);
-
-    // Iterate through contributors to build contributor nodes and links
+    // Iterate through contributors to build nodes and links
     apiResponse.forEach((contributor) => {
         // Add contributor node if not already processed
-        if (!nodeSet.has(contributor.login)) {
-            nodes.push({
-                id: contributor.login,
-                color: CONTRIBUTOR_COLOR,
-                login: contributor.login,
-            });
-            nodeSet.add(contributor.login);
+        const contributorNode: ContributorNode = {
+            id: contributor.login,
+            color: CONTRIBUTOR_COLOR,
+            login: contributor.login,
+        };
+
+        // Check if the node is already in the set
+        if (![...nodeSet].some(node => node.id === contributorNode.id)) {
+            nodeSet.add(contributorNode);
         }
 
         // Create a link between the selected repository and the contributor
-        links.push({
+        const repoToContributorLink: NetworkLink = {
             source: selectedRepo.name,
             target: contributor.login,
             distance: 100,
-        });
+        };
+
+        if (![...linkSet].some(link => link.source === repoToContributorLink.source && link.target === repoToContributorLink.target)) {
+            linkSet.add(repoToContributorLink);
+        }
 
         // Iterate through the repositories the contributor has contributed to
         contributor.contributedRepos.forEach((repo) => {
             // Add repository node if not already processed
-            if (!nodeSet.has(repo.name)) {
-                nodes.push({
-                    ...repo,
-                    id: repo.name,
-                    color: REPO_COLOR,
-                });
-                nodeSet.add(repo.name);
+            const repoNode: RepoNode = {
+                ...repo,
+                id: repo.name,
+                color: REPO_COLOR,
+            };
+
+            if (![...nodeSet].some(node => node.id === repoNode.id)) {
+                nodeSet.add(repoNode);
             }
 
             // Create a link between the contributor and the repository
-            links.push({
+            const contributorToRepoLink: NetworkLink = {
                 source: contributor.login,
                 target: repo.name,
                 distance: 50,
-            });
+            };
+
+            if (![...linkSet].some(link => link.source === contributorToRepoLink.source && link.target === contributorToRepoLink.target)) {
+                linkSet.add(contributorToRepoLink);
+            }
         });
     });
+
+    // Convert sets to arrays for return
+    const nodes = Array.from(nodeSet);
+    const links = Array.from(linkSet);
 
     return { nodes, links };
 }

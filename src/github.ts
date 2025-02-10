@@ -50,7 +50,7 @@ export async function getRepoContributors(
   const response = await octokit.rest.repos.listContributors({
     owner: repoOwner,
     repo: repoName,
-    per_page: 2, // adjust if necessary
+    per_page: 10, // adjust if necessary
   });
   // Map to only the fields you need
   return response.data.map((contributor) => ({ login: contributor.login ??  "Unknown" }));

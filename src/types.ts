@@ -10,7 +10,6 @@ export interface NetworkLink extends InputLink {
     source: string
     target: string
     distance: number
-    contributorsCount: number
 }
 
 export interface Repo {

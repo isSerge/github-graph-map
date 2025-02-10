@@ -20,7 +20,6 @@ const Network = ({ data }: NetworkDataProps<NetworkNode, NetworkLink>) => (
         nodeBorderWidth={1}
         linkBlendMode="multiply"
         motionConfig="wobbly"
-        linkThickness={e=>e.data.contributorsCount}
         linkColor="rgb(255, 230, 0)"
     />
 )

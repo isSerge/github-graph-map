@@ -2,59 +2,41 @@ import { useState, useEffect } from "react"
 import { getRepoContributorsWithContributedRepos, getRepository } from "./github"
 import { NetworkNode, NetworkLink, Repo, ContributorsWithRepos } from './types'
 
-function transformData(
-    apiResponse: ContributorsWithRepos[],
-    selectedRepo: Repo
-  ) {
+function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo) {
     const nodes: NetworkNode[] = [];
-    const linksMap: Map<string, NetworkLink> = new Map();
-  
+    const links: NetworkLink[] = [];
+
     // Add the selected repository node
     nodes.push({
-      id: selectedRepo.name,
-      size: 50, // Adjust size as needed
-      color: "#ff7f0e", // Highlight color for the selected repository
+        id: selectedRepo.name,
+        size: 50, // Adjust size as needed
+        color: "#ff7f0e", // Highlight color for the selected repository
     });
-  
-    // Create a set to track already processed repositories
-    const repoSet = new Set<string>();
-    repoSet.add(selectedRepo.name);
-  
-    // Iterate through contributors to build repository nodes and links
+
+    const contributorSet = new Set<string>();
+
+    // Iterate through contributors to build contributor nodes and links
     apiResponse.forEach((contributor) => {
-      contributor.contributedRepos.forEach((repo) => {
-        if (!repoSet.has(repo.name)) {
-          // Add a node for each new repository
-          nodes.push({
-            id: repo.name,
-            size: 24,
-            color: "rgb(97, 205, 187)", // Color for other repositories
-          });
-          repoSet.add(repo.name);
-        }
-  
-        // Create a link between the selected repository and other repositories via shared contributors
-        if (repo.id !== selectedRepo.id) {
-          const linkKey = `${selectedRepo.name}-${repo.name}`;
-          if (!linksMap.has(linkKey)) {
-            linksMap.set(linkKey, {
-              source: selectedRepo.name,
-              target: repo.name,
-              distance: 50,
-              contributorsCount: 1,
+        // Add contributor node if not already processed
+        if (!contributorSet.has(contributor.login)) {
+            nodes.push({
+                id: contributor.login,
+                size: 30, // Adjust size as needed
+                color: "#f47560", // Contributor node color
             });
-          } else {
-            // Increment contributors count if the link already exists
-            linksMap.get(linkKey)!.contributorsCount += 1;
-          }
+            contributorSet.add(contributor.login);
         }
-      });
+
+        // Create a link between the selected repository and the contributor
+        links.push({
+            source: selectedRepo.name,
+            target: contributor.login,
+            distance: 50,
+        });
     });
-  
-    // Convert links map to an array
-    const links: NetworkLink[] = Array.from(linksMap.values());
+
     return { nodes, links };
-  }
+}
 
 export function useRepoData(repoInput: string) {
     const [fetching, setFetching] = useState<boolean>(false);

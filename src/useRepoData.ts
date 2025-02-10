@@ -13,18 +13,20 @@ function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo)
         color: "#ff7f0e", // Highlight color for the selected repository
     });
 
-    const contributorSet = new Set<string>();
+    const nodeSet = new Set<string>();
+
+    nodeSet.add(selectedRepo.name);
 
     // Iterate through contributors to build contributor nodes and links
     apiResponse.forEach((contributor) => {
         // Add contributor node if not already processed
-        if (!contributorSet.has(contributor.login)) {
+        if (!nodeSet.has(contributor.login)) {
             nodes.push({
                 id: contributor.login,
                 size: 30, // Adjust size as needed
                 color: "#f47560", // Contributor node color
             });
-            contributorSet.add(contributor.login);
+            nodeSet.add(contributor.login);
         }
 
         // Create a link between the selected repository and the contributor
@@ -32,6 +34,26 @@ function transformData(apiResponse: ContributorsWithRepos[], selectedRepo: Repo)
             source: selectedRepo.name,
             target: contributor.login,
             distance: 50,
+        });
+
+        // Iterate through the repositories the contributor has contributed to
+        contributor.contributedRepos.forEach((repo) => {
+            // Add repository node if not already processed
+            if (!nodeSet.has(repo.name)) {
+                nodes.push({
+                    id: repo.name,
+                    size: Math.log(repo.stargazerCount + 1) * 10, // Use log scale for size
+                    color: "rgb(97, 205, 187)", // Repository node color
+                });
+                nodeSet.add(repo.name);
+            }
+
+            // Create a link between the contributor and the repository
+            links.push({
+                source: contributor.login,
+                target: repo.name,
+                distance: 50,
+            });
         });
     });
 

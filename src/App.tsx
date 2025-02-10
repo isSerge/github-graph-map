@@ -9,14 +9,14 @@ function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo
 
   // Add the selected repository node
   nodes.push({
-      id: selectedRepo.id,
+      id: selectedRepo.name,
       size: 50, // Adjust size as needed
       color: "#ff7f0e" // Highlight color for the selected repository
   });
 
   // Create a map to keep track of processed repositories
   const repoSet = new Set<string>();
-  repoSet.add(selectedRepo.id);
+  repoSet.add(selectedRepo.name);
 
   // Iterate through contributors to build repository nodes and links
   apiResponse.forEach((contributor) => {
@@ -24,18 +24,18 @@ function transformData(apiResponse: CoontributorsWithRepos[], selectedRepo: Repo
           if (!repoSet.has(repo.id)) {
               // Add a node for each new repository
               nodes.push({
-                  id: repo.id,
+                  id: repo.name,
                   size: 24,
                   color: "rgb(97, 205, 187)" // Color for other repositories
               });
-              repoSet.add(repo.id);
+              repoSet.add(repo.name);
           }
 
           // Create a link between the selected repository and other repositories via shared contributors
           if (repo.id !== selectedRepo.id) {
               links.push({
-                  source: selectedRepo.id,
-                  target: repo.id,
+                  source: selectedRepo.name,
+                  target: repo.name,
                   distance: 50
               });
           }

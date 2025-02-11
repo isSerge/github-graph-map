@@ -15,8 +15,8 @@ const REPO_COLOR = "rgb(97, 205, 187)";
 const SELECTED_REPO_COLOR = "rgb(255, 230, 0)";
 const CONTRIBUTOR_COLOR = "#f47560";
 
-function transformData(
-  apiResponse: ContributorsWithRepos[],
+function createGraph(
+  contributors: ContributorsWithRepos[],
   selectedRepo: RepoData
 ) {
   const nodesMap = new Map<string, RepoNode | ContributorNode>();
@@ -30,7 +30,7 @@ function transformData(
   });
 
   // For each contributor, add their node and create link from repo to contributor.
-  apiResponse.forEach((contributor) => {
+  contributors.forEach((contributor) => {
     const contributorId = contributor.login;
     if (!nodesMap.has(contributorId)) {
       nodesMap.set(contributorId, {
@@ -110,7 +110,7 @@ export function useRepoData(repoInput: string) {
   }, [repoInput]);
 
   const graphData =
-    data && selectedRepo ? transformData(data, selectedRepo) : null;
+    data && selectedRepo ? createGraph(data, selectedRepo) : null;
 
   return { fetching, error, graphData, selectedRepo };
 }

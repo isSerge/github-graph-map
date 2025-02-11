@@ -1,14 +1,11 @@
 import { ResponsiveNetwork, NetworkDataProps, NodeProps } from '@nivo/network'
 import { NetworkLink, RepoNode, ContributorNode } from './types'
 
-const theme = {
-  background: '#fff',
-  tooltip: {
-    container: {
-      color: 'black',
-    }
-  }
-}
+const networkTheme = {
+  background: "#1e2939",
+  textColor: "#ffffff",
+  linkColor: "#364153",
+};
 
 type Node = RepoNode | ContributorNode;
 
@@ -23,19 +20,19 @@ const NodeComponent = ({ node, onClick }:  NodeProps<Node>) => {
 
   const repoNode = (
     <g transform={`translate(${node.x},${node.y})`} style={style} onClick={onClick ? event => onClick(node, event) : undefined}>
-      <circle r={10} fill={node.color} />
-      <text y="20" textAnchor="middle" fontSize="12" fill="#000000">
-            {node.id}
-        </text>
+      <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
+      <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
+        {node.id}
+      </text>
     </g>
   )
 
   const contributorNode = (
     <g transform={`translate(${node.x - 12},${node.y - 18})`} style={style} onClick={onClick ? event => onClick(node, event) : undefined}>
-        <circle cx="12" cy="8" r="5" fill={node.color} stroke="#ffffff" />
-        <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke="#ffffff" />
-        <text x="12" y="32" textAnchor="middle" fontSize="12" fill="#000000">
-            {node.id}
+        <circle cx="12" cy="8" r="5" fill={node.color} stroke={networkTheme.linkColor} />
+        <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke={networkTheme.linkColor} />
+        <text x="12" y="32" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
+          {node.id}
         </text>
     </g>
 );
@@ -55,18 +52,18 @@ const Network = ({ data,
   centeringStrength = 0.5, 
 }: NetworkProps) => (
     <ResponsiveNetwork
-        theme={theme}
-        data={data}
-        margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-        // Multiply the default distance by the multiplier
-        linkDistance={(e) => e.distance * linkDistanceMultiplier}
-        nodeColor={e=>e.color}
-        linkColor="rgb(255, 230, 0)"
-        repulsivity={repulsivity}
-        centeringStrength={centeringStrength}
-        nodeComponent={NodeComponent}
-        onClick={(node) => console.log(node)}
-        nodeSize={10}
+      theme={networkTheme}
+      data={data}
+      margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+      // Multiply the default distance by the multiplier
+      linkDistance={(e) => e.distance * linkDistanceMultiplier}
+      nodeColor={e=>e.color}
+      repulsivity={repulsivity}
+      centeringStrength={centeringStrength}
+      nodeComponent={NodeComponent}
+      onClick={(node) => console.log(node)}
+      nodeSize={10}
+      linkColor={networkTheme.linkColor}
     />
 )
 

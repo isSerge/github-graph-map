@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   if (!repo) return null;
 
   return (
-    <aside className="w-sm p-4 bg-gray-800 text-white overflow-auto">
+    <aside className="w-sm p-4 bg-gray-800 text-white overflow-auto border-l border-gray-700">
         <NetworkControls 
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}

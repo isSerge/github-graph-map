@@ -13,6 +13,7 @@ export interface RepoNode extends NetworkNode {
     primaryLanguage: {
         name: string
     }
+    url: string
 }
 
 export interface ContributorNode extends NetworkNode {

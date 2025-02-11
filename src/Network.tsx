@@ -10,7 +10,11 @@ const networkTheme = {
 type Node = RepoNode | ContributorNode;
 
 function isRepoNode(node: Node): node is RepoNode {
-  return (node as RepoNode).stargazerCount !== undefined;
+  return (node as RepoNode).stargazerCount !== undefined 
+    && (node as RepoNode).name !== undefined 
+    && (node as RepoNode).primaryLanguage.name !== undefined 
+    && (node as RepoNode).url !== undefined
+    && (node as RepoNode).description !== undefined;
 }
 
 const NodeComponent = ({ node, onClick }:  NodeProps<Node>) => {

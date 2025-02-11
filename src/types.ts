@@ -14,6 +14,9 @@ export interface RepoNode extends NetworkNode {
         name: string
     }
     url: string
+    owner: {
+        login: string
+    }
 }
 
 export interface ContributorNode extends NetworkNode {
@@ -35,6 +38,9 @@ export interface RepoData {
         name: string
     }
     url: string
+    owner: {
+        login: string
+    }
 }
 
 export interface ContributorsWithRepos {

@@ -98,7 +98,8 @@ export function useRepoData(repoInput: string) {
         const response = await getRepoContributorsWithContributedRepos(owner, name);
         setSelectedRepo(repository);
         setData(response);
-      } catch {
+      } catch (e) {
+        console.error(e);
         setError("Failed to fetch repository data. Please check the repo name.");
       } finally {
         setFetching(false);

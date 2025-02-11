@@ -3,6 +3,8 @@ import Network from "./Network";
 import Sidebar from "./Sidebar";
 import { useRepoData } from "./useRepoData";
 import { useNetworkControls } from "./useNetworkControls";
+import { RepoNode } from "./types";
+import { ComputedNode } from '@nivo/network'
 
 type JsonDisplayProps = {
   title?: string;
@@ -38,6 +40,14 @@ const App: React.FC = () => {
     setCenteringStrength,
   } = useNetworkControls();
 
+  // When a repository node is clicked in the network,
+  // update repoInput so that the app loads that repository.
+  const handleRepoNodeClick = (node: ComputedNode<RepoNode>) => {
+    // Assuming node.id is in the format "owner/repo"
+    setRepoInput(`${node.data.owner.login}/${node.id}`);
+  };
+
+
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
       {/* Input Field */}
@@ -64,6 +74,7 @@ const App: React.FC = () => {
               linkDistanceMultiplier={linkDistanceMultiplier}
               repulsivity={repulsivity}
               centeringStrength={centeringStrength}
+              onRepoNodeClick={handleRepoNodeClick}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">

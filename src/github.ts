@@ -29,6 +29,9 @@ export const getRepository = async (owner: string, repo: string) => {
         primaryLanguage {
           name
         }
+        owner {
+          login
+        }
       }
     }
   `;
@@ -52,8 +55,15 @@ export async function getRepoContributors(
     repo: repoName,
     per_page: 10, // adjust if necessary
   });
+
+  // Filter out potential bot accounts.
+  const filteredContributors = response.data.filter((contributor) => {
+    if (!contributor.login) return false;
+    return !contributor.login.toLowerCase().endsWith("[bot]");
+  });
+
   // Map to only the fields you need
-  return response.data.map((contributor) => ({ login: contributor.login ??  "Unknown" }));
+  return filteredContributors.map((contributor) => ({ login: contributor.login ??  "Unknown" }));
 }
 
 /**
@@ -71,6 +81,9 @@ type UserContributedReposResponse = {
           name: string;
         };
         url: string;
+        owner: {
+          login: string;
+        };
       }[];
     };
   };
@@ -98,20 +111,29 @@ export async function getUserContributedRepos(
             primaryLanguage {
               name
             }
+            owner {
+              login
+            }
           }
         }
       }
     }
   `;
 
-  const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
+  try {
+    const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
+    
+    // If no user found, return an empty array.
+    if (!data.user) {
+      return [];
+    }
   
-  // If no user found, return an empty array.
-  if (!data.user) {
+    return data.user.repositoriesContributedTo.nodes;
+  } catch (error) {
+    console.error(error);
     return [];
   }
 
-  return data.user.repositoriesContributedTo.nodes;
 }
 
 /**

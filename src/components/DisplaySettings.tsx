@@ -20,7 +20,7 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({
   setShowJson,
 }) => {
   return (
-    <div className="mt-4">
+    <div className="mt-4 p-4">
       {/* Link Distance Multiplier */}
       <div className="mb-4">
         <label htmlFor="linkDistance" className="block text-sm font-medium mb-1">

@@ -1,33 +1,13 @@
-import React, { useState } from "react";
-import { ComputedNode } from '@nivo/network'
+import React, { useRef, useState } from "react";
+import { ComputedNode } from "@nivo/network";
 
 import Network from "./components/Network";
-import Sidebar from "./components/Sidebar";
+import DisplaySettings from "./components/DisplaySettings";
 import { useGraph } from "./hooks/useGraph";
 import { useDisplaySettings } from "./hooks/useDisplaySettings";
 import { RepoNode } from "./types";
-
-type JsonDisplayProps = {
-  title?: string;
-  data: unknown;
-};
-
-const JsonDisplay: React.FC<JsonDisplayProps> = ({ title, data }) => {
-  return (
-    <div className="mt-4">
-      {title && <h2 className="text-lg font-bold mb-2">{title}</h2>}
-      <pre
-        className="p-4 bg-gray-800 border rounded overflow-x-auto text-sm leading-relaxed text-green-300"
-        style={{
-          maxHeight: "500px",
-          fontFamily: "Courier New, monospace",
-        }}
-      >
-        {JSON.stringify(data, null, 2)}
-      </pre>
-    </div>
-  );
-};
+import { useOnClickOutside } from "./hooks/useOnClickOutside";
+import JsonDisplay from "./components/JsonDisplay";
 
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
@@ -43,17 +23,24 @@ const App: React.FC = () => {
     setCenteringStrength,
   } = useDisplaySettings();
 
-  // When a repository node is clicked in the network,
-  // update repoInput so that the app loads that repository.
+  // State for toggling the settings dropdown.
+  const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
+
+  // Create a ref for the container that wraps the settings button and dropdown.
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Attach the hook. When clicking outside of the settings container, close the panel.
+  useOnClickOutside(settingsRef, () => {
+    setShowSettingsPanel(false);
+  });
+
   const handleRepoNodeClick = (node: ComputedNode<RepoNode>) => {
-    // Assuming node.id is in the format "owner/repo"
     setRepoInput(`${node.data.owner.login}/${node.id}`);
   };
 
-
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white">
-      {/* Input Field */}
+      {/* Repository Input */}
       <input
         type="text"
         placeholder="Enter repository (e.g., facebook/react)"
@@ -62,39 +49,49 @@ const App: React.FC = () => {
         className="border p-2 rounded w-full mb-4"
       />
 
-      {/* Display error or loading */}
+      {/* Loading or Error Message */}
       {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      {/* Main Layout: Sidebar and Network Graph */}
-      <div className="flex flex-col md:flex-row h-[80vh]">
+      {/* Network Graph */}
+      {graphData && selectedRepo && !fetching && !error && (
+        <div className="h-screen relative">
+          {/* Settings Button & Dropdown in the top right */}
+          <div ref={settingsRef} className="absolute top-4 right-4 z-20">
+            <button
+              onClick={() => setShowSettingsPanel((prev) => !prev)}
+              className="flex items-center p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
+            >
+              <span className="text-xl">⚙️</span>
+            </button>
+            {showSettingsPanel && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20">
+                <DisplaySettings
+                  linkDistanceMultiplier={linkDistanceMultiplier}
+                  repulsivity={repulsivity}
+                  centeringStrength={centeringStrength}
+                  setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+                  setRepulsivity={setRepulsivity}
+                  setCenteringStrength={setCenteringStrength}
+                  showJson={showJson}
+                  setShowJson={setShowJson}
+                />
+              </div>
+            )}
+          </div>
 
-        {/* Network Graph */}
-        <div className="flex-1">
-          {graphData && selectedRepo && !fetching && !error && (
-            <Network
-              selectedNodeName={selectedRepo.name}
-              data={graphData}
-              linkDistanceMultiplier={linkDistanceMultiplier}
-              repulsivity={repulsivity}
-              centeringStrength={centeringStrength}
-              onRepoNodeClick={handleRepoNodeClick}
-            />
-          )}
+          <Network
+            selectedNodeName={selectedRepo.name}
+            data={graphData}
+            linkDistanceMultiplier={linkDistanceMultiplier}
+            repulsivity={repulsivity}
+            centeringStrength={centeringStrength}
+            onRepoNodeClick={handleRepoNodeClick}
+          />
         </div>
-        {/* Sidebar */}
-        <Sidebar
-          repo={selectedRepo}
-          linkDistanceMultiplier={linkDistanceMultiplier}
-          repulsivity={repulsivity}
-          centeringStrength={centeringStrength}
-          setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-          setRepulsivity={setRepulsivity}
-          setCenteringStrength={setCenteringStrength}
-          showJson={showJson}
-          setShowJson={setShowJson}
-        />
-      </div>
+      )}
+
+      {/* Optional JSON displays */}
       {selectedRepo && graphData && (
         <div className="mt-4">
           {showJson && (

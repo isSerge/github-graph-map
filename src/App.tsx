@@ -5,9 +5,10 @@ import Network from "./components/Network";
 import DisplaySettings from "./components/DisplaySettings";
 import { useGraph } from "./hooks/useGraph";
 import { useDisplaySettings } from "./hooks/useDisplaySettings";
-import { RepoNode } from "./types";
+import { EitherNode } from "./types";
 import { useOnClickOutside } from "./hooks/useOnClickOutside";
 import JsonDisplay from "./components/JsonDisplay";
+import NodeModal from "./components/NodeModal";
 
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
@@ -25,21 +26,23 @@ const App: React.FC = () => {
 
   // State for toggling the settings dropdown.
   const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
+  // State to track which node (if any) is selected for modal display.
+  const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
   // Create a ref for the container that wraps the settings button and dropdown.
   const settingsRef = useRef<HTMLDivElement>(null);
-
-  // Attach the hook. When clicking outside of the settings container, close the panel.
   useOnClickOutside(settingsRef, () => {
     setShowSettingsPanel(false);
   });
 
-  const handleRepoNodeClick = (node: ComputedNode<RepoNode>) => {
-    setRepoInput(`${node.data.owner.login}/${node.id}`);
+  // When a node is clicked, show the modal.
+  const handleNodeClick = (node: ComputedNode<EitherNode>) => {
+    console.log("Node clicked:", node);
+    setModalNode(node);
   };
 
   return (
-    <div className="p-8 bg-gray-900 min-h-screen text-white">
+    <div className="p-8 bg-gray-900 min-h-screen text-white relative">
       {/* Repository Input */}
       <input
         type="text"
@@ -53,7 +56,7 @@ const App: React.FC = () => {
       {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      {/* Network Graph */}
+      {/* Main Network Graph */}
       {graphData && selectedRepo && !fetching && !error && (
         <div className="h-screen relative">
           {/* Settings Button & Dropdown in the top right */}
@@ -86,7 +89,7 @@ const App: React.FC = () => {
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}
             centeringStrength={centeringStrength}
-            onRepoNodeClick={handleRepoNodeClick}
+            onNodeClick={handleNodeClick}
           />
         </div>
       )}
@@ -101,6 +104,11 @@ const App: React.FC = () => {
             </>
           )}
         </div>
+      )}
+
+      {/* Modal for node details */}
+      {modalNode && (
+        <NodeModal node={modalNode} onClose={() => setModalNode(null)} />
       )}
     </div>
   );

@@ -17,11 +17,14 @@ export interface RepoNode extends NetworkNode {
     owner: {
         login: string
     }
+    pushedAt: string
 }
 
 export interface ContributorNode extends NetworkNode {
     login: string
 }
+
+export type EitherNode = RepoNode | ContributorNode;
 
 export interface NetworkLink extends InputLink {
     source: string

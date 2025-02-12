@@ -1,5 +1,5 @@
 import { ResponsiveNetwork, NetworkDataProps, NodeProps, ComputedNode } from '@nivo/network'
-import { NetworkLink, RepoNode, ContributorNode } from '../types'
+import { NetworkLink, RepoNode, EitherNode } from '../types'
 
 const networkTheme = {
   background: "#1e2939",
@@ -10,27 +10,20 @@ const networkTheme = {
   contributorNodeColor: "#f47560",
 };
 
-type Node = RepoNode | ContributorNode;
-
-function isRepoNode(node: Node): node is RepoNode {
+function isRepoNode(node: EitherNode): node is RepoNode {
   return node.type === "repo";
 }
 
-interface CustomNodeProps extends NodeProps<Node> {
-  onRepoNodeClick?: (node: ComputedNode<RepoNode>) => void;
+interface CustomNodeProps extends NodeProps<EitherNode> {
+  onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 }
 
-const NodeComponent = ({ node, onRepoNodeClick }: CustomNodeProps) => {
+const NodeComponent = ({ node, onNodeClick }: CustomNodeProps) => {
   const isRepository = isRepoNode(node.data);
   const commonStyle = { cursor: 'pointer' };
 
   const handleClick = () => {
-    if (isRepository) {
-      onRepoNodeClick?.(node as ComputedNode<RepoNode>);
-    } else {
-      // TODO: handle contributor node click
-      console.log("Contributor node clicked", node);
-    }
+      onNodeClick?.(node);
   };
 
   const repoNode = (
@@ -55,15 +48,15 @@ const NodeComponent = ({ node, onRepoNodeClick }: CustomNodeProps) => {
   return isRepository ? repoNode : contributorNode;
 }
 
-type NetworkProps = NetworkDataProps<Node, NetworkLink> & {
+type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
   selectedNodeName: string;
   linkDistanceMultiplier?: number;
   repulsivity?: number;
   centeringStrength?: number;
-  onRepoNodeClick?: (node: ComputedNode<RepoNode>) => void;
+  onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 };
 
-function getNodeColor(selectedNodeId: string, node: Node) {
+function getNodeColor(selectedNodeId: string, node: EitherNode) {
   if (isRepoNode(node)) {
     if (node.id === selectedNodeId) {
       return networkTheme.selectedNodeColor;
@@ -80,7 +73,7 @@ const Network = ({
   linkDistanceMultiplier = 1,
   repulsivity = 300,
   centeringStrength = 0.5,
-  onRepoNodeClick,
+  onNodeClick,
 }: NetworkProps) => (
   <ResponsiveNetwork
     theme={networkTheme}
@@ -91,8 +84,8 @@ const Network = ({
     nodeColor={(node) => getNodeColor(selectedNodeName, node)}
     repulsivity={repulsivity}
     centeringStrength={centeringStrength}
-    nodeComponent={(props: NodeProps<Node>) => (
-      <NodeComponent {...props} onRepoNodeClick={onRepoNodeClick} />
+    nodeComponent={(props: NodeProps<EitherNode>) => (
+      <NodeComponent {...props} onNodeClick={onNodeClick} />
     )}
     onClick={(node) => console.log(node)}
     nodeSize={10}

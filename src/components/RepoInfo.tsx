@@ -1,14 +1,14 @@
 import { formatDistanceToNow } from 'date-fns';
 
-import { RepoData } from "../types";
+import { RepoNode } from "../types";
 
 interface RepoInfoProps {
-  repo: RepoData;
+  repo: RepoNode;
 }
 
 const RepoInfo = ({ repo }: RepoInfoProps) => {
   return (
-    <div className="max-w-md mx-auto bg-gray-800 rounded-xl shadow-lg overflow-hidden mt-4">
+    <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       <div className="md:flex">
         {/* Icon/Visual */}
         <div className="p-4 flex items-center justify-center bg-gray-900">

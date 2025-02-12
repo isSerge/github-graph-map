@@ -1,8 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import { ContributorsWithRepos, RepoData } from "./types";
+import { ContributorsWithRepos, RepoData } from "../types";
 
-// Your GitHub token from environment variables
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
 // Initialize REST API client (Octokit)

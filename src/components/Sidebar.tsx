@@ -1,6 +1,6 @@
 import NetworkControls from "./NetworkControls";
 import RepoInfo from "./RepoInfo";
-import { RepoData } from "./types";
+import { RepoData } from "../types";
 
 type SidebarProps = {
   repo: RepoData | null;

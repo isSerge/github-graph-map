@@ -1,4 +1,4 @@
-import { RepoData } from "./types";
+import { RepoData } from "../types";
 
 interface RepoInfoProps {
   repo: RepoData;

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import Network from "./Network";
-import Sidebar from "./Sidebar";
-import { useRepoData } from "./useRepoData";
-import { useNetworkControls } from "./useNetworkControls";
-import { RepoNode } from "./types";
 import { ComputedNode } from '@nivo/network'
+
+import Network from "./components/Network";
+import Sidebar from "./components/Sidebar";
+import { useRepoData } from "./hooks/useRepoData";
+import { useNetworkControls } from "./hooks/useNetworkControls";
+import { RepoNode } from "./types";
 
 type JsonDisplayProps = {
   title?: string;

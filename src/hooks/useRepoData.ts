@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import {
   getRepoContributorsWithContributedRepos,
   getRepository,
-} from "./github";
+} from "../services/github";
 import {
   NetworkLink,
   RepoData,
   ContributorsWithRepos,
   RepoNode,
   ContributorNode,
-} from "./types";
+} from "../types";
 
 const REPO_COLOR = "rgb(97, 205, 187)";
 const SELECTED_REPO_COLOR = "rgb(255, 230, 0)";

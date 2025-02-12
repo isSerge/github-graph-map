@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import NetworkControls from "./NetworkControls";
 import RepoInfo from "./RepoInfo";
 import { RepoData } from "../types";
@@ -21,18 +23,31 @@ const Sidebar: React.FC<SidebarProps> = ({
   setRepulsivity,
   setCenteringStrength,
 }) => {
+  const [showSettings, setShowSettings] = useState(false);
+
   if (!repo) return null;
 
   return (
     <aside className="w-sm p-4 bg-gray-800 text-white overflow-auto border-l border-gray-700">
-      <NetworkControls
-        linkDistanceMultiplier={linkDistanceMultiplier}
-        repulsivity={repulsivity}
-        centeringStrength={centeringStrength}
-        setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-        setRepulsivity={setRepulsivity}
-        setCenteringStrength={setCenteringStrength}
-      />
+      {/* Toggle button for network settings */}
+
+        <button
+          onClick={() => setShowSettings((prev) => !prev)}
+          className="flex items-center text-blue-400 focus:outline-none"
+        >
+          {/* Using a simple gear emoji as an icon */}
+          <span className="mr-2">{showSettings ? "❌" : "⚙️"}</span>
+          <span>Display Settings</span>
+        </button>
+      {showSettings && (
+        <NetworkControls
+          linkDistanceMultiplier={linkDistanceMultiplier}
+          repulsivity={repulsivity}
+          centeringStrength={centeringStrength}
+          setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+          setRepulsivity={setRepulsivity}
+          setCenteringStrength={setCenteringStrength}
+        />)}
       {repo && (
         <RepoInfo repo={repo} />
       )}

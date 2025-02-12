@@ -6,7 +6,7 @@ interface RepoInfoProps {
 
 const RepoInfo = ({ repo }: RepoInfoProps) => {
   return (
-    <div>
+    <div className="mt-4">
       <h2 className="text-xl font-bold mb-4">Repository Info</h2>
       <div className="mb-2">
         <span className="font-semibold">Name: </span>

@@ -16,9 +16,7 @@ const NetworkControls: React.FC<NetworkControlsProps> = ({
   setCenteringStrength,
 }) => {
   return (
-    <div className="mt-8">
-      <h2 className="text-xl font-bold mb-4">Network Display Settings</h2>
-
+    <div className="mt-4">
       {/* Link Distance Multiplier */}
       <div className="mb-4">
         <label htmlFor="linkDistance" className="block text-sm font-medium mb-1">

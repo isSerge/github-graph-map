@@ -1,13 +1,13 @@
 import { RepoData } from "./types";
 
 interface RepoInfoProps {
-    repo: RepoData;
+  repo: RepoData;
 }
 
 const RepoInfo = ({ repo }: RepoInfoProps) => {
-    return (
-        <div>
-            <h2 className="text-xl font-bold mb-4">Repository Info</h2>
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-4">Repository Info</h2>
       <div className="mb-2">
         <span className="font-semibold">Name: </span>
         {repo.name}
@@ -35,8 +35,8 @@ const RepoInfo = ({ repo }: RepoInfoProps) => {
           {repo.url}
         </a>
       </div>
-        </div>
-    )
+    </div>
+  )
 }
 
 export default RepoInfo;

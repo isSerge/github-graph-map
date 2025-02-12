@@ -3,39 +3,39 @@ import RepoInfo from "./RepoInfo";
 import { RepoData } from "./types";
 
 type SidebarProps = {
-    repo: RepoData | null;
-    linkDistanceMultiplier: number;
-    repulsivity: number;
-    centeringStrength: number;
-    setLinkDistanceMultiplier: (value: number) => void;
-    setRepulsivity: (value: number) => void;
-    setCenteringStrength: (value: number) => void;
-  };
+  repo: RepoData | null;
+  linkDistanceMultiplier: number;
+  repulsivity: number;
+  centeringStrength: number;
+  setLinkDistanceMultiplier: (value: number) => void;
+  setRepulsivity: (value: number) => void;
+  setCenteringStrength: (value: number) => void;
+};
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-    repo,
-    linkDistanceMultiplier,
-    repulsivity,
-    centeringStrength,
-    setLinkDistanceMultiplier,
-    setRepulsivity,
-    setCenteringStrength,
- }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  repo,
+  linkDistanceMultiplier,
+  repulsivity,
+  centeringStrength,
+  setLinkDistanceMultiplier,
+  setRepulsivity,
+  setCenteringStrength,
+}) => {
   if (!repo) return null;
 
   return (
     <aside className="w-sm p-4 bg-gray-800 text-white overflow-auto border-l border-gray-700">
-        <NetworkControls 
-            linkDistanceMultiplier={linkDistanceMultiplier}
-            repulsivity={repulsivity}
-            centeringStrength={centeringStrength}
-            setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-            setRepulsivity={setRepulsivity}
-            setCenteringStrength={setCenteringStrength}
-        />
-        {repo && (
-            <RepoInfo  repo={repo} />
-        )}
+      <NetworkControls
+        linkDistanceMultiplier={linkDistanceMultiplier}
+        repulsivity={repulsivity}
+        centeringStrength={centeringStrength}
+        setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+        setRepulsivity={setRepulsivity}
+        setCenteringStrength={setCenteringStrength}
+      />
+      {repo && (
+        <RepoInfo repo={repo} />
+      )}
     </aside>
   );
 };

@@ -65,7 +65,7 @@ const App: React.FC = () => {
 
       {/* Main Layout: Sidebar and Network Graph */}
       <div className="flex flex-col md:flex-row h-[80vh]">
-        
+
         {/* Network Graph */}
         <div className="flex-1">
           {graphData ? (
@@ -83,7 +83,7 @@ const App: React.FC = () => {
           )}
         </div>
         {/* Sidebar */}
-        <Sidebar 
+        <Sidebar
           repo={selectedRepo}
           linkDistanceMultiplier={linkDistanceMultiplier}
           repulsivity={repulsivity}

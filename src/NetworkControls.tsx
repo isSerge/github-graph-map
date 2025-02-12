@@ -18,7 +18,7 @@ const NetworkControls: React.FC<NetworkControlsProps> = ({
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4">Network Display Settings</h2>
-      
+
       {/* Link Distance Multiplier */}
       <div className="mb-4">
         <label htmlFor="linkDistance" className="block text-sm font-medium mb-1">
@@ -35,7 +35,7 @@ const NetworkControls: React.FC<NetworkControlsProps> = ({
           className="w-full"
         />
       </div>
-      
+
       {/* Repulsivity */}
       <div className="mb-4">
         <label htmlFor="repulsivity" className="block text-sm font-medium mb-1">
@@ -52,7 +52,7 @@ const NetworkControls: React.FC<NetworkControlsProps> = ({
           className="w-full"
         />
       </div>
-      
+
       {/* Centering Strength */}
       <div className="mb-4">
         <label htmlFor="centeringStrength" className="block text-sm font-medium mb-1">

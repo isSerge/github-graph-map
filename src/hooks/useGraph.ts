@@ -71,38 +71,44 @@ function createGraph(
   };
 }
 
-export function useRepoData(repoInput: string) {
+export function useGraph(repoInput: string) {
   const [fetching, setFetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ContributorsWithRepos[] | null>(null);
   const [selectedRepo, setSelectedRepo] = useState<RepoData | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Ensure input is in the form "owner/repo"
-      if (!repoInput.includes("/")) return;
-      const [owner, name] = repoInput.split("/");
-      if (!owner || !name) {
-        setError("Please enter a valid repository in the format 'owner/repo'.");
-        return;
-      }
-      setFetching(true);
-      setError(null);
-      setData(null);
-      try {
-        const { repository } = await getRepository(owner, name);
-        const response = await getRepoContributorsWithContributedRepos(owner, name);
-        setSelectedRepo(repository);
-        setData(response);
-      } catch (e) {
-        console.error(e);
-        setError("Failed to fetch repository data. Please check the repo name.");
-      } finally {
-        setFetching(false);
-      }
-    };
+    // Only attempt to fetch if repoInput contains a slash.
+    if (!repoInput.includes("/")) return;
 
-    fetchData();
+    const [owner, name] = repoInput.split("/");
+    
+    if (!owner || !name) {
+      setError("Please enter a valid repository in the format 'owner/repo'.");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      (async () => {
+        setFetching(true);
+        setError(null);
+        setData(null);
+        try {
+          const { repository } = await getRepository(owner, name);
+          const response = await getRepoContributorsWithContributedRepos(owner, name);
+          setSelectedRepo(repository);
+          setData(response);
+        } catch (err) {
+          console.error(err);
+          setError("Failed to fetch repository data. Please check the repo name.");
+        } finally {
+          setFetching(false);
+        }
+      })();
+    }, 500);
+
+    // Clear the timeout if repoInput changes before delay
+    return () => clearTimeout(timer);
   }, [repoInput]);
 
   const graphData =

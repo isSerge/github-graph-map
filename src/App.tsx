@@ -3,7 +3,7 @@ import { ComputedNode } from '@nivo/network'
 
 import Network from "./components/Network";
 import Sidebar from "./components/Sidebar";
-import { useRepoData } from "./hooks/useRepoData";
+import { useGraph } from "./hooks/useGraph";
 import { useNetworkControls } from "./hooks/useNetworkControls";
 import { RepoNode } from "./types";
 
@@ -31,7 +31,7 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ title, data }) => {
 
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
-  const { fetching, error, graphData, selectedRepo } = useRepoData(repoInput);
+  const { fetching, error, graphData, selectedRepo } = useGraph(repoInput);
   const {
     linkDistanceMultiplier,
     repulsivity,
@@ -69,7 +69,7 @@ const App: React.FC = () => {
 
         {/* Network Graph */}
         <div className="flex-1">
-          {graphData && selectedRepo ? (
+          {graphData && selectedRepo && !fetching && !error && (
             <Network
               selectedNodeName={selectedRepo.name}
               data={graphData}
@@ -78,10 +78,6 @@ const App: React.FC = () => {
               centeringStrength={centeringStrength}
               onRepoNodeClick={handleRepoNodeClick}
             />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              No graph data available.
-            </div>
           )}
         </div>
         {/* Sidebar */}

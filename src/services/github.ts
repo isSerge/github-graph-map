@@ -4,7 +4,7 @@ import { ContributorsWithRepos, RepoData } from "../types";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
-// Initialize REST API client (Octokit)
+// Initialize REST API client
 const octokit = new Octokit({
   auth: githubToken,
 });
@@ -16,22 +16,33 @@ const graphqlWithAuth = graphql.defaults({
   },
 });
 
+const repositoryFields = `
+  id
+  name
+  url
+  stargazerCount
+  description
+  primaryLanguage {
+    name
+  }
+  owner {
+    login
+  }
+  pushedAt
+`;
+
+/**
+ * Fetch repository details via GraphQL.
+ * 
+ * @param owner - The owner of the repository.
+ * @param repo - The repository name.
+ * @returns A promise resolving to the repository data.
+ */
 export const getRepository = async (owner: string, repo: string) => {
   const query = `
     query getRepository($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
-        id
-        name
-        url
-        stargazerCount
-        description
-        primaryLanguage {
-          name
-        }
-        owner {
-          login
-        }
-        pushedAt
+        ${repositoryFields}
       }
     }
   `;
@@ -44,7 +55,7 @@ export const getRepository = async (owner: string, repo: string) => {
  *
  * @param repoOwner - The owner of the repository.
  * @param repoName - The repository name.
- * @returns A promise resolving to an array of contributor objects (with at least a login).
+ * @returns A promise resolving to an array of contributor objects
  */
 export async function getRepoContributors(
   repoOwner: string,
@@ -67,25 +78,12 @@ export async function getRepoContributors(
 }
 
 /**
- * GraphQL response type for fetching contributed repositories for a user.
+ * GraphQL response type for fetching contributed repositories.
  */
 type UserContributedReposResponse = {
   user: {
     repositoriesContributedTo: {
-      nodes: {
-        id: string;
-        name: string;
-        stargazerCount: number;
-        description: string;
-        primaryLanguage: {
-          name: string;
-        };
-        url: string;
-        owner: {
-          login: string;
-        };
-        pushedAt: string;
-      }[];
+      nodes: RepoData[];
     };
   };
 };
@@ -104,18 +102,7 @@ export async function getUserContributedRepos(
       user(login: $username) {
         repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
           nodes {
-            id
-            name
-            stargazerCount
-            description
-            url
-            primaryLanguage {
-              name
-            }
-            owner {
-              login
-            }
-            pushedAt
+            ${repositoryFields}
           }
         }
       }

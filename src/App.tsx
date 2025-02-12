@@ -37,7 +37,6 @@ const App: React.FC = () => {
 
   // When a node is clicked, show the modal.
   const handleNodeClick = (node: ComputedNode<EitherNode>) => {
-    console.log("Node clicked:", node);
     setModalNode(node);
   };
 
@@ -60,7 +59,7 @@ const App: React.FC = () => {
 
       {/* Main Network Graph */}
       {graphData && selectedRepo && !fetching && !error && (
-        <div className="grow-1 relative">
+        <div className="h-screen relative">
           {/* Settings Button & Dropdown in the top right */}
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
             <button

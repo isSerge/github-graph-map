@@ -1,19 +1,23 @@
-type NetworkControlsProps = {
+interface DisplaySettingsProps {
   linkDistanceMultiplier: number;
   repulsivity: number;
   centeringStrength: number;
   setLinkDistanceMultiplier: (value: number) => void;
   setRepulsivity: (value: number) => void;
   setCenteringStrength: (value: number) => void;
-};
+  showJson: boolean;
+  setShowJson: (value: boolean) => void;
+}
 
-const NetworkControls: React.FC<NetworkControlsProps> = ({
+const DisplaySettings: React.FC<DisplaySettingsProps> = ({
   linkDistanceMultiplier,
   repulsivity,
   centeringStrength,
   setLinkDistanceMultiplier,
   setRepulsivity,
   setCenteringStrength,
+  showJson,
+  setShowJson,
 }) => {
   return (
     <div className="mt-4">
@@ -67,8 +71,23 @@ const NetworkControls: React.FC<NetworkControlsProps> = ({
           className="w-full"
         />
       </div>
+
+      {/* Toggle Switch for JSON Data Display */}
+      <div className="flex items-center">
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={showJson}
+            onChange={() => setShowJson(!showJson)}
+          />
+          <div className="w-11 h-6 bg-gray-600 rounded-full peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 transition-colors duration-300 peer-checked:bg-blue-500"></div>
+          <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 transform peer-checked:translate-x-5"></div>
+        </label>
+        <span className="text-sm font-medium text-gray-300 ml-3">Show JSON Data</span>
+      </div>
     </div>
   );
 };
 
-export default NetworkControls;
+export default DisplaySettings;

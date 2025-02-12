@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import NetworkControls from "./NetworkControls";
+import DisplaySettings from "./DisplaySettings";
 import RepoInfo from "./RepoInfo";
 import { RepoData } from "../types";
 
@@ -12,6 +12,8 @@ type SidebarProps = {
   setLinkDistanceMultiplier: (value: number) => void;
   setRepulsivity: (value: number) => void;
   setCenteringStrength: (value: number) => void;
+  setShowJson: (value: boolean) => void;
+  showJson: boolean;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -22,6 +24,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   setLinkDistanceMultiplier,
   setRepulsivity,
   setCenteringStrength,
+  setShowJson,
+  showJson,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -40,13 +44,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           <span>Display Settings</span>
         </button>
       {showSettings && (
-        <NetworkControls
+        <DisplaySettings
           linkDistanceMultiplier={linkDistanceMultiplier}
           repulsivity={repulsivity}
           centeringStrength={centeringStrength}
           setLinkDistanceMultiplier={setLinkDistanceMultiplier}
           setRepulsivity={setRepulsivity}
           setCenteringStrength={setCenteringStrength}
+          showJson={showJson}
+          setShowJson={setShowJson}
         />)}
       {repo && (
         <RepoInfo repo={repo} />

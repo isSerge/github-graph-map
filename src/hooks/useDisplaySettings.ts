@@ -1,16 +1,17 @@
 import { useState } from "react";
 
-interface NetworkControlsState {
+interface DisplaySettingsState {
   linkDistanceMultiplier: number;
   repulsivity: number;
   centeringStrength: number;
 }
 
-export function useNetworkControls(initialState: NetworkControlsState = {
+export function useDisplaySettings(initialState: DisplaySettingsState = {
   linkDistanceMultiplier: 1,
   repulsivity: 300,
   centeringStrength: 0.5,
 }) {
+  const [showJson, setShowJson] = useState<boolean>(false);
   const [linkDistanceMultiplier, setLinkDistanceMultiplier] = useState<number>(
     initialState.linkDistanceMultiplier
   );
@@ -28,5 +29,7 @@ export function useNetworkControls(initialState: NetworkControlsState = {
     setLinkDistanceMultiplier,
     setRepulsivity,
     setCenteringStrength,
+    showJson,
+    setShowJson,
   };
 }

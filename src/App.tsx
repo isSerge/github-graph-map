@@ -4,7 +4,7 @@ import { ComputedNode } from '@nivo/network'
 import Network from "./components/Network";
 import Sidebar from "./components/Sidebar";
 import { useGraph } from "./hooks/useGraph";
-import { useNetworkControls } from "./hooks/useNetworkControls";
+import { useDisplaySettings } from "./hooks/useDisplaySettings";
 import { RepoNode } from "./types";
 
 type JsonDisplayProps = {
@@ -33,13 +33,15 @@ const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
   const { fetching, error, graphData, selectedRepo } = useGraph(repoInput);
   const {
+    showJson,
+    setShowJson,
     linkDistanceMultiplier,
     repulsivity,
     centeringStrength,
     setLinkDistanceMultiplier,
     setRepulsivity,
     setCenteringStrength,
-  } = useNetworkControls();
+  } = useDisplaySettings();
 
   // When a repository node is clicked in the network,
   // update repoInput so that the app loads that repository.
@@ -89,13 +91,20 @@ const App: React.FC = () => {
           setLinkDistanceMultiplier={setLinkDistanceMultiplier}
           setRepulsivity={setRepulsivity}
           setCenteringStrength={setCenteringStrength}
+          showJson={showJson}
+          setShowJson={setShowJson}
         />
       </div>
-      {/* JSON Previews */}
-      {selectedRepo && (
-        <JsonDisplay title="Selected Repo" data={selectedRepo} />
+      {selectedRepo && graphData && (
+        <div className="mt-4">
+          {showJson && (
+            <>
+              <JsonDisplay title="Selected Repo" data={selectedRepo} />
+              <JsonDisplay title="Graph Data" data={graphData} />
+            </>
+          )}
+        </div>
       )}
-      {graphData && <JsonDisplay title="Graph Data" data={graphData} />}
     </div>
   );
 };

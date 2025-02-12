@@ -41,6 +41,7 @@ export interface RepoData {
     owner: {
         login: string
     }
+    pushedAt: string
 }
 
 export interface ContributorsWithRepos {

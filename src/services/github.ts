@@ -31,6 +31,7 @@ export const getRepository = async (owner: string, repo: string) => {
         owner {
           login
         }
+        pushedAt
       }
     }
   `;
@@ -83,6 +84,7 @@ type UserContributedReposResponse = {
         owner: {
           login: string;
         };
+        pushedAt: string;
       }[];
     };
   };
@@ -113,6 +115,7 @@ export async function getUserContributedRepos(
             owner {
               login
             }
+            pushedAt
           }
         }
       }

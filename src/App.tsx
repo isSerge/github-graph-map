@@ -42,15 +42,17 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-900 min-h-screen text-white relative">
-      {/* Repository Input */}
-      <input
-        type="text"
-        placeholder="Enter repository (e.g., facebook/react)"
-        value={repoInput}
-        onChange={(e) => setRepoInput(e.target.value)}
-        className="border p-2 rounded w-full mb-4"
-      />
+    <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
+      <header>
+        {/* Repository Input */}
+        <input
+          type="text"
+          placeholder="Enter repository (e.g., facebook/react)"
+          value={repoInput}
+          onChange={(e) => setRepoInput(e.target.value)}
+          className="border p-2 rounded w-full mb-4"
+        />
+      </header>
 
       {/* Loading or Error Message */}
       {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
@@ -58,7 +60,7 @@ const App: React.FC = () => {
 
       {/* Main Network Graph */}
       {graphData && selectedRepo && !fetching && !error && (
-        <div className="h-screen relative">
+        <div className="grow-1 relative">
           {/* Settings Button & Dropdown in the top right */}
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
             <button

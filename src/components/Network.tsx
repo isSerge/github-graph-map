@@ -5,14 +5,15 @@ const networkTheme = {
   background: "#1e2939",
   textColor: "#ffffff",
   linkColor: "#364153",
+  selectedNodeColor: "rgb(255, 230, 0)",
+  repoNodeColor: "rgb(97, 205, 187)",
+  contributorNodeColor: "#f47560",
 };
 
 type Node = RepoNode | ContributorNode;
 
 function isRepoNode(node: Node): node is RepoNode {
-  return (node as RepoNode).stargazerCount !== undefined
-    && (node as RepoNode).name !== undefined
-    && (node as RepoNode).url !== undefined
+  return node.type === "repo";
 }
 
 interface CustomNodeProps extends NodeProps<Node> {
@@ -25,10 +26,9 @@ const NodeComponent = ({ node, onRepoNodeClick }: CustomNodeProps) => {
 
   const handleClick = () => {
     if (isRepository) {
-      // If it's a repo node, update repoInput via callback.
       onRepoNodeClick?.(node as ComputedNode<RepoNode>);
     } else {
-      // For contributor nodes, you might handle this differently.
+      // TODO: handle contributor node click
       console.log("Contributor node clicked", node);
     }
   };
@@ -56,13 +56,26 @@ const NodeComponent = ({ node, onRepoNodeClick }: CustomNodeProps) => {
 }
 
 type NetworkProps = NetworkDataProps<Node, NetworkLink> & {
+  selectedNodeName: string;
   linkDistanceMultiplier?: number;
   repulsivity?: number;
   centeringStrength?: number;
   onRepoNodeClick?: (node: ComputedNode<RepoNode>) => void;
 };
 
+function getNodeColor(selectedNodeId: string, node: Node) {
+  if (isRepoNode(node)) {
+    if (node.id === selectedNodeId) {
+      return networkTheme.selectedNodeColor;
+    }
+    return networkTheme.repoNodeColor;
+  }
+
+  return networkTheme.contributorNodeColor;
+}
+
 const Network = ({
+  selectedNodeName,
   data,
   linkDistanceMultiplier = 1,
   repulsivity = 300,
@@ -75,7 +88,7 @@ const Network = ({
     margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
     // Multiply the default distance by the multiplier
     linkDistance={(e) => e.distance * linkDistanceMultiplier}
-    nodeColor={e => e.color}
+    nodeColor={(node) => getNodeColor(selectedNodeName, node)}
     repulsivity={repulsivity}
     centeringStrength={centeringStrength}
     nodeComponent={(props: NodeProps<Node>) => (

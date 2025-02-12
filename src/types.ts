@@ -2,7 +2,7 @@ import { InputNode, InputLink } from '@nivo/network'
 
 export interface NetworkNode extends InputNode {
     id: string
-    color: string
+    type: string
 }
 
 export interface RepoNode extends NetworkNode {

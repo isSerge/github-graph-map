@@ -69,8 +69,9 @@ const App: React.FC = () => {
 
         {/* Network Graph */}
         <div className="flex-1">
-          {graphData ? (
+          {graphData && selectedRepo ? (
             <Network
+              selectedNodeName={selectedRepo.name}
               data={graphData}
               linkDistanceMultiplier={linkDistanceMultiplier}
               repulsivity={repulsivity}

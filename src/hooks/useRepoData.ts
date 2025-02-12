@@ -11,10 +11,6 @@ import {
   ContributorNode,
 } from "../types";
 
-const REPO_COLOR = "rgb(97, 205, 187)";
-const SELECTED_REPO_COLOR = "rgb(255, 230, 0)";
-const CONTRIBUTOR_COLOR = "#f47560";
-
 function createGraph(
   contributors: ContributorsWithRepos[],
   selectedRepo: RepoData
@@ -26,7 +22,7 @@ function createGraph(
   nodesMap.set(selectedRepo.name, {
     ...selectedRepo,
     id: selectedRepo.name,
-    color: SELECTED_REPO_COLOR,
+    type: "repo",
   });
 
   // For each contributor, add their node and create link from repo to contributor.
@@ -35,8 +31,8 @@ function createGraph(
     if (!nodesMap.has(contributorId)) {
       nodesMap.set(contributorId, {
         id: contributorId,
-        color: CONTRIBUTOR_COLOR,
         login: contributorId,
+        type: "contributor",
       });
     }
 
@@ -55,7 +51,7 @@ function createGraph(
         nodesMap.set(repo.name, {
           ...repo,
           id: repo.name,
-          color: REPO_COLOR,
+          type: "repo",
         });
       }
       const contributorToRepoKey = `${contributorId}-${repo.name}`;

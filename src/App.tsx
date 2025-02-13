@@ -11,7 +11,7 @@ import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
 
 const App = () => {
-  const [repoInput, setInput] = useState<string>("autonomys/subspace");
+  const [repoInput, setInput] = useState<string>("");
   const { fetching, error, graphData, selectedEntity } = useGraph(repoInput);
   const {
     showJson,

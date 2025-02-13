@@ -1,6 +1,7 @@
 import { InputNode, InputLink } from '@nivo/network'
 
 export interface NetworkNode extends InputNode {
+    name: string
     type: "repo" | "contributor"
 }
 
@@ -19,9 +20,31 @@ export interface RepoNode extends NetworkNode {
 }
 
 export interface ContributorNode extends NetworkNode {
-    // TODO: move name to parent
-    name: string
-    // TODO: Add more fields
+    avatarUrl: string;
+    company: string;
+    email: string;
+    followers: {
+      totalCount: number;
+    };
+    following: {
+      totalCount: number;
+    };
+    location: string;
+    login: string;
+    organizations: {
+      nodes: {
+        login: string;
+      }[];
+    };
+    websiteUrl: string;
+    topRepositories: {
+      totalCount: number;
+      nodes: RepoData[];
+    }
+    repositoriesContributedTo: {
+      totalCount: number;
+      nodes: RepoData[];
+    };
 }
 
 export type EitherNode = RepoNode | ContributorNode;
@@ -44,9 +67,4 @@ export interface RepoData {
         login: string
     }
     pushedAt: string
-}
-
-export interface ContributorsWithRepos {
-    login: string;
-    contributedRepos: RepoData[];
 }

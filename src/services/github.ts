@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import { ContributorsWithRepos, RepoData } from "../types";
+import { RepoData } from "../types";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -80,9 +80,31 @@ export async function getRepoContributors(
 /**
  * GraphQL response type for fetching contributed repositories.
  */
-type UserContributedReposResponse = {
+export type UserContributedReposResponse = {
   user: {
+    avatarUrl: string;
+    company: string;
+    email: string;
+    followers: {
+      totalCount: number;
+    };
+    following: {
+      totalCount: number;
+    };
+    location: string;
+    login: string;
+    organizations: {
+      nodes: {
+        login: string;
+      }[];
+    };
+    websiteUrl: string;
+    topRepositories: {
+      totalCount: number;
+      nodes: RepoData[];
+    }
     repositoriesContributedTo: {
+      totalCount: number;
       nodes: RepoData[];
     };
   };
@@ -94,35 +116,53 @@ type UserContributedReposResponse = {
  * @param username - The GitHub username.
  * @returns A promise resolving to an array of repositories with id, name, and stargazerCount.
  */
-export async function getUserContributedRepos(
+export async function getContributorData(
   username: string
-): Promise<RepoData[]> {
+): Promise<UserContributedReposResponse["user"]> {
   const query = `
-    query getUserContributedRepos($username: String!) {
+    query getContributorData($username: String!) {
       user(login: $username) {
+        avatarUrl
+        company
+        email
+        followers {
+          totalCount
+        }
+        following {
+          totalCount
+        }
+        location
+        login
+        organizations(first: 5) {
+          nodes {
+            login
+          }
+        }
+        websiteUrl
         repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
+          totalCount
           nodes {
             ${repositoryFields}
           }
+        }
+        topRepositories(first: 5, orderBy: { field: STARGAZERS, direction: DESC }) {
+          totalCount
+          nodes {
+            ${repositoryFields}
+          } 
         }
       }
     }
   `;
 
-  try {
-    const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
-    
-    // If no user found, return an empty array.
-    if (!data.user) {
-      return [];
-    }
+  const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
   
-    return data.user.repositoriesContributedTo.nodes;
-  } catch (error) {
-    console.error(error);
-    return [];
+  // If no user found, return an empty array.
+  if (!data.user) {
+    throw new Error("User not found");
   }
 
+  return data.user;
 }
 
 /**
@@ -138,18 +178,16 @@ export async function getUserContributedRepos(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string
-): Promise<ContributorsWithRepos[]> {
+): Promise<UserContributedReposResponse["user"][]> {
   // 1. Get all contributors from the repository using REST
   const contributors = await getRepoContributors(repoOwner, repoName);
 
   // 2. For each contributor, fetch their contributed repositories via GraphQL
   const results = await Promise.all(
     contributors.map(async (contributor) => {
-      const contributedRepos = (await getUserContributedRepos(contributor.login)).sort((a, b) => b.stargazerCount - a.stargazerCount);
-      return {
-        login: contributor.login,
-        contributedRepos,
-      };
+      const user = await getContributorData(contributor.login);
+      // const contributedRepos = user.repositoriesContributedTo.nodes.sort((a, b) => b.stargazerCount - a.stargazerCount);
+      return user;
     })
   );
 

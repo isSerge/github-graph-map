@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import {
   getRepoContributorsWithContributedRepos,
   getRepository,
-  getUserContributedRepos,
+  getContributorData,
+  UserContributedReposResponse,
 } from "../services/github";
 import {
   NetworkLink,
   RepoData,
-  ContributorsWithRepos,
   RepoNode,
   ContributorNode,
   EitherNode,
@@ -15,25 +15,19 @@ import {
 
 // Helper: Create graph in repository mode.
 function createRepoGraph(
-  contributors: ContributorsWithRepos[],
-  selectedRepo: RepoData
+  contributors: UserContributedReposResponse["user"][],
+  centralRepo: RepoNode,
 ) {
   const nodesMap = new Map<string, RepoNode | ContributorNode>();
   const linksMap = new Map<string, NetworkLink>();
 
-  // Central repository node: use full name as node name.
-  const centralRepo: RepoNode = {
-    ...selectedRepo,
-    id: selectedRepo.name,
-    type: "repo",
-    name: `${selectedRepo.owner.login}/${selectedRepo.name}`,
-  };
   nodesMap.set(centralRepo.id, centralRepo);
 
   contributors.forEach((contributor) => {
     const contributorId = contributor.login;
     if (!nodesMap.has(contributorId)) {
       nodesMap.set(contributorId, {
+        ...contributor,
         id: contributorId,
         name: contributorId,
         type: "contributor",
@@ -48,7 +42,7 @@ function createRepoGraph(
       });
     }
     // For each repo the contributor worked on:
-    contributor.contributedRepos.forEach((repo) => {
+    contributor.repositoriesContributedTo.nodes.forEach((repo) => {
       const repoNode: RepoNode = {
         ...repo,
         id: repo.name,
@@ -73,17 +67,18 @@ function createRepoGraph(
 }
 
 // Helper: Create graph in user mode.
-function createUserGraph(repos: RepoData[], username: string) {
+function createUserGraph(repos: RepoData[], contributor: ContributorNode) {
   const nodesMap = new Map<string, EitherNode>();
   const linksMap = new Map<string, NetworkLink>();
 
   // Central user node.
   const userNode: ContributorNode = {
-    id: username,
-    name: username,
+    ...contributor,
+    id: contributor.name,
+    name: contributor.name,
     type: "contributor",
   };
-  nodesMap.set(username, userNode);
+  nodesMap.set(contributor.name, userNode);
 
   repos.forEach((repo) => {
     const repoNode: RepoNode = {
@@ -93,8 +88,8 @@ function createUserGraph(repos: RepoData[], username: string) {
       name: `${repo.owner.login}/${repo.name}`,
     };
     nodesMap.set(repoNode.id, repoNode);
-    linksMap.set(`${username}-${repoNode.id}`, {
-      source: username,
+    linksMap.set(`${contributor.id}-${repoNode.id}`, {
+      source: contributor.id,
       target: repoNode.id,
       distance: 100,
     });
@@ -118,20 +113,22 @@ async function fetchRepoGraph(input: string) {
     type: "repo",
     name: `${owner}/${name}`,
   };
-  const graph = createRepoGraph(contributors, repository);
+
+  const graph = createRepoGraph(contributors, selectedEntity);
   return { selectedEntity, graph };
 }
 
 // Helper: Fetch graph data when input is in user mode.
 async function fetchUserGraph(username: string) {
-  const repos = await getUserContributedRepos(username);
-  const graph = createUserGraph(repos, username);
+  const contributor = await getContributorData(username);
   // Create a central user node.
   const selectedEntity: ContributorNode = {
+    ...contributor,
     id: username,
     name: username,
     type: "contributor",
   };
+  const graph = createUserGraph(contributor.repositoriesContributedTo.nodes, selectedEntity);
   return { selectedEntity, graph };
 }
 

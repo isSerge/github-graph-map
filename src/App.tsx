@@ -9,6 +9,7 @@ import { EitherNode } from "./types";
 import { useOnClickOutside } from "./hooks/useOnClickOutside";
 import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
+import ExploreLists from "./components/ExploreLists";
 
 const App = () => {
   const [repoInput, setInput] = useState<string>("");
@@ -103,6 +104,11 @@ const App = () => {
       {/* Loading or Error Message */}
       {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
+
+      {/* Explore Lists */}
+      {!fetching && !error && !selectedEntity && (
+        <ExploreLists onSelect={(node: EitherNode) => setInput(node.name)} />
+      )}
 
       {/* Main Network Graph */}
       {graphData && selectedEntity && !fetching && !error && (

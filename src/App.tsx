@@ -93,7 +93,7 @@ const App = () => {
         {/* Repository Input */}
         <input
           type="text"
-          placeholder="Enter repository (e.g., facebook/react)"
+          placeholder="Enter repository (e.g., facebook/react) or user (e.g., torvalds)"
           value={repoInput}
           onChange={(e) => setInput(e.target.value)}
           className="border p-2 rounded w-full mb-4"

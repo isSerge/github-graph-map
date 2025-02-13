@@ -15,7 +15,7 @@ const RepoInfo = ({ repo, onSeeGraph }: RepoInfoProps) => {
           <span className="text-5xl">📦</span>
         </div>
         {/* Details Section */}
-        <div className="p-6">
+        <div className="p-6 grow">
           <h2 className="text-2xl font-bold text-white mb-3">
             {repo.name}
           </h2>
@@ -34,7 +34,7 @@ const RepoInfo = ({ repo, onSeeGraph }: RepoInfoProps) => {
           {repo.description && (
             <p className="text-gray-300 mb-4">{repo.description}</p>
           )}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <button
               onClick={onSeeGraph}
               className="flex-1 text-center px-6 py-3 bg-yellow-500 text-white font-bold rounded shadow-lg hover:bg-yellow-400 transition-colors duration-300"

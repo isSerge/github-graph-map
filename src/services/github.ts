@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import { RepoData } from "../types";
+import { RepoBase } from "../types";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -47,7 +47,7 @@ export const getRepository = async (owner: string, repo: string) => {
     }
   `;
 
-  return graphqlWithAuth<{ repository: RepoData }>(query, { owner, repo });
+  return graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo });
 }
 
 /**
@@ -101,11 +101,11 @@ export type UserContributedReposResponse = {
     websiteUrl: string;
     topRepositories: {
       totalCount: number;
-      nodes: RepoData[];
+      nodes: RepoBase[];
     }
     repositoriesContributedTo: {
       totalCount: number;
-      nodes: RepoData[];
+      nodes: RepoBase[];
     };
   };
 };

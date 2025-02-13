@@ -7,7 +7,7 @@ import {
 } from "../services/github";
 import {
   NetworkLink,
-  RepoData,
+  RepoBase,
   RepoNode,
   ContributorNode,
   EitherNode,
@@ -67,7 +67,7 @@ function createRepoGraph(
 }
 
 // Helper: Create graph in user mode.
-function createUserGraph(repos: RepoData[], contributor: ContributorNode) {
+function createUserGraph(repos: RepoBase[], contributor: ContributorNode) {
   const nodesMap = new Map<string, EitherNode>();
   const linksMap = new Map<string, NetworkLink>();
 

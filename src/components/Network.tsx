@@ -30,7 +30,7 @@ const NodeComponent = ({ node, onNodeClick }: CustomNodeProps) => {
     <g transform={`translate(${node.x},${node.y})`} style={commonStyle} onClick={handleClick}>
       <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
       <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-        {node.data.name}
+        {node.data.name.split("/")[1]}
       </text>
     </g>
   )

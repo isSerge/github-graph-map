@@ -125,9 +125,6 @@ async function fetchRepoGraph(input: string) {
 // Helper: Fetch graph data when input is in user mode.
 async function fetchUserGraph(username: string) {
   const repos = await getUserContributedRepos(username);
-  if (repos.length === 0) {
-    throw new Error("No contributed repositories found for this user.");
-  }
   const graph = createUserGraph(repos, username);
   // Create a central user node.
   const selectedEntity: ContributorNode = {

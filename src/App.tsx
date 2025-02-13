@@ -62,7 +62,7 @@ const App = () => {
   }, [selectedEntity]);
 
   // Undo: go to the previous node in history.
-  const nandlePrev = () => {
+  const handlePrev = () => {
     if (currentHistoryIndex > 0) {
       const newIndex = currentHistoryIndex - 1;
       setCurrentHistoryIndex(newIndex);
@@ -140,7 +140,7 @@ const App = () => {
           {/* Prev/Next Arrows */}
           <div className="absolute top-4 left-4 flex gap-4 z-20">
             <button
-              onClick={nandlePrev}
+              onClick={handlePrev}
               disabled={currentHistoryIndex <= 0}
               className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >

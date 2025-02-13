@@ -109,7 +109,11 @@ const App: React.FC = () => {
 
       {/* Modal for node details */}
       {modalNode && (
-        <NodeModal node={modalNode} onClose={() => setModalNode(null)} />
+        <NodeModal 
+          node={modalNode} 
+          onClose={() => setModalNode(null)} 
+          onSeeGraph={(nodeName) => setRepoInput(nodeName)} 
+        />
       )}
     </div>
   );

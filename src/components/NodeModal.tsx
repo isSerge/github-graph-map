@@ -9,9 +9,10 @@ import ContributorInfo from "./ContributorInfo";
 interface NodeModalProps {
     node: ComputedNode<EitherNode>;
     onClose: () => void;
+    onSeeGraph: (nodeName: string) => void;
 }
 
-const NodeModal = ({ node, onClose }: NodeModalProps) => {
+const NodeModal = ({ node, onClose, onSeeGraph }: NodeModalProps) => {
     const modalRef = useRef<HTMLDivElement>(null);
     useOnClickOutside(modalRef, onClose);
 
@@ -19,13 +20,19 @@ const NodeModal = ({ node, onClose }: NodeModalProps) => {
         return node.data.type === "repo";
     };
 
+    const handleSeeGraph = () => {
+        const nodeName = isRepoNode(node) ? `${node.data.owner.login}/${node.data.name}` : (node.data as ContributorNode).login;
+        onSeeGraph(nodeName);
+        onClose();
+    }
+
     return (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
             <div ref={modalRef} className="shadow-lg max-w-lg w-full relative">
                 {isRepoNode(node) ? (
-                    <RepoInfo repo={node.data} />
+                    <RepoInfo repo={node.data} onSeeGraph={handleSeeGraph} />
                 ) : (
-                    <ContributorInfo contributor={node.data as ContributorNode} />
+                    <ContributorInfo contributor={node.data as ContributorNode} onSeeGraph={handleSeeGraph} />
                 )}
             </div>
         </div>

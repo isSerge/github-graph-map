@@ -18,7 +18,7 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGra
                 {/* Details Section */}
                 <div className="p-6">
                     <h2 className="text-2xl font-bold text-white mb-3">
-                        {contributor.login}
+                        {contributor.name}
                     </h2>
                     {/* <p className="text-gray-300 mb-2">
             <span className="font-semibold">Contributed Repos: </span>
@@ -44,7 +44,7 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGra
                             See Graph
                         </button>
                         <a
-                            href={`https://github.com/${contributor.login}`}
+                            href={`https://github.com/${contributor.name}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-400 transition-colors"

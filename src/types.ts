@@ -1,12 +1,10 @@
 import { InputNode, InputLink } from '@nivo/network'
 
 export interface NetworkNode extends InputNode {
-    id: string
-    type: string
+    type: "repo" | "contributor"
 }
 
 export interface RepoNode extends NetworkNode {
-    id: string
     name: string
     stargazerCount: number
     description: string
@@ -21,7 +19,9 @@ export interface RepoNode extends NetworkNode {
 }
 
 export interface ContributorNode extends NetworkNode {
-    login: string
+    // TODO: move name to parent
+    name: string
+    // TODO: Add more fields
 }
 
 export type EitherNode = RepoNode | ContributorNode;
@@ -33,7 +33,6 @@ export interface NetworkLink extends InputLink {
 }
 
 export interface RepoData {
-    id: string
     name: string
     stargazerCount: number
     description: string

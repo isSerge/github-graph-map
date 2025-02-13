@@ -21,8 +21,7 @@ const NodeModal = ({ node, onClose, onSeeGraph }: NodeModalProps) => {
     };
 
     const handleSeeGraph = () => {
-        const nodeName = isRepoNode(node) ? `${node.data.owner.login}/${node.data.name}` : (node.data as ContributorNode).login;
-        onSeeGraph(nodeName);
+        onSeeGraph(node.data.name);
         onClose();
     }
 

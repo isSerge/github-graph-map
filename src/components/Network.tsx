@@ -30,7 +30,7 @@ const NodeComponent = ({ node, onNodeClick }: CustomNodeProps) => {
     <g transform={`translate(${node.x},${node.y})`} style={commonStyle} onClick={handleClick}>
       <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
       <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-        {node.id}
+        {node.data.name}
       </text>
     </g>
   )
@@ -40,7 +40,7 @@ const NodeComponent = ({ node, onNodeClick }: CustomNodeProps) => {
       <circle cx="12" cy="8" r="5" fill={node.color} stroke={networkTheme.linkColor} />
       <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke={networkTheme.linkColor} />
       <text x="12" y="32" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-        {node.id}
+        {node.data.name}
       </text>
     </g>
   );
@@ -56,11 +56,10 @@ type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 };
 
-function getNodeColor(selectedNodeId: string, node: EitherNode) {
-  if (isRepoNode(node)) {
-    if (node.id === selectedNodeId) {
-      return networkTheme.selectedNodeColor;
-    }
+function getNodeColor(selectedNodeName: string, node: EitherNode) {
+  if (node.name === selectedNodeName) {
+    return networkTheme.selectedNodeColor;
+  } else if (isRepoNode(node)) {
     return networkTheme.repoNodeColor;
   }
 

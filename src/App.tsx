@@ -12,7 +12,7 @@ import NodeModal from "./components/NodeModal";
 
 const App: React.FC = () => {
   const [repoInput, setRepoInput] = useState<string>("autonomys/subspace");
-  const { fetching, error, graphData, selectedRepo } = useGraph(repoInput);
+  const { fetching, error, graphData, selectedEntity } = useGraph(repoInput);
   const {
     showJson,
     setShowJson,
@@ -58,7 +58,7 @@ const App: React.FC = () => {
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       {/* Main Network Graph */}
-      {graphData && selectedRepo && !fetching && !error && (
+      {graphData && selectedEntity && !fetching && !error && (
         <div className="h-screen relative">
           {/* Settings Button & Dropdown in the top right */}
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
@@ -85,7 +85,7 @@ const App: React.FC = () => {
           </div>
 
           <Network
-            selectedNodeName={selectedRepo.name}
+            selectedNodeName={selectedEntity.name}
             data={graphData}
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}
@@ -96,11 +96,11 @@ const App: React.FC = () => {
       )}
 
       {/* Optional JSON displays */}
-      {selectedRepo && graphData && (
+      {selectedEntity && graphData && (
         <div className="mt-4">
           {showJson && (
             <>
-              <JsonDisplay title="Selected Repo" data={selectedRepo} />
+              <JsonDisplay title="Selected Repo" data={selectedEntity} />
               <JsonDisplay title="Graph Data" data={graphData} />
             </>
           )}

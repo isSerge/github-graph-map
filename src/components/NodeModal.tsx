@@ -9,10 +9,10 @@ import ContributorInfo from "./ContributorInfo";
 interface NodeModalProps {
     node: ComputedNode<EitherNode>;
     onClose: () => void;
-    onSeeGraph: (nodeName: string) => void;
+    onExploreGraph: (nodeName: string) => void;
 }
 
-const NodeModal = ({ node, onClose, onSeeGraph }: NodeModalProps) => {
+const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
     const modalRef = useRef<HTMLDivElement>(null);
     useOnClickOutside(modalRef, onClose);
 
@@ -20,8 +20,8 @@ const NodeModal = ({ node, onClose, onSeeGraph }: NodeModalProps) => {
         return node.data.type === "repo";
     };
 
-    const handleSeeGraph = () => {
-        onSeeGraph(node.data.name);
+    const handleExploreGraph = () => {
+        onExploreGraph(node.data.name);
         onClose();
     }
 
@@ -29,9 +29,9 @@ const NodeModal = ({ node, onClose, onSeeGraph }: NodeModalProps) => {
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
             <div ref={modalRef} className="shadow-lg max-w-lg w-full relative">
                 {isRepoNode(node) ? (
-                    <RepoInfo repo={node.data} onSeeGraph={handleSeeGraph} />
+                    <RepoInfo repo={node.data} onExploreGraph={handleExploreGraph} />
                 ) : (
-                    <ContributorInfo contributor={node.data as ContributorNode} onSeeGraph={handleSeeGraph} />
+                    <ContributorInfo contributor={node.data as ContributorNode} onExploreGraph={handleExploreGraph} />
                 )}
             </div>
         </div>

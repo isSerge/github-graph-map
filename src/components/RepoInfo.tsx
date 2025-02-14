@@ -5,10 +5,10 @@ import { formatNumber } from "../utils";
 
 interface RepoInfoProps {
   repo: RepoNode;
-  onSeeGraph: () => void;
+  onExploreGraph: () => void;
 }
 
-const RepoInfo = ({ repo, onSeeGraph }: RepoInfoProps) => {
+const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       <div className="md:flex">
@@ -38,10 +38,10 @@ const RepoInfo = ({ repo, onSeeGraph }: RepoInfoProps) => {
           )}
           <div className="flex gap-2 mt-4">
             <button
-              onClick={onSeeGraph}
+              onClick={onExploreGraph}
               className="flex-1 text-center px-6 py-3 bg-yellow-500 text-white font-bold rounded shadow-lg hover:bg-yellow-400 transition-colors duration-300"
             >
-              See Graph
+              Explore Graph
             </button>
             <a
               href={repo.url}

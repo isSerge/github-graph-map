@@ -5,10 +5,10 @@ import { formatNumber } from "../utils";
 
 interface ContributorInfoProps {
   contributor: ContributorNode;
-  onSeeGraph: () => void;
+  onExploreGraph: () => void;
 }
 
-const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGraph }) => {
+const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onExploreGraph }) => {
     // Compute the most recent contribution date from repositoriesContributedTo
   const lastContributionDate = 
   contributor.repositoriesContributedTo &&
@@ -85,10 +85,10 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGra
           </div>
           <div className="mt-4 flex gap-2">
             <button
-              onClick={onSeeGraph}
+              onClick={onExploreGraph}
               className="flex-1 text-center px-6 py-3 bg-yellow-500 text-white font-bold rounded shadow-lg hover:bg-yellow-400 transition-colors duration-300"
             >
-              See Graph
+              Explore Graph
             </button>
             <a
               href={`https://github.com/${contributor.login}`}

@@ -183,7 +183,7 @@ const App = () => {
         <NodeModal 
           node={modalNode} 
           onClose={() => setModalNode(null)} 
-          onSeeGraph={(nodeName) => setInput(nodeName)} 
+          onExploreGraph={(nodeName) => setInput(nodeName)} 
         />
       )}
     </div>

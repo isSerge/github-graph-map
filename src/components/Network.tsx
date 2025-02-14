@@ -18,35 +18,32 @@ interface CustomNodeProps extends NodeProps<EitherNode> {
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 }
 
-const NodeComponent = ({ node, onNodeClick }: CustomNodeProps) => {
-  const isRepository = isRepoNode(node.data);
-  const commonStyle = { cursor: 'pointer' };
+const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => (
+  <g
+    transform={`translate(${node.x},${node.y})`}
+    style={{ cursor: 'pointer' }}
+    onClick={() => onNodeClick?.(node)}
+  >
+    <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
+    <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
+      {node.data.name.split("/")[1]}
+    </text>
+  </g>
+);
 
-  const handleClick = () => {
-      onNodeClick?.(node);
-  };
-
-  const repoNode = (
-    <g transform={`translate(${node.x},${node.y})`} style={commonStyle} onClick={handleClick}>
-      <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
-      <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-        {node.data.name.split("/")[1]}
-      </text>
-    </g>
-  )
-
-  const contributorNode = (
-    <g transform={`translate(${node.x - 12},${node.y - 18})`} style={commonStyle} onClick={handleClick}>
-      <circle cx="12" cy="8" r="5" fill={node.color} stroke={networkTheme.linkColor} />
-      <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke={networkTheme.linkColor} />
-      <text x="12" y="32" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-        {node.data.name}
-      </text>
-    </g>
-  );
-
-  return isRepository ? repoNode : contributorNode;
-}
+const ContributorNode = ({ node, onNodeClick }: CustomNodeProps) => (
+  <g
+    transform={`translate(${node.x - 12},${node.y - 18})`}
+    style={{ cursor: 'pointer' }}
+    onClick={() => onNodeClick?.(node)}
+  >
+    <circle cx="12" cy="8" r="5" fill={node.color} stroke={networkTheme.linkColor} />
+    <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke={networkTheme.linkColor} />
+    <text x="12" y="32" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
+      {node.data.name}
+    </text>
+  </g>
+);
 
 type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
   selectedNodeName: string;
@@ -83,10 +80,11 @@ const Network = ({
     nodeColor={(node) => getNodeColor(selectedNodeName, node)}
     repulsivity={repulsivity}
     centeringStrength={centeringStrength}
-    nodeComponent={(props: NodeProps<EitherNode>) => (
-      <NodeComponent {...props} onNodeClick={onNodeClick} />
-    )}
-    onClick={(node) => console.log(node)}
+    nodeComponent={(props: NodeProps<EitherNode>) => 
+      isRepoNode(props.node.data) 
+      ? <RepositoryNode {...props} onNodeClick={onNodeClick} /> 
+      : <ContributorNode {...props} onNodeClick={onNodeClick} />
+    }
     nodeSize={10}
     linkColor={networkTheme.linkColor}
   />

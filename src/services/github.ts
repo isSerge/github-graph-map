@@ -1,13 +1,7 @@
-import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
 import { RepoBase } from "../types";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
-
-// Initialize REST API client
-const octokit = new Octokit({
-  auth: githubToken,
-});
 
 // Initialize GraphQL client with authentication
 const graphqlWithAuth = graphql.defaults({
@@ -46,35 +40,75 @@ export const getRepository = async (owner: string, repo: string) => {
       }
     }
   `;
-
   return graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo });
 }
 
+interface GetRecentCommitAuthorsResponse {
+  repository: {
+    defaultBranchRef: {
+      target: {
+        history: {
+          nodes: {
+            author: {
+              user: {
+                login: string;
+              }
+            }
+          }[];
+        };
+      };
+    };
+  };
+}
+
 /**
- * Uses the REST API to fetch all contributors for a given repository.
+ * Uses GraphQL to fetch recent commits (last 7 days) for a given repository
+ * and extracts unique commit authors.
  *
  * @param repoOwner - The owner of the repository.
  * @param repoName - The repository name.
- * @returns A promise resolving to an array of contributor objects
+ * @returns A promise resolving to an array of commit author objects (with login).
  */
-export async function getRepoContributors(
+export async function getRecentCommitAuthors(
   repoOwner: string,
   repoName: string
 ): Promise<{ login: string }[]> {
-  const response = await octokit.rest.repos.listContributors({
-    owner: repoOwner,
-    repo: repoName,
-    per_page: 10, // adjust if necessary
-  });
+  // Calculate date 30 days ago in ISO format.
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const query = `
+    query getRecentCommits($owner: String!, $name: String!, $since: GitTimestamp!) {
+      repository(owner: $owner, name: $name) {
+        defaultBranchRef {
+          target {
+            ... on Commit {
+              history(since: $since, first: 100) {
+                nodes {
+                  author {
+                    user {
+                      login
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  const result = await graphqlWithAuth<GetRecentCommitAuthorsResponse>(query, { owner: repoOwner, name: repoName, since });
+  const history = result.repository?.defaultBranchRef?.target?.history;
+  const nodes = history?.nodes || [];
 
-  // Filter out potential bot accounts.
-  const filteredContributors = response.data.filter((contributor) => {
-    if (!contributor.login) return false;
-    return !contributor.login.toLowerCase().endsWith("[bot]");
+  // Use a set to collect unique contributor logins
+  const contributorLogins = new Set<string>();
+  nodes.forEach((commit) => {
+    const login = commit.author?.user?.login;
+    if (login) {
+      contributorLogins.add(login);
+    }
   });
-
-  // Map to only the fields you need
-  return filteredContributors.map((contributor) => ({ login: contributor.login ??  "Unknown" }));
+  return Array.from(contributorLogins).map(login => ({ login }));
 }
 
 /**
@@ -102,7 +136,7 @@ export type UserContributedReposResponse = {
     topRepositories: {
       totalCount: number;
       nodes: RepoBase[];
-    }
+    };
     repositoriesContributedTo: {
       totalCount: number;
       nodes: RepoBase[];
@@ -114,7 +148,7 @@ export type UserContributedReposResponse = {
  * Uses GraphQL to fetch repositories that the given user has contributed to.
  *
  * @param username - The GitHub username.
- * @returns A promise resolving to an array of repositories with id, name, and stargazerCount.
+ * @returns A promise resolving to the user’s data including contributed repositories.
  */
 export async function getContributorData(
   username: string
@@ -149,47 +183,39 @@ export async function getContributorData(
           totalCount
           nodes {
             ${repositoryFields}
-          } 
+          }
         }
       }
     }
   `;
-
   const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
-  
-  // If no user found, return an empty array.
   if (!data.user) {
     throw new Error("User not found");
   }
-
   return data.user;
 }
 
 /**
  * For a given repository (by owner and name), this function:
- * 1. Fetches all contributors using the REST API.
- * 2. For each contributor, uses GraphQL to fetch all repositories they've contributed to.
+ * 1. Fetches recent commit authors using GraphQL.
+ * 2. For each author, uses GraphQL to fetch the repositories they've contributed to.
  *
  * @param repoOwner - The owner of the repository.
  * @param repoName - The repository name.
- * @returns A promise resolving to an array where each element contains the contributor's login and
- *          an array of repositories they have contributed to.
+ * @returns A promise resolving to an array where each element contains the contributor’s detailed data.
  */
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string
 ): Promise<UserContributedReposResponse["user"][]> {
-  // 1. Get all contributors from the repository using REST
-  const contributors = await getRepoContributors(repoOwner, repoName);
-
-  // 2. For each contributor, fetch their contributed repositories via GraphQL
+  // 1. Get recent commit authors from the repository using GraphQL.
+  const contributors = await getRecentCommitAuthors(repoOwner, repoName);
+  // 2. For each contributor, fetch their contributed repositories via GraphQL.
   const results = await Promise.all(
     contributors.map(async (contributor) => {
       const user = await getContributorData(contributor.login);
-      // const contributedRepos = user.repositoriesContributedTo.nodes.sort((a, b) => b.stargazerCount - a.stargazerCount);
       return user;
     })
   );
-
   return results;
 }

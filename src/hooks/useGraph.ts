@@ -105,6 +105,7 @@ async function fetchRepoGraph(input: string) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
   const { repository } = await getRepository(owner, name);
+  // Get recent commit authors using GraphQL.
   const contributors = await getRepoContributorsWithContributedRepos(owner, name);
   // Our central repo node will have a name like "owner/repo"
   const selectedEntity: RepoNode = {

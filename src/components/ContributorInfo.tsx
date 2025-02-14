@@ -1,5 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
+
 import { ContributorNode } from "../types";
+import { formatNumber } from "../utils";
 
 interface ContributorInfoProps {
   contributor: ContributorNode;
@@ -51,11 +53,11 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGra
             )}
             <p className="text-gray-300 mb-1">
               <span className="font-semibold">Followers: </span>
-              {contributor.followers.totalCount}
+              {formatNumber(contributor.followers.totalCount)}
             </p>
             <p className="text-gray-300 mb-1">
               <span className="font-semibold">Following: </span>
-              {contributor.following.totalCount}
+              {formatNumber(contributor.following.totalCount)}
             </p>
             {contributor.websiteUrl && (
               <p className="text-gray-300 mb-1">
@@ -72,7 +74,7 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onSeeGra
             )}
             <p className="text-gray-300 mb-1">
               <span className="font-semibold">Repos Contributed To: </span>
-              {contributor.repositoriesContributedTo.totalCount}
+              {formatNumber(contributor.repositoriesContributedTo.totalCount)}
             </p>
             {lastContributionDate && (
               <p className="text-gray-300 mb-1">

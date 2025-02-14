@@ -1,4 +1,5 @@
 import { RepoNode, ContributorNode, EitherNode } from "../types";
+import { formatNumber } from "../utils";
 
 interface ExploreListsProps {
   onSelect: (node: EitherNode) => void;
@@ -102,7 +103,7 @@ const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
               <div>
                 <p className="font-bold text-white">{contributor.login}</p>
                 <p className="text-gray-300 text-sm">
-                  Followers: {contributor.followers.totalCount}
+                  Followers: {formatNumber(contributor.followers.totalCount)}
                 </p>
               </div>
             </li>

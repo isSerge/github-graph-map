@@ -80,10 +80,10 @@ const Network = ({
     nodeColor={(node) => getNodeColor(selectedNodeName, node)}
     repulsivity={repulsivity}
     centeringStrength={centeringStrength}
-    nodeComponent={(props: NodeProps<EitherNode>) => 
-      isRepoNode(props.node.data) 
-      ? <RepositoryNode {...props} onNodeClick={onNodeClick} /> 
-      : <ContributorNode {...props} onNodeClick={onNodeClick} />
+    nodeComponent={(props: NodeProps<EitherNode>) =>
+      isRepoNode(props.node.data)
+        ? <RepositoryNode {...props} onNodeClick={onNodeClick} />
+        : <ContributorNode {...props} onNodeClick={onNodeClick} />
     }
     nodeSize={10}
     linkColor={networkTheme.linkColor}

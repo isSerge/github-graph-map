@@ -1,5 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
+
 import { RepoNode } from "../types";
+import { formatNumber } from "../utils";
 
 interface RepoInfoProps {
   repo: RepoNode;
@@ -20,7 +22,7 @@ const RepoInfo = ({ repo, onSeeGraph }: RepoInfoProps) => {
             {repo.name}
           </h2>
           <p className="text-gray-300 mb-2">
-            {repo.stargazerCount}
+            {formatNumber(repo.stargazerCount)}
             <span className="font-semibold"> ⭐</span>
           </p>
           <p className="text-gray-300 mb-2">

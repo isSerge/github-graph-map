@@ -36,6 +36,10 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
           {repo.description && (
             <p className="text-gray-300 mb-4">{repo.description}</p>
           )}
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"} </span>
+            CONTRIBUTING.md
+          </p>
           <div className="flex gap-2 mt-4">
             <button
               onClick={onExploreGraph}

@@ -13,6 +13,9 @@ export interface RepoBase {
     login: string;
   };
   pushedAt: string;
+  contributingFile?: {
+    __typename: string;
+  }
 }
 
 // Common network node interface.

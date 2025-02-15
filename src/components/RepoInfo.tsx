@@ -33,6 +33,9 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
             {formatNumber(repo.stargazerCount)}
             <span className="font-semibold"> ⭐</span>
           </p>
+          {repo.description && (
+            <p className="text-gray-300 mb-2">{repo.description}</p>
+          )}
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">Primary Language: </span>
             {repo.primaryLanguage.name}
@@ -41,16 +44,17 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
             <span className="font-semibold">Pushed at: </span>
             {formatDistanceToNow(new Date(repo.pushedAt), { addSuffix: true })}
           </p>
-          {repo.description && (
-            <p className="text-gray-300 mb-4">{repo.description}</p>
-          )}
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"} </span>
-            CONTRIBUTING.md
+            <span className="font-semibold">New issues (7d): </span>
+            {repo.issues.totalCount}
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">{hasBeginnerFriendlyLabel(repo.labels.nodes) ? "✅" : "❌"} </span>
             {goodFirstIssue} | {helpWanted} | {beginnerFriendly}
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"} </span>
+            CONTRIBUTING.md
           </p>
           <div className="flex gap-2 mt-4">
             <button

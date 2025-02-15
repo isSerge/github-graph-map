@@ -22,6 +22,12 @@ export interface RepoBase {
       color: string;
     }[];
   }
+  issues: {
+    totalCount: number;
+    nodes: {
+      createdAt: string;
+    }[];
+  }
 }
 
 // Common network node interface.

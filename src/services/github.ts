@@ -32,6 +32,12 @@ const repositoryFields = `
       color
     }
   }
+  issues(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+    totalCount
+    nodes {
+      createdAt
+    }
+  }
 `;
 
 /**
@@ -42,6 +48,8 @@ const repositoryFields = `
  * @returns A promise resolving to the repository data.
  */
 export const getRepository = async (owner: string, repo: string) => {
+  // Calculate date 7 days ago in ISO format.
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const query = `
     query getRepository($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
@@ -49,7 +57,20 @@ export const getRepository = async (owner: string, repo: string) => {
       }
     }
   `;
-  return graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo });
+
+  const result = await graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo });
+
+  const recentIssues = result.repository.issues.nodes.filter(
+    (issue) => new Date(issue.createdAt) > new Date(since)
+  );
+
+  return {
+    ...result.repository,
+    issues: {
+      totalCount: recentIssues.length,
+      nodes: recentIssues,
+    }
+  }
 }
 
 interface GetRecentCommitAuthorsResponse {

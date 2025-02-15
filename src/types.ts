@@ -28,6 +28,7 @@ export interface RepoBase {
       createdAt: string;
     }[];
   }
+  forkCount: number;
 }
 
 // Common network node interface.

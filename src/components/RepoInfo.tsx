@@ -30,8 +30,12 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
             {repo.name}
           </h2>
           <p className="text-gray-300 mb-2">
+            <span className="font-semibold">⭐ </span>
             {formatNumber(repo.stargazerCount)}
-            <span className="font-semibold"> ⭐</span>
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">🍴 </span>
+            {formatNumber(repo.forkCount)}
           </p>
           {repo.description && (
             <p className="text-gray-300 mb-2">{repo.description}</p>

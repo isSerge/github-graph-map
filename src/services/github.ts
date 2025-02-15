@@ -38,6 +38,7 @@ const repositoryFields = `
       createdAt
     }
   }
+  forkCount
 `;
 
 /**

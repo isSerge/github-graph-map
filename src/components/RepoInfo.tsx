@@ -29,35 +29,41 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
           <h2 className="text-2xl font-bold text-white mb-3">
             {repo.name}
           </h2>
-          <p className="text-gray-300 mb-2">
-            <span className="font-semibold">⭐ </span>
-            {formatNumber(repo.stargazerCount)}
-          </p>
-          <p className="text-gray-300 mb-2">
-            <span className="font-semibold">🍴 </span>
-            {formatNumber(repo.forkCount)}
-          </p>
+          <div>
+            <p className="text-gray-300 mb-2 inline-block">
+              <span className="font-semibold">⭐&nbsp;</span>
+              {formatNumber(repo.stargazerCount)}
+            </p>
+            <p className="text-gray-300 mb-2 inline-block ml-4">
+              <span className="font-semibold">🍴&nbsp;</span>
+              {formatNumber(repo.forkCount)}
+            </p>
+          </div>
           {repo.description && (
             <p className="text-gray-300 mb-2">{repo.description}</p>
           )}
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">Primary Language: </span>
+            <span className="font-semibold">Primary Language:&nbsp;</span>
             {repo.primaryLanguage.name}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">Pushed at: </span>
+            <span className="font-semibold">Pushed at:&nbsp;</span>
             {formatDistanceToNow(new Date(repo.pushedAt), { addSuffix: true })}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">New issues (7d): </span>
+            <span className="font-semibold">Issues open</span>&nbsp;(7d):&nbsp;
             {repo.issues.totalCount}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">{hasBeginnerFriendlyLabel(repo.labels.nodes) ? "✅" : "❌"} </span>
+            <span className="font-semibold">PRs</span>&nbsp;(7d):&nbsp;
+            {repo.pullRequests.totalCount} open, {repo.pullRequests.nodes.filter((pr) => pr.merged).length} merged
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">{hasBeginnerFriendlyLabel(repo.labels.nodes) ? "✅" : "❌"}&nbsp;</span>
             {goodFirstIssue} | {helpWanted} | {beginnerFriendly}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"} </span>
+            <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"}&nbsp;</span>
             CONTRIBUTING.md
           </p>
           <div className="flex gap-2 mt-4">

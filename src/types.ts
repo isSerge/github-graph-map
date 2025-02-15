@@ -29,6 +29,14 @@ export interface RepoBase {
     }[];
   }
   forkCount: number;
+  pullRequests: {
+    totalCount: number;
+    nodes: {
+      createdAt: string;
+      state: string;
+      merged: boolean;
+    }[];
+  }
 }
 
 // Common network node interface.

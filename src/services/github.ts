@@ -39,6 +39,14 @@ const repositoryFields = `
     }
   }
   forkCount
+  pullRequests(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+    totalCount
+    nodes {
+      createdAt
+      state
+      merged
+    }
+  }
 `;
 
 /**
@@ -65,11 +73,19 @@ export const getRepository = async (owner: string, repo: string) => {
     (issue) => new Date(issue.createdAt) > new Date(since)
   );
 
+  const recentPRs = result.repository.pullRequests.nodes.filter(
+    (pr) => new Date(pr.createdAt) > new Date(since)
+  );
+
   return {
     ...result.repository,
     issues: {
       totalCount: recentIssues.length,
       nodes: recentIssues,
+    },
+    pullRequests: {
+      totalCount: recentPRs.length,
+      nodes: recentPRs,
     }
   }
 }

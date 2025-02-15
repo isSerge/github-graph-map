@@ -10,6 +10,7 @@ import { useOnClickOutside } from "./hooks/useOnClickOutside";
 import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
 import ExploreLists from "./components/ExploreLists";
+import SearchInput from "./components/SearchInput";
 
 const App = () => {
   const [repoInput, setInput] = useState<string>("");
@@ -91,14 +92,7 @@ const App = () => {
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
-        {/* Repository Input */}
-        <input
-          type="text"
-          placeholder="Enter repository (e.g., facebook/react) or user (e.g., torvalds)"
-          value={repoInput}
-          onChange={(e) => setInput(e.target.value)}
-          className="border p-2 rounded w-full mb-4"
-        />
+        <SearchInput value={repoInput} onChange={setInput} />
       </header>
 
       {/* Loading or Error Message */}

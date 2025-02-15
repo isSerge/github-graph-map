@@ -46,9 +46,8 @@ function createRepoGraph(
     contributor.repositoriesContributedTo.nodes.forEach((repo) => {
       const repoNode: RepoNode = {
         ...repo,
-        id: repo.name,
+        id: repo.nameWithOwner,
         type: "repo",
-        name: `${repo.owner.login}/${repo.name}`,
       };
       if (!nodesMap.has(repoNode.id)) {
         nodesMap.set(repoNode.id, repoNode);
@@ -84,9 +83,8 @@ function createUserGraph(repos: RepoBase[], contributor: ContributorNode) {
   repos.forEach((repo) => {
     const repoNode: RepoNode = {
       ...repo,
-      id: repo.name,
+      id: repo.nameWithOwner,
       type: "repo",
-      name: `${repo.owner.login}/${repo.name}`,
     };
     nodesMap.set(repoNode.id, repoNode);
     linksMap.set(`${contributor.id}-${repoNode.id}`, {
@@ -111,9 +109,8 @@ async function fetchRepoGraph(input: string) {
   // Our central repo node will have a name like "owner/repo"
   const selectedEntity: RepoNode = {
     ...repository,
-    id: repository.name,
+    id: repository.nameWithOwner,
     type: "repo",
-    name: `${owner}/${name}`,
   };
 
   const graph = createRepoGraph(contributors, selectedEntity);

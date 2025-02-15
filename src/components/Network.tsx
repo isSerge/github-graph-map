@@ -26,7 +26,7 @@ const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => (
   >
     <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
     <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-      {node.data.name.split("/")[1]}
+      {node.data.name}
     </text>
   </g>
 );
@@ -54,7 +54,7 @@ type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
 };
 
 function getNodeColor(selectedNodeName: string, node: EitherNode) {
-  if (node.name === selectedNodeName) {
+  if (node.id === selectedNodeName) {
     return networkTheme.selectedNodeColor;
   } else if (isRepoNode(node)) {
     return networkTheme.repoNodeColor;

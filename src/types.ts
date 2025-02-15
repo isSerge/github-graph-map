@@ -3,6 +3,7 @@ import { InputNode, InputLink } from '@nivo/network';
 // Base type for repository data as returned by the API.
 export interface RepoBase {
   name: string;
+  nameWithOwner: string;
   stargazerCount: number;
   description: string;
   primaryLanguage: {

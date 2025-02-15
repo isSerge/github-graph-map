@@ -20,8 +20,8 @@ const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
         return node.data.type === "repo";
     };
 
-    const handleExploreGraph = () => {
-        onExploreGraph(node.data.name);
+    const handleExploreGraph = (name: string) => {
+        onExploreGraph(name);
         onClose();
     }
 

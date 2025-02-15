@@ -13,6 +13,7 @@ const graphqlWithAuth = graphql.defaults({
 const repositoryFields = `
   id
   name
+  nameWithOwner
   url
   stargazerCount
   description

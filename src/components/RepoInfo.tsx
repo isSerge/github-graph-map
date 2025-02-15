@@ -5,7 +5,7 @@ import { formatNumber } from "../utils";
 
 interface RepoInfoProps {
   repo: RepoNode;
-  onExploreGraph: () => void;
+  onExploreGraph: (name: string) => void;
 }
 
 const goodFirstIssue = "good first issue";
@@ -42,10 +42,12 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
           {repo.description && (
             <p className="text-gray-300 mb-2">{repo.description}</p>
           )}
-          <p className="text-gray-300 mb-2">
-            <span className="font-semibold">Primary Language:&nbsp;</span>
-            {repo.primaryLanguage.name}
-          </p>
+          {repo.primaryLanguage && (
+            <p className="text-gray-300 mb-2">
+              <span className="font-semibold">Primary Language:&nbsp;</span>
+              {repo.primaryLanguage.name}
+            </p>
+          )}
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">Pushed at:&nbsp;</span>
             {formatDistanceToNow(new Date(repo.pushedAt), { addSuffix: true })}
@@ -68,7 +70,7 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
           </p>
           <div className="flex gap-2 mt-4">
             <button
-              onClick={onExploreGraph}
+              onClick={() => onExploreGraph(repo.nameWithOwner)}
               className="flex-1 text-center px-6 py-3 bg-yellow-500 text-white font-bold rounded shadow-lg hover:bg-yellow-400 transition-colors duration-300"
             >
               Explore Graph

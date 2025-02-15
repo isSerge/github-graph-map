@@ -72,9 +72,9 @@ interface GetRecentCommitAuthorsResponse {
 export async function getRecentCommitAuthors(
   repoOwner: string,
   repoName: string
-): Promise<{ login: string }[]> {
-  // Calculate date 30 days ago in ISO format.
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+): Promise<{ login: string; contributionCount: number }[]> {
+  // Calculate date 7 days ago in ISO format.
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const query = `
     query getRecentCommits($owner: String!, $name: String!, $since: GitTimestamp!) {
       repository(owner: $owner, name: $name) {
@@ -100,15 +100,19 @@ export async function getRecentCommitAuthors(
   const history = result.repository?.defaultBranchRef?.target?.history;
   const nodes = history?.nodes || [];
 
-  // Use a set to collect unique contributor logins
-  const contributorLogins = new Set<string>();
+  const contributorMap = new Map<string, number>();
   nodes.forEach((commit) => {
     const login = commit.author?.user?.login;
     if (login) {
-      contributorLogins.add(login);
+      const currentCount = contributorMap.get(login) || 0;
+      contributorMap.set(login, currentCount + 1);
     }
   });
-  return Array.from(contributorLogins).map(login => ({ login }));
+  
+  return Array.from(contributorMap.entries()).map(([login, contributionCount]) => ({
+    login,
+    contributionCount,
+  }));
 }
 
 /**
@@ -207,14 +211,12 @@ export async function getContributorData(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string
-): Promise<UserContributedReposResponse["user"][]> {
-  // 1. Get recent commit authors from the repository using GraphQL.
+): Promise<(UserContributedReposResponse["user"] & { contributionCount: number })[]> {
   const contributors = await getRecentCommitAuthors(repoOwner, repoName);
-  // 2. For each contributor, fetch their contributed repositories via GraphQL.
   const results = await Promise.all(
     contributors.map(async (contributor) => {
       const user = await getContributorData(contributor.login);
-      return user;
+      return { ...user, contributionCount: contributor.contributionCount };
     })
   );
   return results;

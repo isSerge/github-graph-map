@@ -15,7 +15,7 @@ import {
 
 // Helper: Create graph in repository mode.
 function createRepoGraph(
-  contributors: UserContributedReposResponse["user"][],
+  contributors: (UserContributedReposResponse["user"] & { contributionCount: number })[],
   centralRepo: RepoNode,
 ) {
   const nodesMap = new Map<string, RepoNode | ContributorNode>();
@@ -39,6 +39,7 @@ function createRepoGraph(
         source: centralRepo.id,
         target: contributorId,
         distance: 100,
+        thickness: contributor.contributionCount,
       });
     }
     // For each repo the contributor worked on:

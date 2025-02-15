@@ -87,6 +87,7 @@ const Network = ({
     }
     nodeSize={10}
     linkColor={networkTheme.linkColor}
+    linkThickness={(link) => link.data.thickness || 1}
   />
 )
 

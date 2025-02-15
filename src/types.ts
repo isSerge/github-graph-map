@@ -16,6 +16,12 @@ export interface RepoBase {
   contributingFile?: {
     __typename: string;
   }
+  labels: {
+    nodes: {
+      name: string;
+      color: string;
+    }[];
+  }
 }
 
 // Common network node interface.

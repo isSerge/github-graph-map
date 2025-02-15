@@ -23,9 +23,14 @@ const repositoryFields = `
     login
   }
   pushedAt
-  # Check if CONTRIBUTING.md exists on the default branch.
   contributingFile: object(expression: "HEAD:CONTRIBUTING.md") {
     __typename
+  }
+  labels(first: 50) {
+    nodes {
+      name
+      color
+    }
   }
 `;
 

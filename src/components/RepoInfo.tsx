@@ -8,6 +8,14 @@ interface RepoInfoProps {
   onExploreGraph: () => void;
 }
 
+const goodFirstIssue = "good first issue";
+const helpWanted = "help wanted";
+const beginnerFriendly = "beginner friendly";
+
+const hasBeginnerFriendlyLabel = (labels: { name: string }[]) => {
+  return labels.some(({ name }) => name === goodFirstIssue || name === helpWanted || name === beginnerFriendly);
+};
+
 const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
@@ -39,6 +47,10 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"} </span>
             CONTRIBUTING.md
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">{hasBeginnerFriendlyLabel(repo.labels.nodes) ? "✅" : "❌"} </span>
+            {goodFirstIssue} | {helpWanted} | {beginnerFriendly}
           </p>
           <div className="flex gap-2 mt-4">
             <button

@@ -12,6 +12,7 @@ import NodeModal from "./components/NodeModal";
 import ExploreLists from "./components/ExploreLists";
 import SearchInput from "./components/SearchInput";
 import { useSearchReducer } from "./hooks/useSearchReducer";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 const App = () => {
   // Use our reducer to manage the search state.
@@ -133,7 +134,7 @@ const App = () => {
         />
       </header>
 
-      {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
+      {fetching && <LoadingSpinner />}
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       {!fetching && !error && !selectedEntity && (

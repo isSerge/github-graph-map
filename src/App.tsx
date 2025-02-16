@@ -16,7 +16,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import { useHistoryReducer } from "./hooks/useHistoryReducer";
 
 const App = () => {
-  // Use our reducer to manage the search state.
+  // Use search reducer to manage the search state.
   const {
     draft,
     committed,
@@ -24,8 +24,16 @@ const App = () => {
     commitSearch,
     resetSearch,
   } = useSearchReducer();
+  
   // The committed value (searchState.committed) is used to fetch graph data.
-  const { fetching, error, graphData, selectedEntity, resetGraph } = useGraph(committed);
+  const { 
+    fetching, 
+    error, 
+    graphData, 
+    selectedEntity, 
+    resetGraph 
+  } = useGraph(committed);
+
   const {
     showJson,
     setShowJson,

@@ -23,7 +23,19 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   }
 }
 
-export function useSearchReducer(initialDraft = ''): [SearchState, React.Dispatch<SearchAction>] {
+export function useSearchReducer(initialDraft = '') {
   const initialState: SearchState = { draft: initialDraft, committed: '' };
-  return useReducer(searchReducer, initialState);
+  const [state, dispatch] = useReducer(searchReducer, initialState);
+
+  const setDraft = (payload: string) => dispatch({ type: 'setDraft', payload });
+  const commitSearch = () => dispatch({ type: 'commit' });
+  const resetSearch = () => dispatch({ type: 'reset' });
+
+  return {
+    draft: state.draft,
+    committed: state.committed,
+    setDraft,
+    commitSearch,
+    resetSearch,
+  }
 }

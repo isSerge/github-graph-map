@@ -13,12 +13,19 @@ import ExploreLists from "./components/ExploreLists";
 import SearchInput from "./components/SearchInput";
 import { useSearchReducer } from "./hooks/useSearchReducer";
 import LoadingSpinner from "./components/LoadingSpinner";
+import { useHistoryReducer } from "./hooks/useHistoryReducer";
 
 const App = () => {
   // Use our reducer to manage the search state.
-  const [searchState, dispatchSearch] = useSearchReducer();
+  const {
+    draft,
+    committed,
+    setDraft,
+    commitSearch,
+    resetSearch,
+  } = useSearchReducer();
   // The committed value (searchState.committed) is used to fetch graph data.
-  const { fetching, error, graphData, selectedEntity, resetGraph } = useGraph(searchState.committed);
+  const { fetching, error, graphData, selectedEntity, resetGraph } = useGraph(committed);
   const {
     showJson,
     setShowJson,
@@ -32,78 +39,73 @@ const App = () => {
 
   // Parent also maintains search history.
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  // Node history for undo/redo navigation.
-  const [history, setHistory] = useState<EitherNode[]>([]);
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1);
+
+  const { 
+    history, 
+    currentIndex, 
+    addNode, 
+    navigateTo, 
+    resetHistory, 
+    canGoBack, 
+    canGoForward 
+  } = useHistoryReducer();
+
   // Ref for settings container.
   const settingsRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
+
   const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
   const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
+  useEffect(() => {
+    if (selectedEntity) {
+      addNode(selectedEntity);
+    }
+  }, [selectedEntity, addNode]);
+
   // When a new committed search happens, update search history.
   useEffect(() => {
-    if (searchState.committed && !fetching && !error) {
+    if (committed && !fetching && !error) {
       setSearchHistory((prev) =>
-        prev.includes(searchState.committed) ? prev : [searchState.committed, ...prev]
+        prev.includes(committed) ? prev : [committed, ...prev]
       );
     }
-  }, [searchState.committed, fetching, error]);
-
-  // When a new node is selected, update node history.
-  useEffect(() => {
-    if (!selectedEntity) return;
-    setHistory((prev) => {
-      if (
-        prev.length > 0 &&
-        currentHistoryIndex >= 0 &&
-        prev[currentHistoryIndex].id === selectedEntity.id
-      ) {
-        return prev;
-      }
-      const newHistory = [...prev.slice(0, currentHistoryIndex + 1), selectedEntity];
-      setCurrentHistoryIndex(newHistory.length - 1);
-      return newHistory;
-    });
-    // TODO: Fix the exhaustive-deps warning.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedEntity]);
+  }, [committed, fetching, error]);
 
   const handlePrev = () => {
-    if (currentHistoryIndex > 0) {
-      const newIndex = currentHistoryIndex - 1;
-      setCurrentHistoryIndex(newIndex);
+    if (canGoBack) {
+      const newIndex = currentIndex - 1;
+      navigateTo(newIndex);
       const prevNode = history[newIndex];
       const newInput = prevNode.type === "repo" ? prevNode.nameWithOwner : prevNode.name;
-      dispatchSearch({ type: "setDraft", payload: newInput });
-      dispatchSearch({ type: "commit" });
+      setDraft(newInput);
+      commitSearch();
     }
   };
 
   const handleNext = () => {
-    if (currentHistoryIndex < history.length - 1) {
-      const newIndex = currentHistoryIndex + 1;
-      setCurrentHistoryIndex(newIndex);
+    if (canGoForward) {
+      const newIndex = currentIndex + 1;
+      navigateTo(newIndex);
       const nextNode = history[newIndex];
       const newInput = nextNode.type === "repo" ? nextNode.nameWithOwner : nextNode.name;
-      dispatchSearch({ type: "setDraft", payload: newInput });
-      dispatchSearch({ type: "commit" });
+      setDraft(newInput);
+      commitSearch();
     }
   };
 
   const handleNodeClick = (node: ComputedNode<EitherNode>) => setModalNode(node);
 
   const handleClearSearch = () => {
-    dispatchSearch({ type: "reset" });
-    setHistory([]);
-    setCurrentHistoryIndex(-1);
+    resetSearch();
+    resetHistory();
     resetGraph();
   };
 
   // Called when SearchInput commits a search.
   const handleSubmit = (value: string) => {
-    dispatchSearch({ type: "setDraft", payload: value });
-    dispatchSearch({ type: "commit" });
+    setDraft(value);
+    commitSearch();
     // The committed value (searchState.committed) will then trigger useGraph.
     setSearchHistory((prev) =>
       prev.includes(value) ? prev : [value, ...prev]
@@ -111,12 +113,12 @@ const App = () => {
   };
 
   const handleSearchInputChange = (value: string) => {
-    dispatchSearch({ type: "setDraft", payload: value });
+    setDraft(value);
     if (value === "") {
       // When the user manually deletes everything,
       // commit an empty search and reset the graph.
-      dispatchSearch({ type: "commit" });
-      dispatchSearch({ type: "reset" });
+      commitSearch();
+      resetSearch();
       resetGraph();
     }
   };
@@ -125,7 +127,7 @@ const App = () => {
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
         <SearchInput
-          value={searchState.draft}
+          value={draft}
           onChange={handleSearchInputChange}
           onSubmit={handleSubmit}
           onClear={handleClearSearch}
@@ -169,14 +171,14 @@ const App = () => {
           <div className="absolute top-4 left-4 flex gap-4 z-20">
             <button
               onClick={handlePrev}
-              disabled={currentHistoryIndex <= 0}
+              disabled={!canGoBack}
               className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ← Previous
             </button>
             <button
               onClick={handleNext}
-              disabled={currentHistoryIndex >= history.length - 1}
+              disabled={!canGoForward}
               className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next →

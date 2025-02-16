@@ -14,6 +14,7 @@ import SearchInput from "./components/SearchInput";
 
 const App = () => {
   const [repoInput, setInput] = useState<string>("");
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const { 
     fetching, 
     error, 
@@ -45,6 +46,17 @@ const App = () => {
   useOnClickOutside(settingsRef, () => {
     setShowSettingsPanel(false);
   });
+
+  // When a search is executed successfully, add it to the search history.
+  useEffect(() => {
+    if (repoInput && !fetching && !error) {
+      setSearchHistory((prev) => {
+        // Avoid duplicates (you can also choose to keep duplicates if needed)
+        if (prev.includes(repoInput)) return prev;
+        return [repoInput, ...prev];
+      });
+    }
+  }, [repoInput, fetching, error]);
 
   useEffect(() => {
     if (!selectedEntity) return;
@@ -103,11 +115,20 @@ const App = () => {
     resetGraph();
   };
 
-
+  const handleSelectHistory = (item: string) => {
+    setInput(item);
+  };
+  
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
-        <SearchInput value={repoInput} onChange={setInput} onClear={handleClearSearch} />
+        <SearchInput 
+          value={repoInput} 
+          onChange={setInput} 
+          onClear={handleClearSearch} 
+          history={searchHistory}
+          onSelectHistory={handleSelectHistory}
+        />
       </header>
 
       {/* Loading or Error Message */}

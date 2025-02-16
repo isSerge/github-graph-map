@@ -1,9 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface SearchInputProps {
     value: string;
     onChange: (value: string) => void;
     onClear?: () => void;
+    history: string[];
+    onSelectHistory: (value: string) => void;
     placeholder?: string;
   }
 
@@ -11,9 +13,18 @@ const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
   onClear,
+  history,
+  onSelectHistory,
   placeholder = "Enter repository (e.g., facebook/react) or user (e.g., torvalds)",
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+  
+  // When a history item is selected, update the input and hide the dropdown.
+  const handleSelectHistory = (item: string) => {
+    onSelectHistory(item);
+    setShowHistory(false);
+  };
 
   const handleClear = () => {
     // Clear the input text and any additional state via the onClear callback.
@@ -28,6 +39,11 @@ const SearchInput: React.FC<SearchInputProps> = ({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setShowHistory(true)}
+        onBlur={() => {
+          // Delay hiding to allow click events on history items to register.
+          setTimeout(() => setShowHistory(false), 100);
+        }}
         placeholder={placeholder}
         className="w-full p-3 pl-10 pr-10 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition duration-150"
       />
@@ -68,6 +84,20 @@ const SearchInput: React.FC<SearchInputProps> = ({
             />
           </svg>
         </span>
+      )}
+      {/* History Dropdown */}
+      {showHistory && history.length > 0 && (
+        <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
+          {history.map((item, index) => (
+            <li
+              key={index}
+              onMouseDown={() => handleSelectHistory(item)}
+              className="cursor-pointer px-4 py-2 hover:bg-gray-700 transition"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

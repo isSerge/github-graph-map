@@ -97,9 +97,7 @@ const App = () => {
 
   // Clear function to reset search-related state.
   const handleClearSearch = () => {
-    // Reset input
     setInput("");
-    // Optionally clear additional state:
     setHistory([]);
     setCurrentHistoryIndex(-1);
     resetGraph();
@@ -167,7 +165,7 @@ const App = () => {
           </div>
 
           <Network
-            selectedNodeName={selectedEntity.name}
+            selectedNodeId={selectedEntity.id}
             data={graphData}
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}

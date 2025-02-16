@@ -46,15 +46,15 @@ const ContributorNode = ({ node, onNodeClick }: CustomNodeProps) => (
 );
 
 type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
-  selectedNodeName: string;
+  selectedNodeId: string;
   linkDistanceMultiplier?: number;
   repulsivity?: number;
   centeringStrength?: number;
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 };
 
-function getNodeColor(selectedNodeName: string, node: EitherNode) {
-  if (node.id === selectedNodeName) {
+function getNodeColor(selectedNodeId: string, node: EitherNode) {
+  if (node.id === selectedNodeId) {
     return networkTheme.selectedNodeColor;
   } else if (isRepoNode(node)) {
     return networkTheme.repoNodeColor;
@@ -64,7 +64,7 @@ function getNodeColor(selectedNodeName: string, node: EitherNode) {
 }
 
 const Network = ({
-  selectedNodeName,
+  selectedNodeId,
   data,
   linkDistanceMultiplier = 1,
   repulsivity = 300,
@@ -77,7 +77,7 @@ const Network = ({
     margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
     // Multiply the default distance by the multiplier
     linkDistance={(e) => e.distance * linkDistanceMultiplier}
-    nodeColor={(node) => getNodeColor(selectedNodeName, node)}
+    nodeColor={(node) => getNodeColor(selectedNodeId, node)}
     repulsivity={repulsivity}
     centeringStrength={centeringStrength}
     nodeComponent={(props: NodeProps<EitherNode>) =>

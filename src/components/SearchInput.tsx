@@ -1,17 +1,25 @@
 import { useRef } from "react";
 
 interface SearchInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}
+    value: string;
+    onChange: (value: string) => void;
+    onClear?: () => void;
+    placeholder?: string;
+  }
 
 const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
+  onClear,
   placeholder = "Enter repository (e.g., facebook/react) or user (e.g., torvalds)",
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClear = () => {
+    // Clear the input text and any additional state via the onClear callback.
+    onChange("");
+    if (onClear) onClear();
+  };
 
   return (
     <div className="relative max-w-xl mx-auto mb-4">
@@ -41,9 +49,9 @@ const SearchInput: React.FC<SearchInputProps> = ({
       </div>
       {/* Clear Button */}
       {value && (
-        <button
-          onClick={() => onChange("")}
-          className="absolute inset-y-0 right-0 flex items-center pr-3"
+        <span
+          onClick={handleClear}
+          className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
           aria-label="Clear search input"
         >
           <svg
@@ -59,7 +67,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-        </button>
+        </span>
       )}
     </div>
   );

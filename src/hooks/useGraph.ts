@@ -137,6 +137,12 @@ export function useGraph(input: string) {
   const [graphData, setGraphData] = useState<{ nodes: EitherNode[]; links: NetworkLink[] } | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<EitherNode | null>(null);
 
+  const resetGraph = () => {
+    setError(null);
+    setGraphData(null);
+    setSelectedEntity(null);
+  }
+
   useEffect(() => {
     if (!input) return;
     const timer = setTimeout(() => {
@@ -167,5 +173,5 @@ export function useGraph(input: string) {
     return () => clearTimeout(timer);
   }, [input]);
 
-  return { fetching, error, graphData, selectedEntity };
+  return { fetching, error, graphData, selectedEntity, resetGraph };
 }

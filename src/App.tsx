@@ -14,7 +14,13 @@ import SearchInput from "./components/SearchInput";
 
 const App = () => {
   const [repoInput, setInput] = useState<string>("");
-  const { fetching, error, graphData, selectedEntity } = useGraph(repoInput);
+  const { 
+    fetching, 
+    error, 
+    graphData, 
+    selectedEntity, 
+    resetGraph,
+  } = useGraph(repoInput);
   const {
     showJson,
     setShowJson,
@@ -89,10 +95,21 @@ const App = () => {
     setModalNode(node);
   };
 
+  // Clear function to reset search-related state.
+  const handleClearSearch = () => {
+    // Reset input
+    setInput("");
+    // Optionally clear additional state:
+    setHistory([]);
+    setCurrentHistoryIndex(-1);
+    resetGraph();
+  };
+
+
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
-        <SearchInput value={repoInput} onChange={setInput} />
+        <SearchInput value={repoInput} onChange={setInput} onClear={handleClearSearch} />
       </header>
 
       {/* Loading or Error Message */}
@@ -174,10 +191,10 @@ const App = () => {
 
       {/* Modal for node details */}
       {modalNode && (
-        <NodeModal 
-          node={modalNode} 
-          onClose={() => setModalNode(null)} 
-          onExploreGraph={(nodeName) => setInput(nodeName)} 
+        <NodeModal
+          node={modalNode}
+          onClose={() => setModalNode(null)}
+          onExploreGraph={(nodeName) => setInput(nodeName)}
         />
       )}
     </div>

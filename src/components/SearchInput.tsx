@@ -1,36 +1,47 @@
 import { useRef, useState } from "react";
+import { useAutocomplete, Suggestion } from "../hooks/useAutocomplete";
 
 interface SearchInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    onClear?: () => void;
-    history: string[];
-    onSelectHistory: (value: string) => void;
-    placeholder?: string;
-  }
+  value: string; // current draft value from parent
+  onChange: (value: string) => void;
+  onSubmit: (value: string) => void;
+  onClear?: () => void;
+  history: string[];
+  onSelectHistory: (value: string) => void;
+  placeholder?: string;
+}
 
 const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChange,
+  onSubmit,
   onClear,
   history,
-  onSelectHistory,
   placeholder = "Enter repository (e.g., facebook/react) or user (e.g., torvalds)",
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [showHistory, setShowHistory] = useState<boolean>(false);
-  
-  // When a history item is selected, update the input and hide the dropdown.
-  const handleSelectHistory = (item: string) => {
-    onSelectHistory(item);
-    setShowHistory(false);
+  const { suggestions, isLoading } = useAutocomplete(value);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+
+  // When a suggestion or history item is clicked, commit that value.
+  const commitSearch = (item: string) => {
+    onChange(item);
+    onSubmit(item);
+    setShowDropdown(false);
   };
 
   const handleClear = () => {
-    // Clear the input text and any additional state via the onClear callback.
     onChange("");
     if (onClear) onClear();
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      commitSearch(value);
+    }
+  };
+
+  const hasDropdownContent = isLoading || suggestions.length > 0 || history.length > 0;
 
   return (
     <div className="relative max-w-xl mx-auto mb-4">
@@ -39,11 +50,9 @@ const SearchInput: React.FC<SearchInputProps> = ({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setShowHistory(true)}
-        onBlur={() => {
-          // Delay hiding to allow click events on history items to register.
-          setTimeout(() => setShowHistory(false), 100);
-        }}
+        onFocus={() => setShowDropdown(true)}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="w-full p-3 pl-10 pr-10 rounded-xl border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition duration-150"
       />
@@ -85,18 +94,33 @@ const SearchInput: React.FC<SearchInputProps> = ({
           </svg>
         </span>
       )}
-      {/* History Dropdown */}
-      {showHistory && history.length > 0 && (
+      {/* Dropdown: Show suggestions if available; fallback to history */}
+      {showDropdown && hasDropdownContent && (
         <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
-          {history.map((item, index) => (
-            <li
-              key={index}
-              onMouseDown={() => handleSelectHistory(item)}
-              className="cursor-pointer px-4 py-2 hover:bg-gray-700 transition"
-            >
-              {item}
-            </li>
-          ))}
+          {isLoading && (
+            <li className="cursor-pointer px-4 py-2 text-gray-400">Loading...</li>
+          )}
+          {!isLoading && suggestions.length > 0 ? (
+            suggestions.map((item: Suggestion) => (
+              <li
+                key={item.id}
+                onMouseDown={() => commitSearch(item.label)}
+                className="cursor-pointer px-4 py-2 hover:bg-gray-700 transition"
+              >
+                {item.label}
+              </li>
+            ))
+          ) : (
+            history.map((item, index) => (
+              <li
+                key={index}
+                onMouseDown={() => commitSearch(item)}
+                className="cursor-pointer px-4 py-2 hover:bg-gray-700 transition"
+              >
+                {item}
+              </li>
+            ))
+          )}
         </ul>
       )}
     </div>

@@ -1,3 +1,4 @@
+// App.tsx
 import { useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 
@@ -11,17 +12,13 @@ import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
 import ExploreLists from "./components/ExploreLists";
 import SearchInput from "./components/SearchInput";
+import { useSearchReducer } from "./hooks/useSearchReducer";
 
 const App = () => {
-  const [repoInput, setInput] = useState<string>("");
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const { 
-    fetching, 
-    error, 
-    graphData, 
-    selectedEntity, 
-    resetGraph,
-  } = useGraph(repoInput);
+  // Use our reducer to manage the search state.
+  const [searchState, dispatchSearch] = useSearchReducer();
+  // The committed value (searchState.committed) is used to fetch graph data.
+  const { fetching, error, graphData, selectedEntity, resetGraph } = useGraph(searchState.committed);
   const {
     showJson,
     setShowJson,
@@ -33,36 +30,30 @@ const App = () => {
     setCenteringStrength,
   } = useDisplaySettings();
 
-  // State for toggling the settings dropdown.
-  const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
-  // State to track which node (if any) is selected for modal display.
-  const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
-  // History management: an array of nodes (EitherNode) and a pointer.
+  // Parent also maintains search history.
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  // Node history for undo/redo navigation.
   const [history, setHistory] = useState<EitherNode[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1);
-
-  // Create a ref for the container that wraps the settings button and dropdown.
+  // Ref for settings container.
   const settingsRef = useRef<HTMLDivElement>(null);
-  useOnClickOutside(settingsRef, () => {
-    setShowSettingsPanel(false);
-  });
+  useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
+  const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
+  const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
-  // When a search is executed successfully, add it to the search history.
+  // When a new committed search happens, update search history.
   useEffect(() => {
-    if (repoInput && !fetching && !error) {
-      setSearchHistory((prev) => {
-        // Avoid duplicates (you can also choose to keep duplicates if needed)
-        if (prev.includes(repoInput)) return prev;
-        return [repoInput, ...prev];
-      });
+    if (searchState.committed && !fetching && !error) {
+      setSearchHistory((prev) =>
+        prev.includes(searchState.committed) ? prev : [searchState.committed, ...prev]
+      );
     }
-  }, [repoInput, fetching, error]);
+  }, [searchState.committed, fetching, error]);
 
+  // When a new node is selected, update node history.
   useEffect(() => {
     if (!selectedEntity) return;
     setHistory((prev) => {
-      // If the history already has an element at the current index,
-      // and it’s the same as the new selected entity, then do nothing.
       if (
         prev.length > 0 &&
         currentHistoryIndex >= 0 &&
@@ -70,80 +61,77 @@ const App = () => {
       ) {
         return prev;
       }
-      // Otherwise, trim any "redo" entries (everything beyond the current index)
-      // and add the new selection.
       const newHistory = [...prev.slice(0, currentHistoryIndex + 1), selectedEntity];
       setCurrentHistoryIndex(newHistory.length - 1);
       return newHistory;
     });
-    // We deliberately exclude currentHistoryIndex from dependencies here.
+    // TODO: Fix the exhaustive-deps warning.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEntity]);
 
-  // Undo: go to the previous node in history.
   const handlePrev = () => {
     if (currentHistoryIndex > 0) {
       const newIndex = currentHistoryIndex - 1;
       setCurrentHistoryIndex(newIndex);
       const prevNode = history[newIndex];
-      const newInput = prevNode.type === "repo" ? prevNode.name : prevNode.id;
-      setInput(newInput);
+      const newInput = prevNode.type === "repo" ? prevNode.nameWithOwner : prevNode.name;
+      dispatchSearch({ type: "setDraft", payload: newInput });
+      dispatchSearch({ type: "commit" });
     }
   };
 
-  // Redo: go forward if available.
   const handleNext = () => {
     if (currentHistoryIndex < history.length - 1) {
       const newIndex = currentHistoryIndex + 1;
       setCurrentHistoryIndex(newIndex);
       const nextNode = history[newIndex];
-      const newInput = nextNode.type === "repo" ? nextNode.name : nextNode.id;
-      setInput(newInput);
+      const newInput = nextNode.type === "repo" ? nextNode.nameWithOwner : nextNode.name;
+      dispatchSearch({ type: "setDraft", payload: newInput });
+      dispatchSearch({ type: "commit" });
     }
   };
 
-  // When a node is clicked, show the modal.
-  const handleNodeClick = (node: ComputedNode<EitherNode>) => {
-    setModalNode(node);
-  };
+  const handleNodeClick = (node: ComputedNode<EitherNode>) => setModalNode(node);
 
-  // Clear function to reset search-related state.
   const handleClearSearch = () => {
-    setInput("");
+    dispatchSearch({ type: "reset" });
     setHistory([]);
     setCurrentHistoryIndex(-1);
     resetGraph();
   };
 
-  const handleSelectHistory = (item: string) => {
-    setInput(item);
+  // Called when SearchInput commits a search.
+  const handleSubmit = (value: string) => {
+    dispatchSearch({ type: "setDraft", payload: value });
+    dispatchSearch({ type: "commit" });
+    // The committed value (searchState.committed) will then trigger useGraph.
+    setSearchHistory((prev) =>
+      prev.includes(value) ? prev : [value, ...prev]
+    );
   };
-  
+
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
-        <SearchInput 
-          value={repoInput} 
-          onChange={setInput} 
-          onClear={handleClearSearch} 
+        <SearchInput
+          value={searchState.draft}
+          onChange={(val) => dispatchSearch({ type: "setDraft", payload: val })}
+          onSubmit={handleSubmit}
+          onClear={handleClearSearch}
           history={searchHistory}
-          onSelectHistory={handleSelectHistory}
+          onSelectHistory={handleSubmit}
         />
       </header>
 
-      {/* Loading or Error Message */}
       {fetching && <div className="text-blue-500 mb-4">Fetching data...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      {/* Explore Lists */}
       {!fetching && !error && !selectedEntity && (
-        <ExploreLists onSelect={(node: EitherNode) => setInput(node.name)} />
+        <ExploreLists onSelect={(node: EitherNode) => handleSubmit(node.name)} />
       )}
 
-      {/* Main Network Graph */}
       {graphData && selectedEntity && !fetching && !error && (
         <div className="h-screen relative">
-          {/* Settings Button & Dropdown in the top right */}
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
             <button
               onClick={() => setShowSettingsPanel((prev) => !prev)}
@@ -167,7 +155,6 @@ const App = () => {
             )}
           </div>
 
-          {/* Prev/Next Arrows */}
           <div className="absolute top-4 left-4 flex gap-4 z-20">
             <button
               onClick={handlePrev}
@@ -196,7 +183,6 @@ const App = () => {
         </div>
       )}
 
-      {/* Optional JSON displays */}
       {selectedEntity && graphData && (
         <div className="mt-4">
           {showJson && (
@@ -208,12 +194,11 @@ const App = () => {
         </div>
       )}
 
-      {/* Modal for node details */}
       {modalNode && (
         <NodeModal
           node={modalNode}
           onClose={() => setModalNode(null)}
-          onExploreGraph={(nodeName) => setInput(nodeName)}
+          onExploreGraph={(nodeName) => handleSubmit(nodeName)}
         />
       )}
     </div>

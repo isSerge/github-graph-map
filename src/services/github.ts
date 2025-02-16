@@ -269,3 +269,61 @@ export async function getRepoContributorsWithContributedRepos(
   );
   return results;
 }
+
+/**
+ * Searches for repositories using the GraphQL API.
+ * @param searchTerm - The search query string.
+ * @returns A promise resolving to an array of repository objects with id and nameWithOwner.
+ */
+export async function searchRepositories(
+  searchTerm: string
+): Promise<Array<{ id: string; nameWithOwner: string }>> {
+  const repoQuery = `
+    query SearchRepos($searchTerm: String!) {
+      search(query: $searchTerm, type: REPOSITORY, first: 5) {
+        nodes {
+          ... on Repository {
+            id
+            nameWithOwner
+          }
+        }
+      }
+    }
+  `;
+  const result = await graphqlWithAuth<{
+    search: { nodes: Array<{ id: string; nameWithOwner: string }> };
+  }>(repoQuery, { searchTerm });
+  return result.search.nodes;
+}
+
+/**
+ * Searches for users using the GraphQL API.
+ * @param searchTerm - The search query string.
+ * @returns A promise resolving to an array of user objects with id and login.
+ */
+export async function searchUsers(
+  searchTerm: string
+): Promise<Array<{ id: string; login: string }>> {
+  const userQuery = `
+    query SearchUsers($searchTerm: String!) {
+      search(query: $searchTerm, type: USER, first: 5) {
+        nodes {
+          __typename
+          ... on User {
+            id
+            login
+          }
+          ... on Organization {
+            id
+            login
+          }
+        }
+      }
+    }
+  `;
+  const result = await graphqlWithAuth<{
+    search: { nodes: Array<{ __typename: string; id: string; login: string }> };
+  }>(userQuery, { searchTerm });
+  // Only keep nodes that are Users for now
+  return result.search.nodes.filter(node => node.__typename === "User");
+}

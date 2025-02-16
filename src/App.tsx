@@ -1,4 +1,3 @@
-// App.tsx
 import { useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 
@@ -110,12 +109,23 @@ const App = () => {
     );
   };
 
+  const handleSearchInputChange = (value: string) => {
+    dispatchSearch({ type: "setDraft", payload: value });
+    if (value === "") {
+      // When the user manually deletes everything,
+      // commit an empty search and reset the graph.
+      dispatchSearch({ type: "commit" });
+      dispatchSearch({ type: "reset" });
+      resetGraph();
+    }
+  };
+
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
         <SearchInput
           value={searchState.draft}
-          onChange={(val) => dispatchSearch({ type: "setDraft", payload: val })}
+          onChange={handleSearchInputChange}
           onSubmit={handleSubmit}
           onClear={handleClearSearch}
           history={searchHistory}

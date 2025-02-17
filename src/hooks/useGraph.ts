@@ -98,14 +98,14 @@ function createUserGraph(repos: RepoBase[], contributor: ContributorNode) {
 }
 
 // Helper: Fetch graph data when input is in repository mode.
-async function fetchRepoGraph(input: string) {
+async function fetchRepoGraph(input: string, signal: AbortSignal) {
   const [owner, name] = input.split("/");
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
-  const repository = await getRepository(owner, name);
+  const repository = await getRepository(owner, name, signal);
   // Get recent commit authors using GraphQL.
-  const contributors = await getRepoContributorsWithContributedRepos(owner, name);
+  const contributors = await getRepoContributorsWithContributedRepos(owner, name, signal);
 
   // Our central repo node will have a name like "owner/repo"
   const selectedEntity: RepoNode = {
@@ -119,8 +119,8 @@ async function fetchRepoGraph(input: string) {
 }
 
 // Helper: Fetch graph data when input is in user mode.
-async function fetchUserGraph(username: string) {
-  const contributor = await getContributorData(username);
+async function fetchUserGraph(username: string, signal: AbortSignal) {
+  const contributor = await getContributorData(username, signal);
   // Create a central user node.
   const selectedEntity: ContributorNode = {
     ...contributor,
@@ -146,22 +146,27 @@ export function useGraph(input: string) {
 
   useEffect(() => {
     if (!input) return;
+
+    const controller = new AbortController();
+
     (async () => {
       setFetching(true);
       setError(null);
       setGraphData(null);
       try {
         if (input.includes("/")) {
-          const { selectedEntity, graph } = await fetchRepoGraph(input);
+          const { selectedEntity, graph } = await fetchRepoGraph(input, controller.signal);
           setSelectedEntity(selectedEntity);
           setGraphData(graph);
         } else {
-          const { selectedEntity, graph } = await fetchUserGraph(input);
+          const { selectedEntity, graph } = await fetchUserGraph(input, controller.signal);
           setSelectedEntity(selectedEntity);
           setGraphData(graph);
         }
-      } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(err);
+        if (err.name === "AbortError") return;
         setError("Failed to fetch data. Please check the input.");
         setSelectedEntity(null);
         setGraphData(null);
@@ -169,6 +174,11 @@ export function useGraph(input: string) {
         setFetching(false);
       }
     })();
+
+    // Cleanup: abort previous request when input changes or component unmounts.
+    return () => {
+      controller.abort();
+    };
   }, [input]);
 
   return { fetching, error, graphData, selectedEntity, resetGraph };

@@ -57,7 +57,7 @@ const repositoryFields = `
  * @param repo - The repository name.
  * @returns A promise resolving to the repository data.
  */
-export const getRepository = async (owner: string, repo: string) => {
+export const getRepository = async (owner: string, repo: string, signal?: AbortSignal) => {
   // Calculate date 7 days ago in ISO format.
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const query = `
@@ -68,7 +68,7 @@ export const getRepository = async (owner: string, repo: string) => {
     }
   `;
 
-  const result = await graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo });
+  const result = await graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo, signal });
 
   const recentIssues = result.repository.issues.nodes.filter(
     (issue) => new Date(issue.createdAt) > new Date(since)
@@ -119,7 +119,8 @@ interface GetRecentCommitAuthorsResponse {
  */
 export async function getRecentCommitAuthors(
   repoOwner: string,
-  repoName: string
+  repoName: string,
+  signal?: AbortSignal,
 ): Promise<{ login: string; contributionCount: number }[]> {
   // Calculate date 7 days ago in ISO format.
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -144,7 +145,7 @@ export async function getRecentCommitAuthors(
       }
     }
   `;
-  const result = await graphqlWithAuth<GetRecentCommitAuthorsResponse>(query, { owner: repoOwner, name: repoName, since });
+  const result = await graphqlWithAuth<GetRecentCommitAuthorsResponse>(query, { owner: repoOwner, name: repoName, since, signal });
   const history = result.repository?.defaultBranchRef?.target?.history;
   const nodes = history?.nodes || [];
 
@@ -203,7 +204,8 @@ export type UserContributedReposResponse = {
  * @returns A promise resolving to the user’s data including contributed repositories.
  */
 export async function getContributorData(
-  username: string
+  username: string,
+  signal?: AbortSignal,
 ): Promise<UserContributedReposResponse["user"]> {
   const query = `
     query getContributorData($username: String!) {
@@ -240,7 +242,7 @@ export async function getContributorData(
       }
     }
   `;
-  const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username });
+  const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username, signal });
   if (!data.user) {
     throw new Error("User not found");
   }
@@ -258,9 +260,10 @@ export async function getContributorData(
  */
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
-  repoName: string
+  repoName: string,
+  signal?: AbortSignal,
 ): Promise<(UserContributedReposResponse["user"] & { contributionCount: number })[]> {
-  const contributors = await getRecentCommitAuthors(repoOwner, repoName);
+  const contributors = await getRecentCommitAuthors(repoOwner, repoName, signal);
   const results = await Promise.all(
     contributors.map(async (contributor) => {
       const user = await getContributorData(contributor.login);

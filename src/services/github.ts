@@ -1,5 +1,6 @@
 import { graphql } from "@octokit/graphql";
 import { RepoBase } from "../types";
+import { getFromCache, setCache, generateCacheKey } from "./cache";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -69,6 +70,12 @@ export const getRepository = async (owner: string, repo: string, signal?: AbortS
     }
   `;
 
+  const cacheKey = generateCacheKey(query, { owner, repo });
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   const result = await graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo, signal });
 
   const recentIssues = result.repository.issues.nodes.filter(
@@ -79,7 +86,7 @@ export const getRepository = async (owner: string, repo: string, signal?: AbortS
     (pr) => new Date(pr.createdAt) > new Date(since)
   );
 
-  return {
+  const data = {
     ...result.repository,
     issues: {
       totalCount: recentIssues.length,
@@ -90,6 +97,9 @@ export const getRepository = async (owner: string, repo: string, signal?: AbortS
       nodes: recentPRs,
     }
   }
+
+  setCache(cacheKey, data);
+  return data; 
 }
 
 interface GetRecentCommitAuthorsResponse {
@@ -147,6 +157,13 @@ export async function getRecentCommitAuthors(
       }
     }
   `;
+
+  const cacheKey = generateCacheKey(query, { owner: repoOwner, repo: repoName });
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   const result = await graphqlWithAuth<GetRecentCommitAuthorsResponse>(query, { owner: repoOwner, name: repoName, since, signal });
   const history = result.repository?.defaultBranchRef?.target?.history;
   const nodes = history?.nodes || [];
@@ -159,11 +176,15 @@ export async function getRecentCommitAuthors(
       contributorMap.set(login, currentCount + 1);
     }
   });
-  
-  return Array.from(contributorMap.entries()).map(([login, contributionCount]) => ({
+
+  const data = Array.from(contributorMap.entries()).map(([login, contributionCount]) => ({
     login,
     contributionCount,
   }));
+
+  setCache(cacheKey, data);
+  
+  return data;
 }
 
 /**
@@ -245,10 +266,20 @@ export async function getContributorData(
       }
     }
   `;
+
+  const cacheKey = generateCacheKey(query, { username });
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
   const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username, signal });
   if (!data.user) {
     throw new Error("User not found");
   }
+
+  setCache(cacheKey, data.user);
+
   return data.user;
 }
 
@@ -267,6 +298,13 @@ export async function getRepoContributorsWithContributedRepos(
   repoName: string,
   signal?: AbortSignal,
 ): Promise<(UserContributedReposResponse["user"] & { contributionCount: number })[]> {
+  const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName });
+
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+  
   const contributors = await getRecentCommitAuthors(repoOwner, repoName, signal);
   const results = await Promise.all(
     contributors
@@ -276,6 +314,9 @@ export async function getRepoContributorsWithContributedRepos(
       return { ...user, contributionCount: contributor.contributionCount };
     })
   );
+
+  setCache(cacheKey, results);
+
   return results;
 }
 

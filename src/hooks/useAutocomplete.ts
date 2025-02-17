@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { searchRepositories, searchUsers } from "../services/github";
 import { useDebounce } from "./useDebounce";
+import { extractGitHubPath } from "../utils";
 
 export interface Suggestion {
   id: string;
@@ -15,7 +16,9 @@ export function useAutocomplete(query: string): {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const debouncedQuery = useDebounce(query, 300);
+  const normalizedQuery = extractGitHubPath(query) || query;
+
+  const debouncedQuery = useDebounce(normalizedQuery, 300);
 
   useEffect(() => {
     if (!debouncedQuery || debouncedQuery.length < 2) {

@@ -14,6 +14,7 @@ import SearchInput from "./components/SearchInput";
 import { useSearchReducer } from "./hooks/useSearchReducer";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { useNavHistoryReducer } from "./hooks/useNavHistoryReducer";
+import { extractGitHubPath } from "./utils";
 
 const App = () => {
   // Use search reducer to manage the search state.
@@ -57,8 +58,6 @@ const App = () => {
     canGoBack, 
     canGoForward 
   } = useNavHistoryReducer();
-
-  console.log(history)
 
   // Ref for settings container.
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -114,11 +113,14 @@ const App = () => {
 
   // Called when SearchInput commits a search.
   const handleSubmit = useCallback((value: string) => {
-    setDraft(value);
+    // If the input is a valid GitHub URL, extract the path.
+    const gitHubPath = extractGitHubPath(value);
+    const finalValue = gitHubPath ? gitHubPath : value;
+    setDraft(finalValue);
     commitSearch();
     // The committed value (searchState.committed) will then trigger useGraph.
     setSearchHistory((prev) =>
-      prev.includes(value) ? prev : [value, ...prev]
+      prev.includes(finalValue) ? prev : [finalValue, ...prev]
     );
   }, [commitSearch, setDraft]);
 

@@ -70,7 +70,10 @@ const Network = ({
   repulsivity = 300,
   centeringStrength = 0.5,
   onNodeClick,
-}: NetworkProps) => (
+}: NetworkProps) => {
+  const contributorNodesCount = data.nodes.filter((node) => !isRepoNode(node)).length;
+
+  return (
   <ResponsiveNetwork
     theme={networkTheme}
     data={data}
@@ -87,8 +90,8 @@ const Network = ({
     }
     nodeSize={10}
     linkColor={networkTheme.linkColor}
-    linkThickness={(link) => link.data.thickness || 1}
+    linkThickness={(link) => contributorNodesCount > 1 ? link.data.thickness || 1 : 1}
   />
-)
+)}
 
 export default Network

@@ -16,7 +16,7 @@ type HistoryAction =
   | { type: "NAVIGATE"; index: number }
   | { type: "RESET" };
 
-function historyReducer(state: HistoryState, action: HistoryAction): HistoryState {
+function navHistoryReducer(state: HistoryState, action: HistoryAction): HistoryState {
   switch (action.type) {
     case "ADD": {
       // Check if the node already exists in the history.
@@ -44,8 +44,8 @@ function historyReducer(state: HistoryState, action: HistoryAction): HistoryStat
   }
 }
 
-export function useHistoryReducer() {
-  const [state, dispatch] = useReducer(historyReducer, initialHistoryState);
+export function useNavHistoryReducer() {
+  const [state, dispatch] = useReducer(navHistoryReducer, initialHistoryState);
 
   const addNode = (node: EitherNode) => dispatch({ type: "ADD", node });
   const navigateTo = (index: number) => dispatch({ type: "NAVIGATE", index });

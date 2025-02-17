@@ -13,7 +13,7 @@ import ExploreLists from "./components/ExploreLists";
 import SearchInput from "./components/SearchInput";
 import { useSearchReducer } from "./hooks/useSearchReducer";
 import LoadingSpinner from "./components/LoadingSpinner";
-import { useHistoryReducer } from "./hooks/useHistoryReducer";
+import { useNavHistoryReducer } from "./hooks/useNavHistoryReducer";
 
 const App = () => {
   // Use search reducer to manage the search state.
@@ -56,7 +56,9 @@ const App = () => {
     resetHistory, 
     canGoBack, 
     canGoForward 
-  } = useHistoryReducer();
+  } = useNavHistoryReducer();
+
+  console.log(history)
 
   // Ref for settings container.
   const settingsRef = useRef<HTMLDivElement>(null);

@@ -10,7 +10,7 @@ export type SearchAction =
   | { type: 'commit' }
   | { type: 'reset' };
 
-function searchReducer(state: SearchState, action: SearchAction): SearchState {
+function searchInputReducer(state: SearchState, action: SearchAction): SearchState {
   switch (action.type) {
     case 'setDraft':
       return { ...state, draft: action.payload };
@@ -23,9 +23,9 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   }
 }
 
-export function useSearchReducer(initialDraft = '') {
+export function useSearchInputReducer(initialDraft = '') {
   const initialState: SearchState = { draft: initialDraft, committed: '' };
-  const [state, dispatch] = useReducer(searchReducer, initialState);
+  const [state, dispatch] = useReducer(searchInputReducer, initialState);
 
   const setDraft = (payload: string) => dispatch({ type: 'setDraft', payload });
   const commitSearch = () => dispatch({ type: 'commit' });

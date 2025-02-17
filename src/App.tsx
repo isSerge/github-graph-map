@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 
+import { EitherNode } from "./types";
+import { extractGitHubPath } from "./utils";
 import Network from "./components/Network";
 import DisplaySettings from "./components/DisplaySettings";
-import { useGraph } from "./hooks/useGraph";
-import { useDisplaySettings } from "./hooks/useDisplaySettings";
-import { EitherNode } from "./types";
-import { useOnClickOutside } from "./hooks/useOnClickOutside";
 import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
 import ExploreLists from "./components/ExploreLists";
 import SearchInput from "./components/SearchInput";
-import { useSearchReducer } from "./hooks/useSearchReducer";
 import LoadingSpinner from "./components/LoadingSpinner";
+import { useGraph } from "./hooks/useGraph";
+import { useDisplaySettings } from "./hooks/useDisplaySettings";
+import { useOnClickOutside } from "./hooks/useOnClickOutside";
+import { useSearchInputReducer } from "./hooks/useSearchInputReducer";
+import { useSearchHistory } from "./hooks/useSearchHistory";
 import { useNavHistoryReducer } from "./hooks/useNavHistoryReducer";
-import { extractGitHubPath } from "./utils";
 
 const App = () => {
   // Use search reducer to manage the search state.
@@ -24,7 +25,7 @@ const App = () => {
     setDraft,
     commitSearch,
     resetSearch,
-  } = useSearchReducer();
+  } = useSearchInputReducer();
 
   // The committed value (searchState.committed) is used to fetch graph data.
   const { 
@@ -46,8 +47,7 @@ const App = () => {
     setCenteringStrength,
   } = useDisplaySettings();
 
-  // Parent also maintains search history.
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const { searchHistory, addSearchQuery } = useSearchHistory();
 
   const { 
     history, 
@@ -75,11 +75,9 @@ const App = () => {
   // add search query into history when we get data successfully
   useEffect(() => {
     if (committed && !fetching && !error && graphData) {
-      setSearchHistory((prev) =>
-        prev.includes(committed) ? prev : [committed, ...prev]
-      );
+      addSearchQuery(committed);
     }
-  }, [committed, fetching, error, graphData]);
+  }, [committed, fetching, error, graphData, addSearchQuery]);
 
   const handlePrev = useCallback(() => {
     if (canGoBack) {

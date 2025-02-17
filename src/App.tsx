@@ -152,7 +152,7 @@ const App = () => {
       )}
 
       {graphData && selectedEntity && !fetching && !error && (
-        <div className="h-screen relative">
+        <div className="h-screen relative bg-gray-800">
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
             <button
               onClick={() => setShowSettingsPanel((prev) => !prev)}
@@ -194,6 +194,7 @@ const App = () => {
           </div>
 
           <Network
+            key={selectedEntity.id}
             selectedNodeId={selectedEntity.id}
             data={graphData}
             linkDistanceMultiplier={linkDistanceMultiplier}

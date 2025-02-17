@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 
 import Network from "./components/Network";
@@ -24,7 +24,7 @@ const App = () => {
     commitSearch,
     resetSearch,
   } = useSearchReducer();
-  
+
   // The committed value (searchState.committed) is used to fetch graph data.
   const { 
     fetching, 
@@ -80,7 +80,7 @@ const App = () => {
     }
   }, [committed, fetching, error]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (canGoBack) {
       const newIndex = currentIndex - 1;
       navigateTo(newIndex);
@@ -89,9 +89,9 @@ const App = () => {
       setDraft(newInput);
       commitSearch();
     }
-  };
+  }, [canGoBack, currentIndex, history, navigateTo, setDraft, commitSearch]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (canGoForward) {
       const newIndex = currentIndex + 1;
       navigateTo(newIndex);
@@ -100,27 +100,27 @@ const App = () => {
       setDraft(newInput);
       commitSearch();
     }
-  };
+  }, [canGoForward, currentIndex, history, navigateTo, setDraft, commitSearch]);
 
-  const handleNodeClick = (node: ComputedNode<EitherNode>) => setModalNode(node);
+  const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => setModalNode(node), []);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     resetSearch();
     resetHistory();
     resetGraph();
-  };
+  }, [resetSearch, resetHistory, resetGraph]);
 
   // Called when SearchInput commits a search.
-  const handleSubmit = (value: string) => {
+  const handleSubmit = useCallback((value: string) => {
     setDraft(value);
     commitSearch();
     // The committed value (searchState.committed) will then trigger useGraph.
     setSearchHistory((prev) =>
       prev.includes(value) ? prev : [value, ...prev]
     );
-  };
+  }, [commitSearch, setDraft]);
 
-  const handleSearchInputChange = (value: string) => {
+  const handleSearchInputChange = useCallback((value: string) => {
     setDraft(value);
     if (value === "") {
       // When the user manually deletes everything,
@@ -129,7 +129,7 @@ const App = () => {
       resetSearch();
       resetGraph();
     }
-  };
+  }, [setDraft, commitSearch, resetSearch, resetGraph]);
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">

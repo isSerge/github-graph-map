@@ -265,7 +265,9 @@ export async function getRepoContributorsWithContributedRepos(
 ): Promise<(UserContributedReposResponse["user"] & { contributionCount: number })[]> {
   const contributors = await getRecentCommitAuthors(repoOwner, repoName, signal);
   const results = await Promise.all(
-    contributors.map(async (contributor) => {
+    contributors
+    .filter(contributor => !contributor.login.includes("[bot]"))
+    .map(async (contributor) => {
       const user = await getContributorData(contributor.login);
       return { ...user, contributionCount: contributor.contributionCount };
     })

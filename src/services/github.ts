@@ -55,6 +55,7 @@ const repositoryFields = `
  * 
  * @param owner - The owner of the repository.
  * @param repo - The repository name.
+ * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to the repository data.
  */
 export const getRepository = async (owner: string, repo: string, signal?: AbortSignal) => {
@@ -115,6 +116,7 @@ interface GetRecentCommitAuthorsResponse {
  *
  * @param repoOwner - The owner of the repository.
  * @param repoName - The repository name.
+ * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to an array of commit author objects (with login).
  */
 export async function getRecentCommitAuthors(
@@ -201,6 +203,7 @@ export type UserContributedReposResponse = {
  * Uses GraphQL to fetch repositories that the given user has contributed to.
  *
  * @param username - The GitHub username.
+ * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to the user’s data including contributed repositories.
  */
 export async function getContributorData(
@@ -256,6 +259,7 @@ export async function getContributorData(
  *
  * @param repoOwner - The owner of the repository.
  * @param repoName - The repository name.
+ * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to an array where each element contains the contributor’s detailed data.
  */
 export async function getRepoContributorsWithContributedRepos(

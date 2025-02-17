@@ -72,14 +72,14 @@ const App = () => {
     }
   }, [selectedEntity, addNode]);
 
-  // When a new committed search happens, update search history.
+  // add search query into history when we get data successfully
   useEffect(() => {
-    if (committed && !fetching && !error) {
+    if (committed && !fetching && !error && graphData) {
       setSearchHistory((prev) =>
         prev.includes(committed) ? prev : [committed, ...prev]
       );
     }
-  }, [committed, fetching, error]);
+  }, [committed, fetching, error, graphData]);
 
   const handlePrev = useCallback(() => {
     if (canGoBack) {
@@ -118,10 +118,6 @@ const App = () => {
     const finalValue = gitHubPath ? gitHubPath : value;
     setDraft(finalValue);
     commitSearch();
-    // The committed value (searchState.committed) will then trigger useGraph.
-    setSearchHistory((prev) =>
-      prev.includes(finalValue) ? prev : [finalValue, ...prev]
-    );
   }, [commitSearch, setDraft]);
 
   const handleSearchInputChange = useCallback((value: string) => {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { searchRepositories, searchUsers } from "../services/github";
+import { useDebounce } from "./useDebounce";
 
 export interface Suggestion {
   id: string;
@@ -14,24 +15,26 @@ export function useAutocomplete(query: string): {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const debouncedQuery = useDebounce(query, 300);
+
   useEffect(() => {
-    if (!query || query.length < 2) {
+    if (!debouncedQuery || debouncedQuery.length < 2) {
       setSuggestions([]);
       return;
     }
-    const timer = setTimeout(async () => {
-      setIsLoading(true);
+    setIsLoading(true);
+    (async () => {
       try {
         let suggestionsData: Suggestion[] = [];
-        if (query.includes("/")) {
-          const repos = await searchRepositories(query);
+        if (debouncedQuery.includes("/")) {
+          const repos = await searchRepositories(debouncedQuery);
           suggestionsData = repos.map((repo) => ({
             id: repo.id,
             label: repo.nameWithOwner,
             type: "repo",
           }));
         } else {
-          const users = await searchUsers(query);
+          const users = await searchUsers(debouncedQuery);
           suggestionsData = users.map((user) => ({
             id: user.id,
             label: user.login,
@@ -45,9 +48,8 @@ export function useAutocomplete(query: string): {
       } finally {
         setIsLoading(false);
       }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
+    })();
+  }, [debouncedQuery]);
 
   return { suggestions, isLoading };
 }

@@ -146,32 +146,29 @@ export function useGraph(input: string) {
 
   useEffect(() => {
     if (!input) return;
-    const timer = setTimeout(() => {
-      (async () => {
-        setFetching(true);
-        setError(null);
-        setGraphData(null);
-        try {
-          if (input.includes("/")) {
-            const { selectedEntity, graph } = await fetchRepoGraph(input);
-            setSelectedEntity(selectedEntity);
-            setGraphData(graph);
-          } else {
-            const { selectedEntity, graph } = await fetchUserGraph(input);
-            setSelectedEntity(selectedEntity);
-            setGraphData(graph);
-          }
-        } catch (err) {
-          console.error(err);
-          setError("Failed to fetch data. Please check the input.");
-          setSelectedEntity(null);
-          setGraphData(null);
-        } finally {
-          setFetching(false);
+    (async () => {
+      setFetching(true);
+      setError(null);
+      setGraphData(null);
+      try {
+        if (input.includes("/")) {
+          const { selectedEntity, graph } = await fetchRepoGraph(input);
+          setSelectedEntity(selectedEntity);
+          setGraphData(graph);
+        } else {
+          const { selectedEntity, graph } = await fetchUserGraph(input);
+          setSelectedEntity(selectedEntity);
+          setGraphData(graph);
         }
-      })();
-    }, 500);
-    return () => clearTimeout(timer);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch data. Please check the input.");
+        setSelectedEntity(null);
+        setGraphData(null);
+      } finally {
+        setFetching(false);
+      }
+    })();
   }, [input]);
 
   return { fetching, error, graphData, selectedEntity, resetGraph };

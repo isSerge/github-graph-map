@@ -29,12 +29,12 @@ const ExploreRepoItem = ({ repo, onSelect }: ExploreRepoItemProps) => {
                 <span>🍴 {formatNumber(repo.forkCount)}</span>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-                {repo.topics.nodes.map((topic, index) => (
+                {repo.topics.nodes.map((node, index) => (
                     <span
                         key={index}
                         className="bg-gray-600 text-gray-200 px-2 py-1 rounded-full text-xs"
                     >
-                        {topic.name}
+                        {node.topic.name}
                     </span>
                 ))}
             </div>

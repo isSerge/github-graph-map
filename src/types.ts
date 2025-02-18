@@ -40,9 +40,11 @@ export interface RepoBase {
   }
   topics: {
     nodes: {
-      name: string;
-    }[];
-  }
+      topic: {
+        name: string;
+      }
+    }[]
+  };
 }
 
 // Common network node interface.

@@ -5,7 +5,7 @@ import { formatNumber } from "../../utils";
 
 interface ExploreContributorItemProps {
     contributor: ContributorNode;
-    onSelect: (node: ContributorNode) => void;
+    onSelect: (nodeName: string) => void;
 }
 
 const ExploreContributorItem = ({ contributor, onSelect }: ExploreContributorItemProps) => {
@@ -13,7 +13,7 @@ const ExploreContributorItem = ({ contributor, onSelect }: ExploreContributorIte
     const lastRepos = contributor.repositoriesContributedTo.nodes.slice(0, 3);
     return (
         <li
-            onClick={() => onSelect(contributor)}
+            onClick={() => onSelect(contributor.name)}
             className="p-4 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors flex items-center gap-4 min-h-[150px]"
         >
             <img

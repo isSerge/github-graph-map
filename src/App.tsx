@@ -146,7 +146,7 @@ const App = () => {
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       {!fetching && !error && !selectedEntity && (
-        <ExploreList onSelect={(node: EitherNode) => handleSubmit(node.name)} />
+        <ExploreList onSelect={(nodeName: string) => handleSubmit(nodeName)} />
       )}
 
       {graphData && selectedEntity && !fetching && !error && (

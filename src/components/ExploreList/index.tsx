@@ -1,97 +1,14 @@
-import { RepoNode, ContributorNode, EitherNode } from "../../types";
+import { ContributorNode } from "../../types";
 import ExploreRepoItem from "./ExploreRepoItem";
 import ExploreContributorItem from "./ExploreContributorItem";
+import { useFreshRepos } from "../../hooks/useFreshRepos";
 
 interface ExploreListsProps {
-    onSelect: (node: EitherNode) => void;
+    onSelect: (nodeName: string) => void;
 }
 
 const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
-    const repoList: RepoNode[] = [
-        {
-            id: "repo1",
-            name: "facebook/react",
-            stargazerCount: 200000,
-            description: "A JavaScript library for building user interfaces",
-            primaryLanguage: { name: "JavaScript" },
-            url: "https://github.com/facebook/react",
-            owner: { login: "facebook" },
-            pushedAt: new Date().toISOString(),
-            type: "repo",
-            topics: {
-                nodes: [
-                    { name: "react" },
-                    { name: "javascript" },
-                    { name: "library" },
-                ]
-            },
-            nameWithOwner: "facebook/react",
-            contributingFile: { __typename: "File" },
-            labels: {
-                nodes: [
-                    { name: "good first issue", color: "7057ff" },
-                    { name: "help wanted", color: "008672" },
-                ],
-            },
-            issues: {
-                totalCount: 100,
-                nodes: [{ createdAt: new Date().toISOString() }],
-            },
-            forkCount: 100,
-            pullRequests: {
-                totalCount: 50,
-                nodes: [
-                    {
-                        createdAt: new Date().toISOString(),
-                        state: "open",
-                        merged: false,
-                    },
-                ],
-            },
-        },
-        {
-            id: "repo2",
-            name: "facebook/react",
-            stargazerCount: 200000,
-            description: "A JavaScript library for building user interfaces",
-            primaryLanguage: { name: "JavaScript" },
-            url: "https://github.com/facebook/react",
-            owner: { login: "facebook" },
-            pushedAt: new Date().toISOString(),
-            type: "repo",
-            topics: {
-                nodes: [
-                    { name: "react" },
-                    { name: "javascript" },
-                    { name: "library" },
-                ]
-            },
-            nameWithOwner: "facebook/react",
-            contributingFile: { __typename: "File" },
-            labels: {
-                nodes: [
-                    { name: "good first issue", color: "7057ff" },
-                    { name: "help wanted", color: "008672" },
-                ],
-            },
-            issues: {
-                totalCount: 100,
-                nodes: [{ createdAt: new Date().toISOString() }],
-            },
-            forkCount: 100,
-            pullRequests: {
-                totalCount: 50,
-                nodes: [
-                    {
-                        createdAt: new Date().toISOString(),
-                        state: "open",
-                        merged: false,
-                    },
-                ],
-            },
-        },
-
-    ];
+    const { repos, loading, error } = useFreshRepos();
 
     const contributorList: ContributorNode[] = [
         {
@@ -133,11 +50,15 @@ const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
             {/* Repositories Column */}
             <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-4">Explore repositories...</h2>
-                <ul className="space-y-4">
-                    {repoList.map((repo) => (
-                        <ExploreRepoItem key={repo.id} repo={repo} onSelect={onSelect} />
-                    ))}
-                </ul>
+                {loading && <p className="text-gray-300">Loading repositories…</p>}
+                {error && <p className="text-red-500">{error}</p>}
+                {!loading && !error && (
+                    <ul className="space-y-4">
+                        {repos.map((repo) => (
+                            <ExploreRepoItem key={repo.id} repo={repo} onSelect={onSelect} />
+                        ))}
+                    </ul>
+                )}
             </div>
 
             {/* Contributors Column */}

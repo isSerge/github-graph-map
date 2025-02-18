@@ -49,6 +49,13 @@ const repositoryFields = `
       merged
     }
   }
+  topics: repositoryTopics(first: 5) {
+    nodes {
+      topic {
+        name
+      }
+    }
+  }
 `;
 
 /**
@@ -376,4 +383,25 @@ export async function searchUsers(
   }>(userQuery, { searchTerm });
   // Only keep nodes that are Users for now
   return result.search.nodes.filter(node => node.__typename === "User");
+}
+
+// TODO: improve query, accept parameters and add caching
+export async function getFreshRepositories(signal?: AbortSignal) {
+  const query = `
+    query GetFreshRepos {
+      search(
+        query: "sort:updated-desc language:JavaScript"
+        type: REPOSITORY
+        first: 10
+      ) {
+        nodes {
+          ... on Repository{
+            ${repositoryFields}
+          }
+        }
+      }
+    }
+  `;
+  const result = await graphqlWithAuth<{ search: { nodes: RepoBase[] } }>(query, { signal });
+  return result.search.nodes;
 }

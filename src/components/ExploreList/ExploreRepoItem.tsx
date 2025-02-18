@@ -5,13 +5,13 @@ import { formatNumber } from "../../utils";
 
 interface ExploreRepoItemProps {
     repo: RepoNode;
-    onSelect: (node: RepoNode) => void;
+    onSelect: (nodeName: string) => void;
 }
 
 const ExploreRepoItem = ({ repo, onSelect }: ExploreRepoItemProps) => {
     return (
         <li
-            onClick={() => onSelect(repo)}
+            onClick={() => onSelect(repo.nameWithOwner)}
             className="p-4 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors min-h-[150px]"
         >
             <div className="mb-2">

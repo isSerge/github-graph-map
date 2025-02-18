@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import { EitherNode } from "./types";
 import { extractGitHubPath } from "./utils";
-import Network from "./components/Network";
+import NetworkWithZoom from "./components/NetworkWithZoom";
 import DisplaySettings from "./components/DisplaySettings";
 import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
@@ -192,27 +191,14 @@ const App = () => {
             </button>
           </div>
 
-          <TransformWrapper 
-            initialScale={1} 
-            minScale={0.5} 
-            maxScale={4} 
-            wheel={{ step: 0.1 }} 
-            doubleClick={{ disabled: true }}
-          >
-            <TransformComponent>
-              <div className="w-full h-full cursor-move">
-                <Network
-                  key={selectedEntity.id}
-                  selectedNodeId={selectedEntity.id}
-                  data={graphData}
-                  linkDistanceMultiplier={linkDistanceMultiplier}
-                  repulsivity={repulsivity}
-                  centeringStrength={centeringStrength}
-                  onNodeClick={handleNodeClick}
-                />
-              </div>
-            </TransformComponent>
-          </TransformWrapper>
+          <NetworkWithZoom
+            selectedNodeId={selectedEntity.id}
+            data={graphData}
+            linkDistanceMultiplier={linkDistanceMultiplier}
+            repulsivity={repulsivity}
+            centeringStrength={centeringStrength}
+            onNodeClick={handleNodeClick} 
+          />
         </div>
       )}
 

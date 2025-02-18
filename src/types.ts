@@ -38,6 +38,11 @@ export interface RepoBase {
       merged: boolean;
     }[];
   }
+  topics: {
+    nodes: {
+      name: string;
+    }[];
+  }
 }
 
 // Common network node interface.

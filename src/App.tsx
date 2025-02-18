@@ -7,7 +7,7 @@ import NetworkWithZoom from "./components/NetworkWithZoom";
 import DisplaySettings from "./components/DisplaySettings";
 import JsonDisplay from "./components/JsonDisplay";
 import NodeModal from "./components/NodeModal";
-import ExploreLists from "./components/ExploreLists";
+import ExploreList from "./components/ExploreList";
 import SearchInput from "./components/SearchInput";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { useGraph } from "./hooks/useGraph";
@@ -146,7 +146,7 @@ const App = () => {
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       {!fetching && !error && !selectedEntity && (
-        <ExploreLists onSelect={(node: EitherNode) => handleSubmit(node.name)} />
+        <ExploreList onSelect={(node: EitherNode) => handleSubmit(node.name)} />
       )}
 
       {graphData && selectedEntity && !fetching && !error && (

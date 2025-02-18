@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import { EitherNode } from "./types";
 import { extractGitHubPath } from "./utils";
@@ -28,12 +29,12 @@ const App = () => {
   } = useSearchInputReducer();
 
   // The committed value (searchState.committed) is used to fetch graph data.
-  const { 
-    fetching, 
-    error, 
-    graphData, 
-    selectedEntity, 
-    resetGraph 
+  const {
+    fetching,
+    error,
+    graphData,
+    selectedEntity,
+    resetGraph
   } = useGraph(committed);
 
   const {
@@ -49,14 +50,14 @@ const App = () => {
 
   const { searchHistory, addSearchQuery } = useSearchHistory();
 
-  const { 
-    history, 
-    currentIndex, 
-    addNode, 
-    navigateTo, 
-    resetHistory, 
-    canGoBack, 
-    canGoForward 
+  const {
+    history,
+    currentIndex,
+    addNode,
+    navigateTo,
+    resetHistory,
+    canGoBack,
+    canGoForward
   } = useNavHistoryReducer();
 
   // Ref for settings container.
@@ -150,7 +151,7 @@ const App = () => {
       )}
 
       {graphData && selectedEntity && !fetching && !error && (
-        <div className="h-screen relative bg-gray-800">
+        <div className="h-screen relative bg-gray-800 overflow-hidden">
           <div ref={settingsRef} className="absolute top-4 right-4 z-20">
             <button
               onClick={() => setShowSettingsPanel((prev) => !prev)}
@@ -191,15 +192,27 @@ const App = () => {
             </button>
           </div>
 
-          <Network
-            key={selectedEntity.id}
-            selectedNodeId={selectedEntity.id}
-            data={graphData}
-            linkDistanceMultiplier={linkDistanceMultiplier}
-            repulsivity={repulsivity}
-            centeringStrength={centeringStrength}
-            onNodeClick={handleNodeClick}
-          />
+          <TransformWrapper 
+            initialScale={1} 
+            minScale={0.5} 
+            maxScale={4} 
+            wheel={{ step: 0.1 }} 
+            doubleClick={{ disabled: true }}
+          >
+            <TransformComponent>
+              <div className="w-full h-full cursor-move">
+                <Network
+                  key={selectedEntity.id}
+                  selectedNodeId={selectedEntity.id}
+                  data={graphData}
+                  linkDistanceMultiplier={linkDistanceMultiplier}
+                  repulsivity={repulsivity}
+                  centeringStrength={centeringStrength}
+                  onNodeClick={handleNodeClick}
+                />
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
         </div>
       )}
 

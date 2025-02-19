@@ -1,15 +1,16 @@
-import { ContributorNode } from "../../types";
+import { ActiveContributor } from "../../types";
 import { formatNumber } from "../../utils";
 
 interface ExploreContributorItemProps {
-    contributor: ContributorNode;
+    contributor: ActiveContributor;
     onSelect: (nodeName: string) => void;
 }
 
 const ExploreContributorItem = ({ contributor, onSelect }: ExploreContributorItemProps) => {
+    const contributions = contributor.contributionsCollection.commitContributionsByRepository;
     return (
         <li
-            onClick={() => onSelect(contributor.name)}
+            onClick={() => onSelect(contributor.login)}
             className="p-4 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors flex items-center gap-4 min-h-[150px]"
         >
             <img
@@ -22,23 +23,18 @@ const ExploreContributorItem = ({ contributor, onSelect }: ExploreContributorIte
                 <p className="text-gray-300 text-sm">
                     Followers: {formatNumber(contributor.followers?.totalCount || 0)}
                 </p>
-                <div className="mt-2">
+                {contributions.length > 0 && (<div className="mt-2">
                     <span className="text-gray-400 text-xs">
                         Last repos pushed to:
                     </span>
                     <ul className="list-disc list-inside text-xs text-gray-300">
-                        {/* {lastRepos.map((repo) => (
-                            <li key={repo.nameWithOwner}>
-                                {repo.nameWithOwner}{" "}
-                                <span className="text-gray-500">
-                                    (
-                                    {formatDistanceToNow(new Date(repo?.pushedAt), { addSuffix: true })}
-                                    )
-                                </span>
+                        {contributions.map(({ repository }) => (
+                            <li key={repository.nameWithOwner}>
+                                {repository.nameWithOwner}
                             </li>
-                        ))} */}
+                        ))}
                     </ul>
-                </div>
+                </div>)}
             </div>
         </li>
     );

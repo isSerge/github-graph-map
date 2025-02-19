@@ -1,5 +1,21 @@
 import { InputNode, InputLink } from '@nivo/network';
 
+export type ActiveContributor = {
+  login: string;
+  avatarUrl: string;
+  id: string;
+  followers: {
+    totalCount: number;
+  }
+  contributionsCollection: {
+    commitContributionsByRepository: {
+      repository: {
+        nameWithOwner: string;
+      }
+    }[];
+  }
+}
+
 export type ContributorBase = {
   avatarUrl: string;
   company: string;

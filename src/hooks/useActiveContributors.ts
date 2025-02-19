@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { ContributorNode } from "../types";
+import { ActiveContributor } from "../types";
 import { getActiveContributors } from "../services/github";
 
 export const useActiveContributors = (): {
-  contributors: ContributorNode[];
+  contributors: ActiveContributor[];
   loading: boolean;
   error: string | null;
 } => {
-  const [contributors, setContributors] = useState<ContributorNode[]>([]);
+  const [contributors, setContributors] = useState<ActiveContributor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

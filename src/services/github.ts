@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { RepoBase, ContributorBase } from "../types";
+import { RepoBase, ContributorBase, ActiveContributor } from "../types";
 import { getFromCache, setCache, generateCacheKey } from "./cache";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -378,33 +378,40 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBa
   return result.search.nodes;
 }
 
-export async function getActiveContributors(signal?: AbortSignal): Promise<ContributorBase[]> {
+export async function getActiveContributors(signal?: AbortSignal): Promise<ActiveContributor[]> {
+  // Calculate date 7 days ago in ISO format.
+  const date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  date.setUTCHours(0, 0, 0, 0);
+  const since = date.toISOString().replace('.000', '');
   const query = `
-    query GetActiveContributors {
+    query GetActiveContributors($since: DateTime!) {
       search(query: "followers:>100 sort:joined-desc", type: USER, first: 5) {
         nodes {
           ... on User {
             id
             login
-            name
             avatarUrl
-            company
-            email
             followers {
               totalCount
             }
-            location
+            contributionsCollection (from: $since) {
+              commitContributionsByRepository {
+                repository {
+                  nameWithOwner
+                }
+              }
+            }
           }
         }
       }
     }
   `;
 
-  const cacheKey = generateCacheKey(query);
+  const cacheKey = generateCacheKey(query, { since });
   const cachedData = getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
-  const result = await graphqlWithAuth<{ search: { nodes: ContributorBase[] }}>(query, { signal });
+  const result = await graphqlWithAuth<{ search: { nodes: ActiveContributor[] }}>(query, { signal, since });
 
   setCache(cacheKey, result.search.nodes);
   return result.search.nodes;

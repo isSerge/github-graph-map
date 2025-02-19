@@ -1,5 +1,24 @@
 import { InputNode, InputLink } from '@nivo/network';
 
+export type ContributorBase = {
+  avatarUrl: string;
+  company: string;
+  email: string;
+  followers: {
+    totalCount: number;
+  };
+  following: {
+    totalCount: number;
+  };
+  location: string;
+  login: string;
+  websiteUrl: string;
+  repositoriesContributedTo: {
+    totalCount: number;
+    nodes: RepoBase[];
+  };
+};
+
 // Base type for repository data as returned by the API.
 export interface RepoBase {
   name: string;
@@ -56,34 +75,7 @@ export interface NetworkNode extends InputNode {
 // RepoNode is a combination of the repository data and network node info.
 export type RepoNode = RepoBase & NetworkNode & { type: "repo" };
 
-export interface ContributorNode extends NetworkNode {
-  avatarUrl: string;
-  company: string;
-  email: string;
-  followers: {
-    totalCount: number;
-  };
-  following: {
-    totalCount: number;
-  };
-  location: string;
-  login: string;
-  organizations: {
-    nodes: {
-      login: string;
-    }[];
-  };
-  websiteUrl: string;
-  topRepositories: {
-    totalCount: number;
-    nodes: RepoBase[];
-  };
-  repositoriesContributedTo: {
-    totalCount: number;
-    nodes: RepoBase[];
-  };
-  type: "contributor";
-}
+export type ContributorNode = ContributorBase & NetworkNode & { type: "contributor" };
 
 export type EitherNode = RepoNode | ContributorNode;
 

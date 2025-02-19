@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { RepoBase } from "../types";
+import { RepoBase, ContributorBase } from "../types";
 import { getFromCache, setCache, generateCacheKey } from "./cache";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -54,6 +54,32 @@ const repositoryFields = `
       topic {
         name
       }
+    }
+  }
+`;
+
+const userFields = `
+  avatarUrl
+  company
+  email
+  followers {
+    totalCount
+  }
+  following {
+    totalCount
+  }
+  location
+  login
+  organizations(first: 5) {
+    nodes {
+      login
+    }
+  }
+  websiteUrl
+  repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
+    totalCount
+    nodes {
+      ${repositoryFields}
     }
   }
 `;
@@ -195,39 +221,6 @@ export async function getRecentCommitAuthors(
 }
 
 /**
- * GraphQL response type for fetching contributed repositories.
- */
-export type UserContributedReposResponse = {
-  user: {
-    avatarUrl: string;
-    company: string;
-    email: string;
-    followers: {
-      totalCount: number;
-    };
-    following: {
-      totalCount: number;
-    };
-    location: string;
-    login: string;
-    organizations: {
-      nodes: {
-        login: string;
-      }[];
-    };
-    websiteUrl: string;
-    topRepositories: {
-      totalCount: number;
-      nodes: RepoBase[];
-    };
-    repositoriesContributedTo: {
-      totalCount: number;
-      nodes: RepoBase[];
-    };
-  };
-};
-
-/**
  * Uses GraphQL to fetch repositories that the given user has contributed to.
  *
  * @param username - The GitHub username.
@@ -237,39 +230,11 @@ export type UserContributedReposResponse = {
 export async function getContributorData(
   username: string,
   signal?: AbortSignal,
-): Promise<UserContributedReposResponse["user"]> {
+) {
   const query = `
     query getContributorData($username: String!) {
       user(login: $username) {
-        avatarUrl
-        company
-        email
-        followers {
-          totalCount
-        }
-        following {
-          totalCount
-        }
-        location
-        login
-        organizations(first: 5) {
-          nodes {
-            login
-          }
-        }
-        websiteUrl
-        repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
-          totalCount
-          nodes {
-            ${repositoryFields}
-          }
-        }
-        topRepositories(first: 5, orderBy: { field: STARGAZERS, direction: DESC }) {
-          totalCount
-          nodes {
-            ${repositoryFields}
-          }
-        }
+        ${userFields}
       }
     }
   `;
@@ -280,7 +245,7 @@ export async function getContributorData(
     return cachedData;
   }
 
-  const data = await graphqlWithAuth<UserContributedReposResponse>(query, { username, signal });
+  const data = await graphqlWithAuth<{ user: ContributorBase}>(query, { username, signal });
   if (!data.user) {
     throw new Error("User not found");
   }
@@ -304,7 +269,7 @@ export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string,
   signal?: AbortSignal,
-): Promise<(UserContributedReposResponse["user"] & { contributionCount: number })[]> {
+): Promise<(ContributorBase & { contributionCount: number })[]> {
   const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName });
 
   const cachedData = getFromCache(cacheKey);
@@ -403,5 +368,30 @@ export async function getFreshRepositories(signal?: AbortSignal) {
     }
   `;
   const result = await graphqlWithAuth<{ search: { nodes: RepoBase[] } }>(query, { signal });
+  return result.search.nodes;
+}
+
+export async function getActiveContributors(signal?: AbortSignal) {
+  const query = `
+    query GetActiveContributors {
+      search(query: "followers:>1000 sort:joined-desc", type: USER, first: 10) {
+        nodes {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            company
+            email
+            followers {
+              totalCount
+            }
+            location
+          }
+        }
+      }
+    }
+  `;
+  const result = await graphqlWithAuth<{ search: { nodes: ContributorBase[] }}>(query, { signal });
   return result.search.nodes;
 }

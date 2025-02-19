@@ -3,7 +3,6 @@ import {
   getRepoContributorsWithContributedRepos,
   getRepository,
   getContributorData,
-  UserContributedReposResponse,
 } from "../services/github";
 import {
   NetworkLink,
@@ -11,11 +10,12 @@ import {
   RepoNode,
   ContributorNode,
   EitherNode,
+  ContributorBase,
 } from "../types";
 
 // Helper: Create graph in repository mode.
 function createRepoGraph(
-  contributors: (UserContributedReposResponse["user"] & { contributionCount: number })[],
+  contributors: (ContributorBase & { contributionCount: number })[],
   centralRepo: RepoNode,
 ) {
   const nodesMap = new Map<string, RepoNode | ContributorNode>();

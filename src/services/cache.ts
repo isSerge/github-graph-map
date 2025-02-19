@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO: pass duration as an argument for different queries
 const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 const CACHE_PREFIX = "graphql_cache_";
 
@@ -44,6 +45,6 @@ export const setCache = (key: string, data: any): void => {
   memoryCache.set(key, entry);
 };
 
-export const generateCacheKey = (query: string, variables: Record<string, any>): string => {
+export const generateCacheKey = (query: string, variables?: Record<string, any>): string => {
   return JSON.stringify({ query, variables });
 };

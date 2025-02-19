@@ -34,7 +34,7 @@ const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
                 {contributors.error && <p className="text-red-500">{contributors.error}</p>}
                 {!contributors.loading && !contributors.error && (
                     <ul className="space-y-4">
-                        {contributors.contributors.map((contributor) => (
+                        {contributors.contributors.slice(0, 3).map((contributor) => (
                             <ExploreContributorItem
                                 key={contributor.id}
                                 contributor={contributor}

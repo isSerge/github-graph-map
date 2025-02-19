@@ -351,13 +351,13 @@ export async function searchUsers(
 }
 
 // TODO: improve query, accept parameters and add caching
-export async function getFreshRepositories(signal?: AbortSignal) {
+export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBase[]> {
   const query = `
     query GetFreshRepos {
       search(
-        query: "sort:updated-desc language:JavaScript"
+        query: "stars:>100 sort:updated-desc"
         type: REPOSITORY
-        first: 10
+        first: 3
       ) {
         nodes {
           ... on Repository{
@@ -367,14 +367,21 @@ export async function getFreshRepositories(signal?: AbortSignal) {
       }
     }
   `;
+
+  const cacheKey = generateCacheKey(query);
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) return cachedData;
+
   const result = await graphqlWithAuth<{ search: { nodes: RepoBase[] } }>(query, { signal });
+  
+  setCache(cacheKey, result.search.nodes);
   return result.search.nodes;
 }
 
-export async function getActiveContributors(signal?: AbortSignal) {
+export async function getActiveContributors(signal?: AbortSignal): Promise<ContributorBase[]> {
   const query = `
     query GetActiveContributors {
-      search(query: "followers:>1000 sort:joined-desc", type: USER, first: 10) {
+      search(query: "followers:>100 sort:joined-desc", type: USER, first: 5) {
         nodes {
           ... on User {
             id
@@ -392,6 +399,13 @@ export async function getActiveContributors(signal?: AbortSignal) {
       }
     }
   `;
+
+  const cacheKey = generateCacheKey(query);
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) return cachedData;
+
   const result = await graphqlWithAuth<{ search: { nodes: ContributorBase[] }}>(query, { signal });
+
+  setCache(cacheKey, result.search.nodes);
   return result.search.nodes;
 }

@@ -350,7 +350,7 @@ export async function searchUsers(
   return result.search.nodes.filter(node => node.__typename === "User");
 }
 
-// TODO: improve query, accept parameters and add caching
+// TODO: improve query, accept parameters
 export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBase[]> {
   const query = `
     query GetFreshRepos {

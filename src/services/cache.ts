@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO: pass duration as an argument for different queries
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+const DEFAULT_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 const CACHE_PREFIX = "graphql_cache_";
 
 interface CacheEntry {
   data: any;
-  timestamp: number;
+  timestamp: number; // when cache was set
+  duration: number; // how long to keep the cache
 }
 
 const memoryCache = new Map<string, CacheEntry>();
@@ -17,7 +18,7 @@ export const getFromCache = (key: string): any | null => {
   if (localItem) {
     try {
       const entry: CacheEntry = JSON.parse(localItem);
-      if (Date.now() - entry.timestamp <= CACHE_DURATION) {
+      if (Date.now() - entry.timestamp <= entry.duration) {
         return entry.data;
       } else {
         localStorage.removeItem(CACHE_PREFIX + key);
@@ -29,7 +30,7 @@ export const getFromCache = (key: string): any | null => {
 
   // Fall back to in-memory cache.
   const memoryEntry = memoryCache.get(key);
-  if (memoryEntry && Date.now() - memoryEntry.timestamp <= CACHE_DURATION) {
+  if (memoryEntry && Date.now() - memoryEntry.timestamp <= memoryEntry.duration) {
     return memoryEntry.data;
   } else if (memoryEntry) {
     memoryCache.delete(key);
@@ -38,8 +39,10 @@ export const getFromCache = (key: string): any | null => {
   return null;
 };
 
-export const setCache = (key: string, data: any): void => {
-  const entry: CacheEntry = { data, timestamp: Date.now() };
+// Stores data in both localStorage and the in-memory cache.
+// The caller can pass a custom duration; otherwise, it defaults to DEFAULT_CACHE_DURATION.
+export const setCache = (key: string, data: any, duration: number = DEFAULT_CACHE_DURATION): void => {
+  const entry: CacheEntry = { data, timestamp: Date.now(), duration };
   // Update both local storage and in-memory cache.
   localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
   memoryCache.set(key, entry);

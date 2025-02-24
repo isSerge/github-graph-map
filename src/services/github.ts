@@ -374,7 +374,9 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBa
 
   const result = await graphqlWithAuth<{ search: { nodes: RepoBase[] } }>(query, { signal });
   
-  setCache(cacheKey, result.search.nodes);
+  const cacheDuration = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+  setCache(cacheKey, result.search.nodes, cacheDuration);
+
   return result.search.nodes;
 }
 
@@ -413,6 +415,8 @@ export async function getActiveContributors(signal?: AbortSignal): Promise<Activ
 
   const result = await graphqlWithAuth<{ search: { nodes: ActiveContributor[] }}>(query, { signal, since });
 
-  setCache(cacheKey, result.search.nodes);
+  const cacheDuration = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+  setCache(cacheKey, result.search.nodes, cacheDuration);
+
   return result.search.nodes;
 }

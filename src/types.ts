@@ -56,6 +56,9 @@ export interface RepoBase {
     nodes: {
       name: string;
       color: string;
+      issues: {
+        totalCount: number;
+      }
     }[];
   }
   issues: {

@@ -12,11 +12,22 @@ const goodFirstIssue = "good first issue";
 const helpWanted = "help wanted";
 const beginnerFriendly = "beginner friendly";
 
-const hasBeginnerFriendlyLabel = (labels: { name: string }[]) => {
-  return labels.some(({ name }) => name === goodFirstIssue || name === helpWanted || name === beginnerFriendly);
+// Helper function to sum up the issues count for labels matching a given name.
+const getLabelCount = (
+  labels: { name: string; issues: { totalCount: number } }[],
+  labelName: string
+): number => {
+  return labels
+    .filter(({ name }) => name.toLowerCase() === labelName)
+    .reduce((sum, label) => sum + label.issues.totalCount, 0);
 };
 
 const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
+  const labels = repo.labels.nodes;
+  const countGoodFirstIssue = getLabelCount(labels, goodFirstIssue);
+  const countHelpWanted = getLabelCount(labels, helpWanted);
+  const countBeginnerFriendly = getLabelCount(labels, beginnerFriendly);
+
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       <div className="md:flex">
@@ -61,8 +72,22 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
             {repo.pullRequests.totalCount} open, {repo.pullRequests.nodes.filter((pr) => pr.merged).length} merged
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">{hasBeginnerFriendlyLabel(repo.labels.nodes) ? "✅" : "❌"}&nbsp;</span>
-            {goodFirstIssue} | {helpWanted} | {beginnerFriendly}
+            <span className="font-semibold">
+              {countGoodFirstIssue > 0 ? "✅" : "❌"}&nbsp;
+            </span>
+            {goodFirstIssue} ({countGoodFirstIssue})
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">
+              {countHelpWanted > 0 ? "✅" : "❌"}&nbsp;
+            </span>
+            {helpWanted} ({countHelpWanted})
+          </p>
+          <p className="text-gray-300 mb-2">
+            <span className="font-semibold">
+              {countBeginnerFriendly > 0 ? "✅" : "❌"}&nbsp;
+            </span>
+            {beginnerFriendly} ({countBeginnerFriendly})
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"}&nbsp;</span>

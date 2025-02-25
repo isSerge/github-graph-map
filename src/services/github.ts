@@ -56,6 +56,9 @@ const repositoryFields = `
     nodes {
       name
       color
+      issues {
+        totalCount
+      }
     }
   }
   issues(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {

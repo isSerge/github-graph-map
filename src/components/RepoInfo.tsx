@@ -12,21 +12,34 @@ const goodFirstIssue = "good first issue";
 const helpWanted = "help wanted";
 const beginnerFriendly = "beginner friendly";
 
-// Helper function to sum up the issues count for labels matching a given name.
-const getLabelCount = (
-  labels: { name: string; issues: { totalCount: number } }[],
-  labelName: string
-): number => {
-  return labels
-    .filter(({ name }) => name.toLowerCase() === labelName)
-    .reduce((sum, label) => sum + label.issues.totalCount, 0);
+/**
+ * Count the number of issues for each beginner-friendly label.
+ * Returns an object mapping the label to its total issues count.
+ */
+const countBeginnerFriendlyLabels = (
+  labels: { name: string; issues: { totalCount: number } }[]
+): Record<string, number> => {
+  const counts: Record<string, number> = {
+    [goodFirstIssue]: 0,
+    [helpWanted]: 0,
+    [beginnerFriendly]: 0,
+  };
+
+  labels.forEach(({ name, issues }) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName === goodFirstIssue || lowerName === helpWanted || lowerName === beginnerFriendly) {
+      counts[lowerName] += issues.totalCount;
+    }
+  });
+
+  return counts;
 };
 
 const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
-  const labels = repo.labels.nodes;
-  const countGoodFirstIssue = getLabelCount(labels, goodFirstIssue);
-  const countHelpWanted = getLabelCount(labels, helpWanted);
-  const countBeginnerFriendly = getLabelCount(labels, beginnerFriendly);
+  const labelCounts = countBeginnerFriendlyLabels(repo.labels.nodes);
+  const countGoodFirstIssue = labelCounts[goodFirstIssue];
+  const countHelpWanted = labelCounts[helpWanted];
+  const countBeginnerFriendly = labelCounts[beginnerFriendly];
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">

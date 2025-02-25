@@ -1,45 +1,24 @@
 import { formatDistanceToNow } from "date-fns";
 
 import { RepoNode } from "../types";
-import { formatNumber } from "../utils";
+import {
+  formatNumber, 
+  countBeginnerFriendlyLabels, 
+  GOOD_FIRST_ISSUE,
+  HELP_WANTED,
+  BEGINNER_FRIENDLY
+} from "../utils";
 
 interface RepoInfoProps {
   repo: RepoNode;
   onExploreGraph: (name: string) => void;
 }
 
-const goodFirstIssue = "good first issue";
-const helpWanted = "help wanted";
-const beginnerFriendly = "beginner friendly";
-
-/**
- * Count the number of issues for each beginner-friendly label.
- * Returns an object mapping the label to its total issues count.
- */
-const countBeginnerFriendlyLabels = (
-  labels: { name: string; issues: { totalCount: number } }[]
-): Record<string, number> => {
-  const counts: Record<string, number> = {
-    [goodFirstIssue]: 0,
-    [helpWanted]: 0,
-    [beginnerFriendly]: 0,
-  };
-
-  labels.forEach(({ name, issues }) => {
-    const lowerName = name.toLowerCase();
-    if (lowerName === goodFirstIssue || lowerName === helpWanted || lowerName === beginnerFriendly) {
-      counts[lowerName] += issues.totalCount;
-    }
-  });
-
-  return counts;
-};
-
 const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
   const labelCounts = countBeginnerFriendlyLabels(repo.labels.nodes);
-  const countGoodFirstIssue = labelCounts[goodFirstIssue];
-  const countHelpWanted = labelCounts[helpWanted];
-  const countBeginnerFriendly = labelCounts[beginnerFriendly];
+  const countGoodFirstIssue = labelCounts[GOOD_FIRST_ISSUE];
+  const countHelpWanted = labelCounts[HELP_WANTED];
+  const countBeginnerFriendly = labelCounts[BEGINNER_FRIENDLY];
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
@@ -88,19 +67,19 @@ const RepoInfo = ({ repo, onExploreGraph }: RepoInfoProps) => {
             <span className="font-semibold">
               {countGoodFirstIssue > 0 ? "✅" : "❌"}&nbsp;
             </span>
-            {goodFirstIssue} ({countGoodFirstIssue})
+            {GOOD_FIRST_ISSUE} ({countGoodFirstIssue})
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">
               {countHelpWanted > 0 ? "✅" : "❌"}&nbsp;
             </span>
-            {helpWanted} ({countHelpWanted})
+            {HELP_WANTED} ({countHelpWanted})
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">
               {countBeginnerFriendly > 0 ? "✅" : "❌"}&nbsp;
             </span>
-            {beginnerFriendly} ({countBeginnerFriendly})
+            {BEGINNER_FRIENDLY} ({countBeginnerFriendly})
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">{repo.contributingFile ? "✅" : "❌"}&nbsp;</span>

@@ -1,7 +1,13 @@
 import { formatDistanceToNow } from "date-fns";
 
 import { RepoNode } from "../../types";
-import { formatNumber } from "../../utils";
+import {
+    formatNumber,
+    countBeginnerFriendlyLabels,
+    GOOD_FIRST_ISSUE,
+    HELP_WANTED,
+    BEGINNER_FRIENDLY
+} from "../../utils";
 
 interface ExploreRepoItemProps {
     repo: RepoNode;
@@ -9,6 +15,10 @@ interface ExploreRepoItemProps {
 }
 
 const ExploreRepoItem = ({ repo, onSelect }: ExploreRepoItemProps) => {
+    const labelCounts = countBeginnerFriendlyLabels(repo.labels.nodes);
+    const countGoodFirstIssue = labelCounts[GOOD_FIRST_ISSUE];
+    const countHelpWanted = labelCounts[HELP_WANTED];
+    const countBeginnerFriendly = labelCounts[BEGINNER_FRIENDLY];
     return (
         <li
             onClick={() => onSelect(repo.nameWithOwner)}
@@ -27,6 +37,23 @@ const ExploreRepoItem = ({ repo, onSelect }: ExploreRepoItemProps) => {
                 </span>
                 <span>⭐ {formatNumber(repo.stargazerCount)}</span>
                 <span>🍴 {formatNumber(repo.forkCount)}</span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+            {countGoodFirstIssue > 0 && (
+                <span className="bg-gray-600 text-gray-200 px-2 py-1 rounded-full text-xs">
+                    {GOOD_FIRST_ISSUE} ({labelCounts[GOOD_FIRST_ISSUE]})
+                </span>
+            )}
+            {countHelpWanted > 0 && (
+                <span className="bg-gray-600 text-gray-200 px-2 py-1 rounded-full text-xs">
+                    {HELP_WANTED} ({labelCounts[HELP_WANTED]})
+                </span>
+            )}
+            {countBeginnerFriendly > 0 && (
+                <span className="bg-gray-600 text-gray-200 px-2 py-1 rounded-full text-xs">
+                    {BEGINNER_FRIENDLY} ({labelCounts[BEGINNER_FRIENDLY]})
+                </span>
+            )}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
                 {repo.topics.nodes.map((node, index) => (

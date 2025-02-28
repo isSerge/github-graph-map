@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getFreshRepositories } from "../services/github";
 import { RepoNode } from "../types";
+import { handleError } from "../utils";
 
 interface UseFreshReposResult {
   repos: RepoNode[];
@@ -24,7 +25,8 @@ export const useFreshRepos = (): UseFreshReposResult => {
         }));
         setRepos(repos);
       })
-      .catch(() => {
+      .catch((error) => {
+        handleError("useFreshRepos", error);
         setError("Failed to load repositories");
       })
       .finally(() => {

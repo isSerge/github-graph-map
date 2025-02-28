@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import { EitherNode } from "../types";
 
 interface HistoryState {
@@ -47,9 +47,17 @@ function navHistoryReducer(state: HistoryState, action: HistoryAction): HistoryS
 export function useNavHistoryReducer() {
   const [state, dispatch] = useReducer(navHistoryReducer, initialHistoryState);
 
-  const addNode = (node: EitherNode) => dispatch({ type: "ADD", node });
-  const navigateTo = (index: number) => dispatch({ type: "NAVIGATE", index });
-  const resetHistory = () => dispatch({ type: "RESET" });
+  const addNode = useCallback((node: EitherNode) => {
+    dispatch({ type: "ADD", node });
+  }, []);
+
+  const navigateTo = useCallback((index: number) => {
+    dispatch({ type: "NAVIGATE", index });
+  }, []);
+
+  const resetHistory = useCallback(() => {
+    dispatch({ type: "RESET" });
+  }, []);
 
   return {
     history: state.nodes,

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { handleError } from "../utils";
 
 const HISTORY_STORAGE_KEY = "searchHistory";
 
@@ -20,29 +21,29 @@ export function useSearchHistory(initialValue: string[] = []) {
     try {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(searchHistory));
     } catch (err) {
-      console.error("Failed to save search history", err);
+      handleError("useSearchHistory", err);
     }
   }, [searchHistory]);
 
   // Adds a new query to the history.
   // If the query already exists, remove it and then prepend it so that
   // the most recent query is always at the front.
-  const addSearchQuery = (query: string) => {
+  const addSearchQuery = useCallback((query: string) => {
     setSearchHistory((prev) => {
       const filtered = prev.filter((item) => item !== query);
       return [query, ...filtered];
     });
-  };
+  }, []);
 
   // Optionally, provide a function to clear the history.
-  const clearSearchHistory = () => {
+  const clearSearchHistory = useCallback(() => {
     setSearchHistory([]);
     try {
       localStorage.removeItem(HISTORY_STORAGE_KEY);
     } catch (err) {
-      console.error("Failed to clear search history", err);
+      handleError("useSearchHistory", err);
     }
-  };
+  }, []);
 
   return { searchHistory, addSearchQuery, clearSearchHistory, setSearchHistory };
 }

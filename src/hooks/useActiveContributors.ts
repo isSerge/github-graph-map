@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActiveContributor } from "../types";
 import { getActiveContributors } from "../services/github";
+import { handleError } from "../utils";
 
 export const useActiveContributors = (): {
   contributors: ActiveContributor[];
@@ -25,7 +26,11 @@ export const useActiveContributors = (): {
         }));
         setContributors(contributors);
     })
-      .catch(() => setError("Failed to fetch active contributors"))
+      .catch((error) => {
+        handleError("useActiveContributors", error);
+        if (error.name === "AbortError") return;
+        setError("Failed to fetch active contributors")
+      })
       .finally(() => setLoading(false));
   }, []);
 

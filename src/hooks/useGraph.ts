@@ -12,6 +12,7 @@ import {
   EitherNode,
   ContributorBase,
 } from "../types";
+import { handleError } from "../utils";
 
 // Helper: Create graph in repository mode.
 function createRepoGraph(
@@ -163,10 +164,9 @@ export function useGraph(input: string) {
           setSelectedEntity(selectedEntity);
           setGraphData(graph);
         }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.error(err);
-        if (err.name === "AbortError") return;
+      } catch (error) {
+        handleError("useGraph", error);
+        if (error instanceof Error && error.name === "AbortError") return;
         setError("Failed to fetch data. Please check the input.");
         setSelectedEntity(null);
         setGraphData(null);

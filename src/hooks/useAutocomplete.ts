@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { searchRepositories, searchUsers } from "../services/github";
 import { useDebounce } from "./useDebounce";
-import { extractGitHubPath } from "../utils";
+import { extractGitHubPath, handleError } from "../utils";
 
 export interface Suggestion {
   id: string;
@@ -46,7 +46,7 @@ export function useAutocomplete(query: string): {
         }
         setSuggestions(suggestionsData);
       } catch (error) {
-        console.error("Error fetching suggestions", error);
+        handleError("useAutocomplete", error);
         setSuggestions([]);
       } finally {
         setIsLoading(false);

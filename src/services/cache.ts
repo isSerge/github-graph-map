@@ -1,3 +1,5 @@
+import { handleError } from "../utils";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO: pass duration as an argument for different queries
 const DEFAULT_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
@@ -23,7 +25,8 @@ export const getFromCache = (key: string): any | null => {
       } else {
         localStorage.removeItem(CACHE_PREFIX + key);
       }
-    } catch {
+    } catch (error) {
+      handleError("getFromCache", error);
       localStorage.removeItem(CACHE_PREFIX + key);
     }
   }

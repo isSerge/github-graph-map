@@ -24,11 +24,14 @@ export function useSearchHistory(initialValue: string[] = []) {
     }
   }, [searchHistory]);
 
-  // Adds a new query to the history only if it's not already present.
+  // Adds a new query to the history.
+  // If the query already exists, remove it and then prepend it so that
+  // the most recent query is always at the front.
   const addSearchQuery = (query: string) => {
-    setSearchHistory((prev) =>
-      prev.includes(query) ? prev : [query, ...prev]
-    );
+    setSearchHistory((prev) => {
+      const filtered = prev.filter((item) => item !== query);
+      return [query, ...filtered];
+    });
   };
 
   // Optionally, provide a function to clear the history.

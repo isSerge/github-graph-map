@@ -1,4 +1,4 @@
-import { handleError } from "../utils";
+import { handleError } from "../utils/errorUtils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO: pass duration as an argument for different queries

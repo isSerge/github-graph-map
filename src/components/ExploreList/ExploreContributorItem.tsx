@@ -1,5 +1,5 @@
 import { ActiveContributor } from "../../types";
-import { formatNumber } from "../../utils";
+import { formatNumber } from "../../utils/formatUtils";
 
 interface ExploreContributorItemProps {
     contributor: ActiveContributor;

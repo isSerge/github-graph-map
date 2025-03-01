@@ -2,12 +2,12 @@ import { formatDistanceToNow } from "date-fns";
 
 import { RepoNode } from "../types";
 import {
-  formatNumber, 
   countBeginnerFriendlyLabels, 
   GOOD_FIRST_ISSUE,
   HELP_WANTED,
   BEGINNER_FRIENDLY
-} from "../utils";
+} from "../utils/repoUtils";
+import { formatNumber } from "../utils/formatUtils";
 
 interface RepoInfoProps {
   repo: RepoNode;

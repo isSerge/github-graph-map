@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getFreshRepositories } from "../services/github";
 import { RepoNode } from "../types";
-import { handleError } from "../utils";
+import { handleError } from "../utils/errorUtils";
 
 interface UseFreshReposResult {
   repos: RepoNode[];

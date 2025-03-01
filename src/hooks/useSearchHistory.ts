@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { handleError } from "../utils";
+import { handleError } from "../utils/errorUtils";
 
 const HISTORY_STORAGE_KEY = "searchHistory";
 

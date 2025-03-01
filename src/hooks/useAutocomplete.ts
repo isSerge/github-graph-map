@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { searchRepositories, searchUsers } from "../services/github";
 import { useDebounce } from "./useDebounce";
-import { extractGitHubPath, handleError } from "../utils";
+import { handleError } from "../utils/errorUtils";
+import { extractGitHubPath } from "../utils/stringUtils";
 
 export interface Suggestion {
   id: string;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActiveContributor } from "../types";
 import { getActiveContributors } from "../services/github";
-import { handleError } from "../utils";
+import { handleError } from "../utils/errorUtils";
 
 export const useActiveContributors = (): {
   contributors: ActiveContributor[];

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 
 import { EitherNode } from "./types";
-import { extractGitHubPath } from "./utils";
+import { extractGitHubPath } from "./utils/stringUtils";
 import NetworkWithZoom from "./components/NetworkWithZoom";
 import DisplaySettings from "./components/DisplaySettings";
 import JsonDisplay from "./components/JsonDisplay";

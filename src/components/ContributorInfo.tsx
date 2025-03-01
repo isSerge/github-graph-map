@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 
 import { ContributorDataWithRecentRepos } from "../types";
-import { formatNumber } from "../utils";
+import { formatNumber } from "../utils/formatUtils";
 
 interface ContributorInfoProps {
   contributor: ContributorDataWithRecentRepos;

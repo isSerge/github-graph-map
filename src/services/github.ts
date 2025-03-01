@@ -1,7 +1,7 @@
 import { graphql } from "@octokit/graphql";
 import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../types";
 import { fetchWithCache, generateCacheKey } from "./cache";
-import { getTopFiveRecentRepos } from "../utils";
+import { getTopFiveRecentRepos } from "../utils/repoUtils";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 

@@ -10,8 +10,8 @@ import {
   RepoNode,
   ContributorNode,
   EitherNode,
+  ContributorDataWithRecentRepos,
 } from "../types";
-import { ContributorDataWithRecentRepos } from "../types";
 import { handleError } from "../utils";
 
 // Helper: Create graph in repository mode.

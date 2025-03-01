@@ -29,11 +29,12 @@ export type ContributorBase = {
   location: string;
   login: string;
   websiteUrl: string;
-  repositoriesContributedTo: {
-    totalCount: number;
-    nodes: RepoBase[];
-  };
 };
+
+export interface ContributorDataWithRecentRepos
+  extends Omit<ContributorBase, "repositoriesContributedTo"> {
+  recentRepos: RepoBase[];
+}
 
 // Base type for repository data as returned by the API.
 export interface RepoBase {

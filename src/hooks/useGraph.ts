@@ -10,13 +10,13 @@ import {
   RepoNode,
   ContributorNode,
   EitherNode,
-  ContributorBase,
 } from "../types";
+import { ContributorDataWithRecentRepos } from "../types";
 import { handleError } from "../utils";
 
 // Helper: Create graph in repository mode.
 function createRepoGraph(
-  contributors: (ContributorBase & { contributionCount: number })[],
+  contributors: (ContributorDataWithRecentRepos & { contributionCount: number })[],
   centralRepo: RepoNode,
 ) {
   const nodesMap = new Map<string, RepoNode | ContributorNode>();
@@ -43,8 +43,8 @@ function createRepoGraph(
         thickness: contributor.contributionCount,
       });
     }
-    // For each repo the contributor worked on:
-    contributor.repositoriesContributedTo.nodes.forEach((repo) => {
+    // For each repo the contributor worked on, using the recentRepos property:
+    contributor.recentRepos.forEach((repo) => {
       const repoNode: RepoNode = {
         ...repo,
         id: repo.nameWithOwner,
@@ -121,6 +121,7 @@ async function fetchRepoGraph(input: string, signal: AbortSignal) {
 
 // Helper: Fetch graph data when input is in user mode.
 async function fetchUserGraph(username: string, signal: AbortSignal) {
+  // getContributorData now returns ContributorDataWithRecentRepos
   const contributor = await getContributorData(username, signal);
   // Create a central user node.
   const selectedEntity: ContributorNode = {
@@ -129,7 +130,8 @@ async function fetchUserGraph(username: string, signal: AbortSignal) {
     name: username,
     type: "contributor",
   };
-  const graph = createUserGraph(contributor.repositoriesContributedTo.nodes, selectedEntity);
+  // Use the recentRepos property for the graph.
+  const graph = createUserGraph(contributor.recentRepos, selectedEntity);
   return { selectedEntity, graph };
 }
 
@@ -143,7 +145,7 @@ export function useGraph(input: string) {
     setError(null);
     setGraphData(null);
     setSelectedEntity(null);
-  }
+  };
 
   useEffect(() => {
     if (!input) return;

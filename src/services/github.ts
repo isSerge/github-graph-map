@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { RepoBase, ContributorBase, ActiveContributor } from "../types";
+import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../types";
 import { getFromCache, setCache, generateCacheKey } from "./cache";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -103,10 +103,14 @@ const userFields = `
     }
   }
   websiteUrl
-  repositoriesContributedTo(first: 5, includeUserRepositories: true, orderBy: { field: STARGAZERS, direction: DESC }) {
-    totalCount
-    nodes {
-      ${repositoryFields}
+  contributionsCollection {
+    commitContributionsByRepository {
+      contributions(first: 10) {
+        nodes { occurredAt }
+      }
+      repository {
+        ${repositoryFields}
+      }
     }
   }
 `;
@@ -252,14 +256,67 @@ export async function getContributorData(
   const cacheKey = generateCacheKey(query, { username });
 
   const fetchFn = async () => {
-    const data = await graphqlWithAuth<{ user: ContributorBase }>(query, { username, signal });
+    const data = await graphqlWithAuth<{
+      user: {
+        avatarUrl: string;
+        company: string;
+        email: string;
+        followers: { totalCount: number };
+        following: { totalCount: number };
+        location: string;
+        login: string;
+        organizations: { nodes: { login: string }[] };
+        websiteUrl: string;
+        contributionsCollection: {
+          commitContributionsByRepository: {
+            repository: RepoBase;
+            contributions: { nodes: { occurredAt: string }[] };
+          }[];
+        };
+      }
+    }>(query, { username, signal });
     if (!data.user) {
       throw new Error("User not found");
     }
-    return data.user;
+    
+    const contributions =
+      data.user.contributionsCollection.commitContributionsByRepository;
+    const topFiveRepos = getTopFiveRecentRepos(contributions);
+
+    // Create a new object that conforms to ContributorDataWithRecentRepos.
+    const result: ContributorDataWithRecentRepos = {
+      ...data.user,
+      recentRepos: topFiveRepos,
+    };
+
+    return result;
   }
 
   return fetchWithCache(cacheKey, fetchFn);
+}
+
+interface Contribution {
+  repository: RepoBase;
+  contributions: {
+    nodes: {
+      occurredAt: string;
+    }[];
+  };
+}
+
+function getTopFiveRecentRepos(contributions: Contribution[]): RepoBase[] {
+  return contributions
+    .map((item) => ({
+      repository: item.repository,
+      // Compute the most recent contribution timestamp.
+      lastContribution: item.contributions.nodes.reduce((max, { occurredAt }) => {
+        const time = new Date(occurredAt).getTime();
+        return Math.max(max, time);
+      }, 0),
+    }))
+    .sort((a, b) => b.lastContribution - a.lastContribution)
+    .slice(0, 5)
+    .map(item => item.repository);
 }
 
 /**
@@ -276,7 +333,7 @@ export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string,
   signal?: AbortSignal,
-): Promise<(ContributorBase & { contributionCount: number })[]> {
+): Promise<(ContributorDataWithRecentRepos & { contributionCount: number })[]> {
   const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName });
 
   const fetchFn = async () => {

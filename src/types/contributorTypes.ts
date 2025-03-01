@@ -14,7 +14,7 @@ export type ContributorBase = {
 
 // Extend ContributorBase with recentRepos
 export interface ContributorDataWithRecentRepos
-  extends Omit<ContributorBase, /* "repositoriesContributedTo" if it existed */ never> {
+  extends Omit<ContributorBase, never> {
   recentRepos: RepoBase[];
 }
 

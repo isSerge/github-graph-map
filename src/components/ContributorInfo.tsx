@@ -9,18 +9,17 @@ interface ContributorInfoProps {
 }
 
 const ContributorInfo = ({ contributor, onExploreGraph }: ContributorInfoProps) => {
-    // Compute the most recent contribution date from repositoriesContributedTo
   const lastContributionDate = 
-  contributor.recentRepos &&
-  contributor.recentRepos.length > 0
-    ? new Date(
-        Math.max(
-          ...contributor.recentRepos.map((repo) =>
-            new Date(repo.pushedAt).getTime()
+    contributor.recentRepos &&
+    contributor.recentRepos.length > 0
+      ? new Date(
+          Math.max(
+            ...contributor.recentRepos.map((repo) =>
+              new Date(repo.pushedAt).getTime()
+            )
           )
         )
-      )
-    : null;
+      : null;
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">

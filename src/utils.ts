@@ -1,3 +1,5 @@
+import { RepoBase } from "./types";
+
 export function formatNumber(num: number): string {
     if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -70,4 +72,29 @@ export function handleError(context: string, error: unknown): void {
     // Fallback for non-Error objects.
     console.error(`Unexpected error in ${context}:`, error);
   }
+}
+
+
+interface Contribution {
+  repository: RepoBase;
+  contributions: {
+    nodes: {
+      occurredAt: string;
+    }[];
+  };
+}
+
+export function getTopFiveRecentRepos(contributions: Contribution[]): RepoBase[] {
+  return contributions
+    .map((item) => ({
+      repository: item.repository,
+      // Compute the most recent contribution timestamp.
+      lastContribution: item.contributions.nodes.reduce((max, { occurredAt }) => {
+        const time = new Date(occurredAt).getTime();
+        return Math.max(max, time);
+      }, 0),
+    }))
+    .sort((a, b) => b.lastContribution - a.lastContribution)
+    .slice(0, 5)
+    .map(item => item.repository);
 }

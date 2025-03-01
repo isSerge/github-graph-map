@@ -1,6 +1,7 @@
 import { graphql } from "@octokit/graphql";
 import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../types";
-import { getFromCache, setCache, generateCacheKey } from "./cache";
+import { fetchWithCache, generateCacheKey } from "./cache";
+import { getTopFiveRecentRepos } from "../utils";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -10,30 +11,6 @@ const graphqlWithAuth = graphql.defaults({
     authorization: `token ${githubToken}`,
   },
 });
-
-const DEFAULT_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-
-/**
- * A helper to wrap any asynchronous fetch function with caching.
- *
- * @param cacheKey - The key under which data is cached.
- * @param fetchFn - A function that returns a Promise for the data.
- * @param duration - Cache duration in milliseconds.
- * @returns The fetched (or cached) data.
- */
-async function fetchWithCache<T>(
-  cacheKey: string,
-  fetchFn: () => Promise<T>,
-  duration: number = DEFAULT_CACHE_DURATION
-): Promise<T> {
-  const cachedData = getFromCache(cacheKey);
-  if (cachedData !== null) {
-    return cachedData;
-  }
-  const data = await fetchFn();
-  setCache(cacheKey, data, duration);
-  return data;
-}
 
 const repositoryFragment = `
   fragment RepositoryFields on Repository {
@@ -296,30 +273,6 @@ export async function getContributorData(
   }
 
   return fetchWithCache(cacheKey, fetchFn);
-}
-
-interface Contribution {
-  repository: RepoBase;
-  contributions: {
-    nodes: {
-      occurredAt: string;
-    }[];
-  };
-}
-
-function getTopFiveRecentRepos(contributions: Contribution[]): RepoBase[] {
-  return contributions
-    .map((item) => ({
-      repository: item.repository,
-      // Compute the most recent contribution timestamp.
-      lastContribution: item.contributions.nodes.reduce((max, { occurredAt }) => {
-        const time = new Date(occurredAt).getTime();
-        return Math.max(max, time);
-      }, 0),
-    }))
-    .sort((a, b) => b.lastContribution - a.lastContribution)
-    .slice(0, 5)
-    .map(item => item.repository);
 }
 
 /**

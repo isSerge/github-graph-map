@@ -54,3 +54,25 @@ export const setCache = (key: string, data: any, duration: number = DEFAULT_CACH
 export const generateCacheKey = (query: string, variables?: Record<string, any>): string => {
   return JSON.stringify({ query, variables });
 };
+
+/**
+ * A helper to wrap any asynchronous fetch function with caching.
+ *
+ * @param cacheKey - The key under which data is cached.
+ * @param fetchFn - A function that returns a Promise for the data.
+ * @param duration - Cache duration in milliseconds.
+ * @returns The fetched (or cached) data.
+ */
+export async function fetchWithCache<T>(
+  cacheKey: string,
+  fetchFn: () => Promise<T>,
+  duration: number = DEFAULT_CACHE_DURATION
+): Promise<T> {
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData !== null) {
+    return cachedData;
+  }
+  const data = await fetchFn();
+  setCache(cacheKey, data, duration);
+  return data;
+}

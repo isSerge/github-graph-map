@@ -23,9 +23,6 @@ export type ContributorBase = {
   followers: {
     totalCount: number;
   };
-  following: {
-    totalCount: number;
-  };
   location: string;
   login: string;
   websiteUrl: string;

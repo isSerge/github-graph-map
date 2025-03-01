@@ -35,84 +35,86 @@ async function fetchWithCache<T>(
   return data;
 }
 
-const repositoryFields = `
-  id
-  name
-  nameWithOwner
-  url
-  stargazerCount
-  description
-  primaryLanguage {
+const repositoryFragment = `
+  fragment RepositoryFields on Repository {
+    id
     name
-  }
-  owner {
-    login
-  }
-  pushedAt
-  contributingFile: object(expression: "HEAD:CONTRIBUTING.md") {
-    __typename
-  }
-  labels(first: 50) {
-    nodes {
+    nameWithOwner
+    url
+    stargazerCount
+    description
+    primaryLanguage {
       name
-      color
-      issues {
-        totalCount
+    }
+    owner {
+      login
+    }
+    pushedAt
+    contributingFile: object(expression: "HEAD:CONTRIBUTING.md") {
+      __typename
+    }
+    labels(first: 50) {
+      nodes {
+        name
+        color
+        issues {
+          totalCount
+        }
       }
     }
-  }
-  issues(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
-    totalCount
-    nodes {
-      createdAt
+    issues(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+      totalCount
+      nodes {
+        createdAt
+      }
     }
-  }
-  forkCount
-  pullRequests(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
-    totalCount
-    nodes {
-      createdAt
-      state
-      merged
+    forkCount
+    pullRequests(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+      totalCount
+      nodes {
+        createdAt
+        state
+        merged
+      }
     }
-  }
-  topics: repositoryTopics(first: 5) {
-    nodes {
-      topic {
-        name
+    topics: repositoryTopics(first: 5) {
+      nodes {
+        topic {
+          name
+        }
       }
     }
   }
 `;
 
-const userFields = `
-  avatarUrl
-  company
-  email
-  followers {
-    totalCount
-  }
-  following {
-    totalCount
-  }
-  location
-  login
-  organizations(first: 5) {
-    nodes {
-      login
+const userFragment = `
+  fragment UserFields on User {
+    avatarUrl
+    company
+    email
+    followers {
+      totalCount
     }
-  }
-  websiteUrl
-  contributionsCollection {
-    commitContributionsByRepository {
-      contributions(first: 10) {
-        nodes { occurredAt }
-      }
-      repository {
-        ${repositoryFields}
+    location
+    login
+    organizations(first: 5) {
+      nodes {
+        login
       }
     }
+    websiteUrl
+    contributionsCollection {
+      commitContributionsByRepository {
+        contributions(first: 10) {
+          nodes { occurredAt }
+        }
+        repository {
+          ...RepositoryFields
+        }
+      }
+    }
   }
+  ${repositoryFragment}
 `;
 
 /**
@@ -129,9 +131,10 @@ export const getRepository = async (owner: string, repo: string, signal?: AbortS
   const query = `
     query getRepository($owner: String!, $repo: String!) {
       repository(owner: $owner, name: $repo) {
-        ${repositoryFields}
+        ...RepositoryFields
       }
     }
+    ${repositoryFragment}
   `;
 
   const cacheKey = generateCacheKey(query, { owner, repo });
@@ -248,9 +251,10 @@ export async function getContributorData(
   const query = `
     query getContributorData($username: String!) {
       user(login: $username) {
-        ${userFields}
+        ...UserFields
       }
     }
+    ${userFragment}
   `;
 
   const cacheKey = generateCacheKey(query, { username });
@@ -262,7 +266,6 @@ export async function getContributorData(
         company: string;
         email: string;
         followers: { totalCount: number };
-        following: { totalCount: number };
         location: string;
         login: string;
         organizations: { nodes: { login: string }[] };
@@ -421,11 +424,12 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBa
       ) {
         nodes {
           ... on Repository{
-            ${repositoryFields}
+            ...RepositoryFields
           }
         }
       }
     }
+    ${repositoryFragment}
   `;
 
   const cacheKey = generateCacheKey(query);

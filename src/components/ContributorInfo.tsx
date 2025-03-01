@@ -1,21 +1,21 @@
 import { formatDistanceToNow } from "date-fns";
 
-import { ContributorNode } from "../types";
+import { ContributorDataWithRecentRepos } from "../types";
 import { formatNumber } from "../utils";
 
 interface ContributorInfoProps {
-  contributor: ContributorNode;
+  contributor: ContributorDataWithRecentRepos;
   onExploreGraph: (name: string) => void;
 }
 
-const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onExploreGraph }) => {
+const ContributorInfo = ({ contributor, onExploreGraph }: ContributorInfoProps) => {
     // Compute the most recent contribution date from repositoriesContributedTo
   const lastContributionDate = 
-  contributor.repositoriesContributedTo &&
-  contributor.repositoriesContributedTo.nodes.length > 0
+  contributor.recentRepos &&
+  contributor.recentRepos.length > 0
     ? new Date(
         Math.max(
-          ...contributor.repositoriesContributedTo.nodes.map((repo) =>
+          ...contributor.recentRepos.map((repo) =>
             new Date(repo.pushedAt).getTime()
           )
         )
@@ -55,10 +55,6 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onExplor
               <span className="font-semibold">Followers: </span>
               {formatNumber(contributor.followers.totalCount)}
             </p>
-            <p className="text-gray-300 mb-1">
-              <span className="font-semibold">Following: </span>
-              {formatNumber(contributor.following.totalCount)}
-            </p>
             {contributor.websiteUrl && (
               <p className="text-gray-300 mb-1">
                 <span className="font-semibold">Website: </span>
@@ -74,7 +70,7 @@ const ContributorInfo: React.FC<ContributorInfoProps> = ({ contributor, onExplor
             )}
             <p className="text-gray-300 mb-1">
               <span className="font-semibold">Repos Contributed To: </span>
-              {formatNumber(contributor.repositoriesContributedTo.totalCount)}
+              {formatNumber(contributor.recentRepos.length)}
             </p>
             {lastContributionDate && (
               <p className="text-gray-300 mb-1">

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ComputedNode } from "@nivo/network";
 
-import { ContributorNode, EitherNode, RepoNode } from "../types";
+import { ContributorNode, EitherNode, RepoNode } from "../types/networkTypes";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 import RepoInfo from "./RepoInfo";
 import ContributorInfo from "./ContributorInfo";

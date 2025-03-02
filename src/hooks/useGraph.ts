@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getRepoContributorsWithContributedRepos,
   getRepository,
-  getContributorData,
+  getContributorGraphData,
 } from "../services/github";
 import { EitherNode, RepoNode, ContributorNode, NetworkLink } from "../types/networkTypes";
 import { handleError } from "../utils/errorUtils";
@@ -27,7 +27,7 @@ async function fetchRepoGraph(input: string, signal: AbortSignal) {
 }
 
 async function fetchUserGraph(username: string, signal: AbortSignal) {
-  const contributor = await getContributorData(username, signal);
+  const contributor = await getContributorGraphData(username, signal);
   const selectedEntity: ContributorNode = {
     ...contributor,
     id: username,

@@ -1,7 +1,8 @@
 import { graphql } from "@octokit/graphql";
-import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../types";
-import { fetchWithCache, generateCacheKey } from "./cache";
-import { getTopFiveRecentRepos } from "../utils/repoUtils";
+import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../../types";
+import { fetchWithCache, generateCacheKey } from "../cache";
+import { getTopFiveRecentRepos } from "../../utils/repoUtils";
+import { repositoryFragment, userGraphFragment } from "./fragments";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -11,88 +12,6 @@ const graphqlWithAuth = graphql.defaults({
     authorization: `token ${githubToken}`,
   },
 });
-
-const repositoryFragment = `
-  fragment RepositoryFields on Repository {
-    id
-    name
-    nameWithOwner
-    url
-    stargazerCount
-    description
-    primaryLanguage {
-      name
-    }
-    owner {
-      login
-    }
-    pushedAt
-    contributingFile: object(expression: "HEAD:CONTRIBUTING.md") {
-      __typename
-    }
-    labels(first: 50) {
-      nodes {
-        name
-        color
-        issues {
-          totalCount
-        }
-      }
-    }
-    issues(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
-      totalCount
-      nodes {
-        createdAt
-      }
-    }
-    forkCount
-    pullRequests(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
-      totalCount
-      nodes {
-        createdAt
-        state
-        merged
-      }
-    }
-    topics: repositoryTopics(first: 5) {
-      nodes {
-        topic {
-          name
-        }
-      }
-    }
-  }
-`;
-
-const userFragment = `
-  fragment UserFields on User {
-    avatarUrl
-    company
-    email
-    followers {
-      totalCount
-    }
-    location
-    login
-    organizations(first: 5) {
-      nodes {
-        login
-      }
-    }
-    websiteUrl
-    contributionsCollection {
-      commitContributionsByRepository {
-        contributions(first: 10) {
-          nodes { occurredAt }
-        }
-        repository {
-          ...RepositoryFields
-        }
-      }
-    }
-  }
-  ${repositoryFragment}
-`;
 
 /**
  * Fetch repository details via GraphQL.
@@ -221,7 +140,7 @@ export async function getRecentCommitAuthors(
  * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to the user’s data including contributed repositories.
  */
-export async function getContributorData(
+export async function getContributorGraphData(
   username: string,
   signal?: AbortSignal,
 ) {
@@ -231,7 +150,7 @@ export async function getContributorData(
         ...UserFields
       }
     }
-    ${userFragment}
+    ${userGraphFragment}
   `;
 
   const cacheKey = generateCacheKey(query, { username });
@@ -298,7 +217,7 @@ export async function getRepoContributorsWithContributedRepos(
       contributors
         .filter(contributor => !contributor.login.includes("[bot]"))
         .map(async (contributor) => {
-          const user = await getContributorData(contributor.login);
+          const user = await getContributorGraphData(contributor.login);
           return { ...user, contributionCount: contributor.contributionCount };
         })
     );

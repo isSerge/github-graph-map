@@ -9,6 +9,7 @@ import {
   BEGINNER_FRIENDLY
 } from "../utils/repoUtils";
 import { formatNumber } from "../utils/formatUtils";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface RepoInfoProps {
   node: RepoNode;
@@ -18,8 +19,8 @@ interface RepoInfoProps {
 const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
   const { fetching, error, repoDetails } = useRepoDetails(node.nameWithOwner);
 
-  // TODO: proper component for loading and error states
-  if (fetching) return <p>Loading...</p>;
+  if (fetching) return <LoadingSpinner />;
+  // TODO: proper component for error state
   if (error) return <p>{error}</p>;
   if (!repoDetails) return null;
 

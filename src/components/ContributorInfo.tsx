@@ -3,6 +3,7 @@
 import { ContributorNode } from "../types/networkTypes";
 import { formatNumber } from "../utils/formatUtils";
 import { useContributorDetails } from "../hooks/useContributorDetails";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ContributorInfoProps {
   node: ContributorNode;
@@ -12,8 +13,8 @@ interface ContributorInfoProps {
 const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
   const { fetching, error, contributorDetails } = useContributorDetails(node.login);
 
-  // TODO: proper component for loading and error states
-  if (fetching) return <p>Loading...</p>;
+  if (fetching) return <LoadingSpinner />;
+  // TODO: proper component for error state
   if (error) return <p>{error}</p>;
   if (!contributorDetails) return null;
 

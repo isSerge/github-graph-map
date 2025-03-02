@@ -1,4 +1,4 @@
-import { RepoBase } from "../types";
+import { RepoGraphData } from "../types";
 
 export const GOOD_FIRST_ISSUE = "good first issue";
 export const HELP_WANTED = "help wanted";
@@ -32,7 +32,7 @@ export const countBeginnerFriendlyLabels = (
 };
 
 interface Contribution {
-  repository: RepoBase;
+  repository: RepoGraphData;
   contributions: {
     nodes: {
       occurredAt: string;
@@ -40,7 +40,7 @@ interface Contribution {
   };
 }
 
-export function getTopFiveRecentRepos(contributions: Contribution[]): RepoBase[] {
+export function getTopFiveRecentRepos(contributions: Contribution[]): RepoGraphData[] {
   return contributions
     .map((item) => ({
       repository: item.repository,

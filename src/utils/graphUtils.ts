@@ -1,5 +1,5 @@
-import { RepoBase } from "../types/repoTypes";
-import { ContributorDataWithRecentRepos } from "../types/contributorTypes";
+import { RepoGraphData } from "../types/repoTypes";
+import { ContributorGraphData } from "../types/contributorTypes";
 import { NetworkLink, RepoNode, ContributorNode, EitherNode } from "../types/networkTypes";
 
 /**
@@ -10,7 +10,7 @@ import { NetworkLink, RepoNode, ContributorNode, EitherNode } from "../types/net
  * @returns An object containing the graph's nodes and links.
  */
 export function createRepoGraph(
-  contributors: (ContributorDataWithRecentRepos & { contributionCount: number })[],
+  contributors: (ContributorGraphData & { contributionCount: number })[],
   centralRepo: RepoNode
 ): { nodes: EitherNode[]; links: NetworkLink[] } {
   const nodesMap = new Map<string, EitherNode>();
@@ -76,7 +76,7 @@ export function createRepoGraph(
  * @returns An object containing the graph's nodes and links.
  */
 export function createUserGraph(
-  repos: RepoBase[],
+  repos: RepoGraphData[],
   contributor: ContributorNode
 ): { nodes: EitherNode[]; links: NetworkLink[] } {
   const nodesMap = new Map<string, EitherNode>();

@@ -47,15 +47,6 @@ const ExploreContributorItem = ({ contributor, onSelect }: ExploreContributorIte
             </span>
           </div>
         )}
-        <a
-          href={`https://github.com/${contributor.login}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-block text-blue-400 text-xs hover:underline"
-          aria-label={`View ${contributor.login}'s GitHub profile`}
-        >
-          View Profile &rarr;
-        </a>
       </div>
     </li>
   );

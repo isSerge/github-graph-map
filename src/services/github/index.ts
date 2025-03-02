@@ -1,8 +1,8 @@
 import { graphql } from "@octokit/graphql";
-import { RepoBase, ActiveContributor, ContributorDataWithRecentRepos } from "../../types";
+import { RepoDetails, ActiveContributor, ContributorGraphData, RepoGraphData } from "../../types";
 import { fetchWithCache, generateCacheKey } from "../cache";
 import { getTopFiveRecentRepos } from "../../utils/repoUtils";
-import { repositoryFragment, userGraphFragment } from "./fragments";
+import { repositoryDetailsFragment, userDetailsFragment, userGraphFragment } from "./fragments";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -21,7 +21,7 @@ const graphqlWithAuth = graphql.defaults({
  * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to the repository data.
  */
-export const getRepository = async (owner: string, repo: string, signal?: AbortSignal) => {
+export const getRepositoryDetails = async (owner: string, repo: string, signal?: AbortSignal) => {
   // Calculate date 7 days ago in ISO format.
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const query = `
@@ -30,13 +30,13 @@ export const getRepository = async (owner: string, repo: string, signal?: AbortS
         ...RepositoryFields
       }
     }
-    ${repositoryFragment}
+    ${repositoryDetailsFragment}
   `;
 
   const cacheKey = generateCacheKey(query, { owner, repo });
 
   const fetchFn = async () => {
-    const result = await graphqlWithAuth<{ repository: RepoBase }>(query, { owner, repo, signal });
+    const result = await graphqlWithAuth<{ repository: RepoDetails }>(query, { owner, repo, signal });
     const recentIssues = result.repository.issues.nodes.filter(
       (issue) => new Date(issue.createdAt) > new Date(since)
     );
@@ -145,12 +145,66 @@ export async function getContributorGraphData(
   signal?: AbortSignal,
 ) {
   const query = `
-    query getContributorData($username: String!) {
+    query getContributorGraphData($username: String!) {
       user(login: $username) {
         ...UserFields
       }
     }
     ${userGraphFragment}
+  `;
+
+  const cacheKey = generateCacheKey(query, { username });
+
+  const fetchFn = async () => {
+    const data = await graphqlWithAuth<{
+      user: {
+        login: string;
+        contributionsCollection: {
+          commitContributionsByRepository: {
+            repository: RepoGraphData;
+            contributions: { nodes: { occurredAt: string }[] };
+          }[];
+        };
+      }
+    }>(query, { username, signal });
+    if (!data.user) {
+      throw new Error("User not found");
+    }
+    
+    const contributions =
+      data.user.contributionsCollection.commitContributionsByRepository;
+    const topFiveRepos = getTopFiveRecentRepos(contributions);
+
+    // Create a new object that conforms to ContributorDataWithRecentRepos.
+    const result: ContributorGraphData = {
+      ...data.user,
+      recentRepos: topFiveRepos,
+    };
+
+    return result;
+  }
+
+  return fetchWithCache(cacheKey, fetchFn);
+}
+
+/**
+ * Uses GraphQL to fetch repositories that the given user has contributed to.
+ *
+ * @param username - The GitHub username.
+ * @param signal - Optional AbortSignal to cancel the request.
+ * @returns A promise resolving to the user’s data including contributed repositories.
+ */
+export async function getContributorDetails(
+  username: string,
+  signal?: AbortSignal,
+) {
+  const query = `
+    query getContributorDetails($username: String!) {
+      user(login: $username) {
+        ...UserFields
+      }
+    }
+    ${userDetailsFragment}
   `;
 
   const cacheKey = generateCacheKey(query, { username });
@@ -168,7 +222,7 @@ export async function getContributorGraphData(
         websiteUrl: string;
         contributionsCollection: {
           commitContributionsByRepository: {
-            repository: RepoBase;
+            repository: RepoGraphData;
             contributions: { nodes: { occurredAt: string }[] };
           }[];
         };
@@ -177,18 +231,8 @@ export async function getContributorGraphData(
     if (!data.user) {
       throw new Error("User not found");
     }
-    
-    const contributions =
-      data.user.contributionsCollection.commitContributionsByRepository;
-    const topFiveRepos = getTopFiveRecentRepos(contributions);
 
-    // Create a new object that conforms to ContributorDataWithRecentRepos.
-    const result: ContributorDataWithRecentRepos = {
-      ...data.user,
-      recentRepos: topFiveRepos,
-    };
-
-    return result;
+    return data.user;
   }
 
   return fetchWithCache(cacheKey, fetchFn);
@@ -208,7 +252,7 @@ export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string,
   signal?: AbortSignal,
-): Promise<(ContributorDataWithRecentRepos & { contributionCount: number })[]> {
+): Promise<(ContributorGraphData & { contributionCount: number })[]> {
   const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName });
 
   const fetchFn = async () => {
@@ -286,7 +330,7 @@ export async function searchUsers(
 }
 
 // TODO: improve query, accept parameters
-export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBase[]> {
+export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoDetails[]> {
   const query = `
     query GetFreshRepos {
       search(
@@ -301,13 +345,13 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoBa
         }
       }
     }
-    ${repositoryFragment}
+    ${repositoryDetailsFragment}
   `;
 
   const cacheKey = generateCacheKey(query);
   const oneDay = 24 * 60 * 60 * 1000; // 1 day in milliseconds.
   const fetchFn = async () => {
-    const result = await graphqlWithAuth<{ search: { nodes: RepoBase[] } }>(query, { signal });
+    const result = await graphqlWithAuth<{ search: { nodes: RepoDetails[] } }>(query, { signal });
     return result.search.nodes;
   }
   return fetchWithCache(cacheKey, fetchFn, oneDay);

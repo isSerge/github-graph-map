@@ -1,4 +1,4 @@
-export const repositoryFragment = `
+export const repositoryDetailsFragment = `
   fragment RepositoryFields on Repository {
     id
     name
@@ -56,12 +56,41 @@ const repositoryGraphFragment = `
     id
     name
     nameWithOwner
+    url
   }
 `;
 
 export const userGraphFragment = `
   fragment UserFields on User {
     login
+    url
+    contributionsCollection {
+      commitContributionsByRepository {
+        contributions(first: 10) {
+          nodes { occurredAt }
+        }
+        repository {
+          ...RepositoryFields
+        }
+      }
+    }
+  }
+  ${repositoryGraphFragment}
+`;
+
+
+export const userDetailsFragment = `
+  fragment UserFields on User {
+    login
+    name
+    avatarUrl
+    company
+    email
+    followers {
+      totalCount
+    }
+    location
+    websiteUrl
     contributionsCollection {
       commitContributionsByRepository {
         contributions(first: 10) {

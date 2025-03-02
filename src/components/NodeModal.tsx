@@ -29,9 +29,9 @@ const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
             <div ref={modalRef} className="shadow-lg max-w-lg w-full relative">
                 {isRepoNode(node) ? (
-                    <RepoInfo repo={node.data} onExploreGraph={handleExploreGraph} />
+                    <RepoInfo node={node.data} onExploreGraph={handleExploreGraph} />
                 ) : (
-                    <ContributorInfo contributor={node.data as ContributorNode} onExploreGraph={handleExploreGraph} />
+                    <ContributorInfo node={node.data as ContributorNode} onExploreGraph={handleExploreGraph} />
                 )}
             </div>
         </div>

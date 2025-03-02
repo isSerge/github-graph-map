@@ -1,6 +1,6 @@
-import { RepoBase } from "./repoTypes";
+import { RepoGraphData } from "./repoTypes";
 
-export type ContributorBase = {
+export type ContributorDetails = {
   avatarUrl: string;
   company: string;
   email: string;
@@ -12,10 +12,9 @@ export type ContributorBase = {
   websiteUrl: string;
 };
 
-// Extend ContributorBase with recentRepos
-export interface ContributorDataWithRecentRepos
-  extends Omit<ContributorBase, never> {
-  recentRepos: RepoBase[];
+export interface ContributorGraphData {
+  login: string;
+  recentRepos: RepoGraphData[];
 }
 
 export type ActiveContributor = {

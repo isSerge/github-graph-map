@@ -1,5 +1,5 @@
 import { ResponsiveNetwork, NetworkDataProps, NodeProps, ComputedNode } from '@nivo/network'
-import { NetworkLink, RepoNode, EitherNode } from '../types'
+import { NetworkLink, RepoNode, EitherNode } from '../types/networkTypes'
 
 const networkTheme = {
   background: "#1e2939",

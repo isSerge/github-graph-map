@@ -1,5 +1,5 @@
 import { useCallback, useReducer } from "react";
-import { EitherNode } from "../types";
+import { EitherNode } from "../types/networkTypes";
 
 interface HistoryState {
   nodes: EitherNode[];

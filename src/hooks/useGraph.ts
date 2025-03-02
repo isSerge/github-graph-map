@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   getRepoContributorsWithContributedRepos,
-  getRepository,
+  getRepositoryDetails,
   getContributorGraphData,
 } from "../services/github";
 import { EitherNode, RepoNode, ContributorNode, NetworkLink } from "../types/networkTypes";
@@ -13,7 +13,7 @@ async function fetchRepoGraph(input: string, signal: AbortSignal) {
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
-  const repository = await getRepository(owner, name, signal);
+  const repository = await getRepositoryDetails(owner, name, signal);
   const contributors = await getRepoContributorsWithContributedRepos(owner, name, signal);
 
   const selectedEntity: RepoNode = {

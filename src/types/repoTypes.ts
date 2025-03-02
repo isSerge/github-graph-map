@@ -1,48 +1,57 @@
-export interface RepoBase {
+export interface RepoDetails {
+  name: string;
+  nameWithOwner: string;
+  stargazerCount: number;
+  description: string;
+  primaryLanguage: {
     name: string;
-    nameWithOwner: string;
-    stargazerCount: number;
-    description: string;
-    primaryLanguage: {
+  };
+  url: string;
+  owner: {
+    login: string;
+  };
+  pushedAt: string;
+  contributingFile?: {
+    __typename: string;
+  };
+  labels: {
+    nodes: {
       name: string;
-    };
-    url: string;
-    owner: {
-      login: string;
-    };
-    pushedAt: string;
-    contributingFile?: {
-      __typename: string;
-    };
-    labels: {
-      nodes: {
+      color: string;
+      issues: {
+        totalCount: number;
+      }
+    }[];
+  };
+  issues: {
+    totalCount: number;
+    nodes: {
+      createdAt: string;
+    }[];
+  };
+  forkCount: number;
+  pullRequests: {
+    totalCount: number;
+    nodes: {
+      createdAt: string;
+      state: string;
+      merged: boolean;
+    }[];
+  };
+  topics: {
+    nodes: {
+      topic: {
         name: string;
-        color: string;
-        issues: {
-          totalCount: number;
-        }
-      }[];
-    };
-    issues: {
-      totalCount: number;
-      nodes: {
-        createdAt: string;
-      }[];
-    };
-    forkCount: number;
-    pullRequests: {
-      totalCount: number;
-      nodes: {
-        createdAt: string;
-        state: string;
-        merged: boolean;
-      }[];
-    };
-    topics: {
-      nodes: {
-        topic: {
-          name: string;
-        }
-      }[];
-    };
-  }
+      }
+    }[];
+  };
+}
+
+export interface RepoGraphData {
+  name: string;
+  nameWithOwner: string;
+  url: string;
+  owner: {
+    login: string;
+  };
+}

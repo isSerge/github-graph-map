@@ -80,16 +80,14 @@ export const getRepositoryDetails = async (owner: string, repo: string, signal?:
  * @returns A promise resolving to an array of commit author objects (with login).
  */
 export async function getRecentCommitAuthors(
-  repoOwner: string,
-  repoName: string,
+  owner: string,
+  name: string,
+  since: string,
   signal?: AbortSignal,
 ): Promise<{ login: string; contributionCount: number }[]> {
-  // Calculate date 7 days ago in ISO format.
-  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const cacheKey = generateCacheKey(getRecentCommitsQuery, { owner: repoOwner, repo: repoName });
-
+  const cacheKey = generateCacheKey(getRecentCommitsQuery, { owner, name, since });
   const fetchFn = async () => {
-    const result = await graphqlWithAuth<RecentCommitsResponse>(getRecentCommitsQuery, { owner: repoOwner, name: repoName, since, signal });
+    const result = await graphqlWithAuth<RecentCommitsResponse>(getRecentCommitsQuery, { owner, name, since, signal });
     const nodes = result.repository?.defaultBranchRef?.target?.history?.nodes || [];
     const contributorMap = new Map<string, number>();
     nodes.forEach((commit) => {
@@ -175,11 +173,14 @@ export async function getContributorDetails(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string,
+  since: string,
   signal?: AbortSignal,
 ): Promise<(ContributorGraphData & { contributionCount: number })[]> {
-  const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName });
+  const cacheKey = generateCacheKey('getRepoContributorsWithContributedRepos', { repoOwner, repoName, since });
   const fetchFn = async () => {
-    const contributors = await getRecentCommitAuthors(repoOwner, repoName, signal);
+    // // Calculate date 7 days ago in ISO format.
+    // const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const contributors = await getRecentCommitAuthors(repoOwner, repoName, since, signal);
     const results = await Promise.all(
       contributors
         .filter(contributor => !contributor.login.includes("[bot]"))

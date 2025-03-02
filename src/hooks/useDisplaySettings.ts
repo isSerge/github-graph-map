@@ -22,6 +22,9 @@ export function useDisplaySettings(initialState: DisplaySettingsState = {
     initialState.centeringStrength
   );
 
+  // Add a new state for the time period (in days). Default is 7 days.
+  const [timePeriod, setTimePeriod] = useState<number>(7);
+
   return {
     linkDistanceMultiplier,
     repulsivity,
@@ -31,5 +34,7 @@ export function useDisplaySettings(initialState: DisplaySettingsState = {
     setCenteringStrength,
     showJson,
     setShowJson,
+    timePeriod,
+    setTimePeriod,
   };
 }

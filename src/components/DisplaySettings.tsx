@@ -7,6 +7,8 @@ interface DisplaySettingsProps {
   setCenteringStrength: (value: number) => void;
   showJson: boolean;
   setShowJson: (value: boolean) => void;
+  timePeriod: number;
+  setTimePeriod: (value: number) => void;
 }
 
 const DisplaySettings: React.FC<DisplaySettingsProps> = ({
@@ -18,9 +20,42 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({
   setCenteringStrength,
   showJson,
   setShowJson,
+  timePeriod,
+  setTimePeriod,
 }) => {
   return (
     <div className="mt-4 p-4">
+      {/* Time Period Radio Buttons */}
+      <div className="mb-4">
+        <span className="block text-sm font-medium mb-2">Time Period:</span>
+        <div className="flex rounded-md shadow-sm gap-2">
+          <button
+            onClick={() => setTimePeriod(1)}
+            className={`w-1/3 border border-gray-300 text-xs font-medium focus:outline-none ${
+              timePeriod === 1 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            }`}
+          >
+            1 day
+          </button>
+          <button
+            onClick={() => setTimePeriod(7)}
+            className={`w-1/3 border-t border-b border-gray-300 text-xs font-medium focus:outline-none ${
+              timePeriod === 7 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            }`}
+          >
+            7 days
+          </button>
+          <button
+            onClick={() => setTimePeriod(30)}
+            className={`w-1/3 border border-gray-300 text-xs font-medium focus:outline-none ${
+              timePeriod === 30 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            }`}
+          >
+            30 days
+          </button>
+        </div>
+      </div>
+
       {/* Link Distance Multiplier */}
       <div className="mb-4">
         <label htmlFor="linkDistance" className="block text-sm font-medium mb-1">

@@ -8,13 +8,14 @@ import { EitherNode, RepoNode, ContributorNode, NetworkLink } from "../types/net
 import { handleError } from "../utils/errorUtils";
 import { createRepoGraph, createUserGraph } from "../utils/graphUtils";
 
-async function fetchRepoGraph(input: string, signal: AbortSignal) {
+async function fetchRepoGraph(input: string, since: string, signal: AbortSignal) {
+  console.log('fetchRepoGraph', since)
   const [owner, name] = input.split("/");
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
   const repository = await getRepositoryDetails(owner, name, signal);
-  const contributors = await getRepoContributorsWithContributedRepos(owner, name, signal);
+  const contributors = await getRepoContributorsWithContributedRepos(owner, name, since, signal);
 
   const selectedEntity: RepoNode = {
     ...repository,
@@ -38,7 +39,7 @@ async function fetchUserGraph(username: string, signal: AbortSignal) {
   return { selectedEntity, graph };
 }
 
-export function useGraph(input: string) {
+export function useGraph(input: string, timePeriod: number) {
   const [fetching, setFetching] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [graphData, setGraphData] = useState<{ nodes: EitherNode[]; links: NetworkLink[] } | null>(null);
@@ -60,7 +61,9 @@ export function useGraph(input: string) {
       setGraphData(null);
       try {
         if (input.includes("/")) {
-          const { selectedEntity, graph } = await fetchRepoGraph(input, controller.signal);
+          // Calculate "since" based on the timePeriod.
+          const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
+          const { selectedEntity, graph } = await fetchRepoGraph(input, since, controller.signal);
           setSelectedEntity(selectedEntity);
           setGraphData(graph);
         } else {
@@ -80,7 +83,7 @@ export function useGraph(input: string) {
     })();
 
     return () => controller.abort();
-  }, [input]);
+  }, [input, timePeriod]);
 
   return { fetching, error, graphData, selectedEntity, resetGraph };
 }

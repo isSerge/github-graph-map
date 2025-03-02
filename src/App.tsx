@@ -27,15 +27,6 @@ const App = () => {
     resetSearch,
   } = useSearchInputReducer();
 
-  // The committed value (searchState.committed) is used to fetch graph data.
-  const {
-    fetching,
-    error,
-    graphData,
-    selectedEntity,
-    resetGraph
-  } = useGraph(committed);
-
   const {
     showJson,
     setShowJson,
@@ -45,7 +36,18 @@ const App = () => {
     setLinkDistanceMultiplier,
     setRepulsivity,
     setCenteringStrength,
+    timePeriod,
+    setTimePeriod,
   } = useDisplaySettings();
+
+  // The committed value (searchState.committed) is used to fetch graph data.
+  const {
+    fetching,
+    error,
+    graphData,
+    selectedEntity,
+    resetGraph
+  } = useGraph(committed, timePeriod);
 
   const { searchHistory, addSearchQuery } = useSearchHistory();
 
@@ -169,6 +171,8 @@ const App = () => {
                   setCenteringStrength={setCenteringStrength}
                   showJson={showJson}
                   setShowJson={setShowJson}
+                  timePeriod={timePeriod}
+                  setTimePeriod={setTimePeriod}
                 />
               </div>
             )}

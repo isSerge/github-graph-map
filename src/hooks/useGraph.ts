@@ -1,33 +1,46 @@
-import { useState, useEffect } from "react";
-import {
-  getRepoContributorsWithContributedRepos,
-  getRepositoryDetails,
-  getContributorGraphData,
-} from "../services/github";
-import { EitherNode, RepoNode, ContributorNode, NetworkLink } from "../types/networkTypes";
-import { handleError } from "../utils/errorUtils";
+import { useQuery } from "react-query";
 import { createRepoGraph, createUserGraph } from "../utils/graphUtils";
+import { getRepositoryDetails, getRepoContributorsWithContributedRepos, getContributorGraphData } from "../services/github";
+import { RepoNode, ContributorNode, EitherNode, NetworkLink } from "../types/networkTypes";
+import { RepoDetails } from "../types/repoTypes";
 
-async function fetchRepoGraph(input: string, since: string, signal: AbortSignal) {
+// A discriminated union so consumers know whether the graph is for a repo or a contributor.
+type RepoGraphResponse = {
+  type: "repo";
+  selectedEntity: RepoNode;
+  graph: { nodes: EitherNode[]; links: NetworkLink[] };
+};
+
+type ContributorGraphResponse = {
+  type: "contributor";
+  selectedEntity: ContributorNode;
+  graph: { nodes: EitherNode[]; links: NetworkLink[] };
+};
+
+export type GraphResponse = RepoGraphResponse | ContributorGraphResponse;
+
+async function fetchRepoGraph(input: string, timePeriod: number, signal: AbortSignal): Promise<RepoGraphResponse> {
   const [owner, name] = input.split("/");
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
-  const repository = await getRepositoryDetails(owner, name, signal);
-  const contributors = await getRepoContributorsWithContributedRepos(owner, name, since, signal);
-
+  // Calculate "since" based on timePeriod (days)
+  const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
+  // getRepositoryDetails returns a RepoDetails; we spread it into a new object for the graph node.
+  const repository: RepoDetails = await getRepositoryDetails(owner, name, signal!);
+  const contributors = await getRepoContributorsWithContributedRepos(owner, name, since, signal!);
   const selectedEntity: RepoNode = {
     ...repository,
-    id: repository.nameWithOwner,
+    id: repository.nameWithOwner,  // use a unique id (for example, nameWithOwner)
     type: "repo",
+    name: repository.name, // ensure required fields from RepoGraphData are available
   };
-
   const graph = createRepoGraph(contributors, selectedEntity);
-  return { selectedEntity, graph };
+  return { type: "repo", selectedEntity, graph };
 }
 
-async function fetchUserGraph(username: string, signal: AbortSignal) {
-  const contributor = await getContributorGraphData(username, signal);
+async function fetchUserGraph(username: string, signal: AbortSignal): Promise<ContributorGraphResponse> {
+  const contributor = await getContributorGraphData(username, signal!);
   const selectedEntity: ContributorNode = {
     ...contributor,
     id: username,
@@ -35,54 +48,23 @@ async function fetchUserGraph(username: string, signal: AbortSignal) {
     type: "contributor",
   };
   const graph = createUserGraph(contributor.recentRepos, selectedEntity);
-  return { selectedEntity, graph };
+  return { type: "contributor", selectedEntity, graph };
 }
 
 export function useGraph(input: string, timePeriod: number) {
-  const [fetching, setFetching] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [graphData, setGraphData] = useState<{ nodes: EitherNode[]; links: NetworkLink[] } | null>(null);
-  const [selectedEntity, setSelectedEntity] = useState<EitherNode | null>(null);
-
-  const resetGraph = () => {
-    setError(null);
-    setGraphData(null);
-    setSelectedEntity(null);
-  };
-
-  useEffect(() => {
-    if (!input) return;
-    const controller = new AbortController();
-
-    (async () => {
-      setFetching(true);
-      setError(null);
-      setGraphData(null);
-      try {
-        if (input.includes("/")) {
-          // Calculate "since" based on the timePeriod.
-          const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
-          const { selectedEntity, graph } = await fetchRepoGraph(input, since, controller.signal);
-          setSelectedEntity(selectedEntity);
-          setGraphData(graph);
-        } else {
-          const { selectedEntity, graph } = await fetchUserGraph(input, controller.signal);
-          setSelectedEntity(selectedEntity);
-          setGraphData(graph);
-        }
-      } catch (error) {
-        handleError("useGraph", error);
-        if (error instanceof Error && error.name === "AbortError") return;
-        setError("Failed to fetch data. Please check the input.");
-        setSelectedEntity(null);
-        setGraphData(null);
-      } finally {
-        setFetching(false);
+  return useQuery<GraphResponse, Error, GraphResponse, (string | number)[]>(
+    ["graph", input, timePeriod],
+    ({ signal }) => {
+      if (!input) throw new Error("No input provided");
+      if (input.includes("/")) {
+        return fetchRepoGraph(input, timePeriod, signal!);
+      } else {
+        return fetchUserGraph(input, signal!);
       }
-    })();
-
-    return () => controller.abort();
-  }, [input, timePeriod]);
-
-  return { fetching, error, graphData, selectedEntity, resetGraph };
+    },
+    {
+      enabled: Boolean(input),
+      staleTime: 2 * 60 * 60 * 1000, // 2 hour
+    }
+  );
 }

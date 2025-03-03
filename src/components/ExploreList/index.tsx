@@ -2,6 +2,7 @@ import ExploreRepoItem from "./ExploreRepoItem";
 import ExploreContributorItem from "./ExploreContributorItem";
 import { useFreshRepos } from "../../hooks/useFreshRepos";
 import { useActiveContributors } from "../../hooks/useActiveContributors";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 interface ExploreListsProps {
     onSelect: (nodeName: string) => void;
@@ -16,11 +17,11 @@ const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
             {/* Repositories Column */}
             <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-4">Explore repositories...</h2>
-                {repos.loading && <p className="text-gray-300">Loading repositories…</p>}
-                {repos.error && <p className="text-red-500">{repos.error}</p>}
-                {!repos.loading && !repos.error && (
+                {repos.isFetching && <p className="text-gray-300">Loading repositories…</p>}
+                {repos.error ? <p className="text-red-500">{getErrorMessage(repos.error)}</p> : null}
+                {!repos.isFetching && !repos.error && (
                     <ul className="space-y-4">
-                        {repos.repos.map((repo) => (
+                        {repos.data?.map((repo) => (
                             <ExploreRepoItem key={repo.id} repo={repo} onSelect={onSelect} />
                         ))}
                     </ul>
@@ -30,11 +31,11 @@ const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
             {/* Contributors Column */}
             <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-4">Explore contributors...</h2>
-                {contributors.loading && <p className="text-gray-300">Loading contributors</p>}
-                {contributors.error && <p className="text-red-500">{contributors.error}</p>}
-                {!contributors.loading && !contributors.error && (
+                {contributors.isFetching && <p className="text-gray-300">Loading contributors</p>}
+                {contributors.error ? <p className="text-red-500">{getErrorMessage(contributors.error)}</p> : null}
+                {!contributors.isFetching && !contributors.error && (
                     <ul className="space-y-4">
-                        {contributors.contributors.slice(0, 3).map((contributor) => (
+                        {contributors.data?.slice(0, 3).map((contributor) => (
                             <ExploreContributorItem
                                 key={contributor.id}
                                 contributor={contributor}

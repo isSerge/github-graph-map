@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "react-query";
 import { searchRepositories, searchUsers } from "../services/github";
 import { useDebounce } from "./useDebounce";
-import { handleError } from "../utils/errorUtils";
 import { extractGitHubPath } from "../utils/stringUtils";
 
 export interface Suggestion {
@@ -10,50 +9,34 @@ export interface Suggestion {
   type: "repo" | "user";
 }
 
-export function useAutocomplete(query: string): {
-  suggestions: Suggestion[];
-  isLoading: boolean;
-} {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
+export function useAutocomplete(query: string) {
   const normalizedQuery = extractGitHubPath(query) || query;
-
   const debouncedQuery = useDebounce(normalizedQuery, 300);
 
-  useEffect(() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    setIsLoading(true);
-    (async () => {
-      try {
-        let suggestionsData: Suggestion[] = [];
-        if (debouncedQuery.includes("/")) {
-          const repos = await searchRepositories(debouncedQuery);
-          suggestionsData = repos.map((repo) => ({
-            id: repo.id,
-            label: repo.nameWithOwner,
-            type: "repo",
-          }));
-        } else {
-          const users = await searchUsers(debouncedQuery);
-          suggestionsData = users.map((user) => ({
-            id: user.id,
-            label: user.login,
-            type: "user",
-          }));
-        }
-        setSuggestions(suggestionsData);
-      } catch (error) {
-        handleError("useAutocomplete", error);
-        setSuggestions([]);
-      } finally {
-        setIsLoading(false);
+  const { data, isFetching, error } = useQuery(
+    ["autocomplete", debouncedQuery],
+    async () => {
+      if (!debouncedQuery || debouncedQuery.length < 2) return [];
+      if (debouncedQuery.includes("/")) {
+        const repos = await searchRepositories(debouncedQuery);
+        return repos.map((repo) => ({
+          id: repo.id,
+          label: repo.nameWithOwner,
+          type: "repo" as const,
+        }));
+      } else {
+        const users = await searchUsers(debouncedQuery);
+        return users.map((user) => ({
+          id: user.id,
+          label: user.login,
+          type: "user" as const,
+        }));
       }
-    })();
-  }, [debouncedQuery]);
+    },
+    {
+      enabled: Boolean(debouncedQuery && debouncedQuery.length >= 2),
+    }
+  );
 
-  return { suggestions, isLoading };
+  return { suggestions: data || [], isFetching, error };
 }

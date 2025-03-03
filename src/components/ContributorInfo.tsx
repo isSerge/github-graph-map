@@ -3,6 +3,7 @@ import { ContributorDetails } from "../types";
 import { formatNumber } from "../utils/formatUtils";
 import { useContributorDetails } from "../hooks/useContributorDetails";
 import LoadingSpinner from "./LoadingSpinner";
+import { getErrorMessage } from "../utils/errorUtils";
 
 interface ContributorInfoProps {
   node: ContributorDetails;
@@ -10,13 +11,13 @@ interface ContributorInfoProps {
 }
 
 const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
-  const { fetching, error, contributorDetails } = useContributorDetails(node.login);
+  const { isFetching, error, data } = useContributorDetails(node.login);
 
-  if (fetching) return <LoadingSpinner />;
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!contributorDetails) return null;
+  if (isFetching) return <LoadingSpinner />;
+  if (error) return <p className="text-red-500">{getErrorMessage(error)}</p>;
+  if (!data) return null;
 
-  const contributions = contributorDetails.contributionsCollection.commitContributionsByRepository;
+  const contributions = data.contributionsCollection.commitContributionsByRepository;
 
   const lastActivityTime = contributions
     .flatMap(item => item.contributions.nodes)
@@ -37,8 +38,8 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
         {/* Avatar Section */}
         <div className="md:w-1/3 flex justify-center items-center bg-gray-900 p-6">
           <img
-            src={contributorDetails.avatarUrl}
-            alt={contributorDetails.login}
+            src={data.avatarUrl}
+            alt={data.login}
             className="w-32 h-32 rounded-full border-4 border-gray-700 object-cover"
           />
         </div>
@@ -46,32 +47,32 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
         <div className="md:w-2/3 p-6 flex flex-col justify-between">
           <div>
             <h2 className="text-3xl font-bold text-white mb-4">
-              {contributorDetails.login}
+              {data.login}
             </h2>
             <div className="space-y-2">
-              {contributorDetails.company && (
+              {data.company && (
                 <p className="text-gray-300">
-                  <span className="font-semibold">Company:</span> {contributorDetails.company}
+                  <span className="font-semibold">Company:</span> {data.company}
                 </p>
               )}
-              {contributorDetails.location && (
+              {data.location && (
                 <p className="text-gray-300">
-                  <span className="font-semibold">Location:</span> {contributorDetails.location}
+                  <span className="font-semibold">Location:</span> {data.location}
                 </p>
               )}
               <p className="text-gray-300">
-                <span className="font-semibold">Followers:</span> {formatNumber(contributorDetails.followers.totalCount)}
+                <span className="font-semibold">Followers:</span> {formatNumber(data.followers.totalCount)}
               </p>
-              {contributorDetails.websiteUrl && (
+              {data.websiteUrl && (
                 <p className="text-gray-300">
                   <span className="font-semibold">Website:</span>{" "}
                   <a
-                    href={contributorDetails.websiteUrl}
+                    href={data.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 hover:underline"
                   >
-                    {contributorDetails.websiteUrl}
+                    {data.websiteUrl}
                   </a>
                 </p>
               )}

@@ -10,6 +10,7 @@ import {
 } from "../utils/repoUtils";
 import { formatNumber } from "../utils/formatUtils";
 import LoadingSpinner from "./LoadingSpinner";
+import { getErrorMessage } from "../utils/errorUtils";
 
 interface RepoInfoProps {
   node: RepoNode;
@@ -17,14 +18,14 @@ interface RepoInfoProps {
 }
 
 const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
-  const { fetching, error, repoDetails } = useRepoDetails(node.nameWithOwner);
+  const { isFetching, error, data } = useRepoDetails(node.nameWithOwner);
 
-  if (fetching) return <LoadingSpinner />;
+  if (isFetching) return <LoadingSpinner />;
   // TODO: proper component for error state
-  if (error) return <p>{error}</p>;
-  if (!repoDetails) return null;
+  if (error) return <p className="text-red-500">{getErrorMessage(error)}</p>;
+  if (!data) return null;
 
-  const labelCounts = countBeginnerFriendlyLabels(repoDetails.labels.nodes);
+  const labelCounts = countBeginnerFriendlyLabels(data.labels.nodes);
   const countGoodFirstIssue = labelCounts[GOOD_FIRST_ISSUE];
   const countHelpWanted = labelCounts[HELP_WANTED];
   const countBeginnerFriendly = labelCounts[BEGINNER_FRIENDLY];
@@ -39,38 +40,38 @@ const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
         {/* Details Section */}
         <div className="p-6 grow">
           <h2 className="text-2xl font-bold text-white mb-3">
-            {repoDetails.name}
+            {data.name}
           </h2>
           <div>
             <p className="text-gray-300 mb-2 inline-block">
               <span className="font-semibold">⭐&nbsp;</span>
-              {formatNumber(repoDetails.stargazerCount)}
+              {formatNumber(data.stargazerCount)}
             </p>
             <p className="text-gray-300 mb-2 inline-block ml-4">
               <span className="font-semibold">🍴&nbsp;</span>
-              {formatNumber(repoDetails.forkCount)}
+              {formatNumber(data.forkCount)}
             </p>
           </div>
-          {repoDetails.description && (
-            <p className="text-gray-300 mb-2">{repoDetails.description}</p>
+          {data.description && (
+            <p className="text-gray-300 mb-2">{data.description}</p>
           )}
-          {repoDetails.primaryLanguage && (
+          {data.primaryLanguage && (
             <p className="text-gray-300 mb-2">
               <span className="font-semibold">Primary Language:&nbsp;</span>
-              {repoDetails.primaryLanguage.name}
+              {data.primaryLanguage.name}
             </p>
           )}
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">Pushed at:&nbsp;</span>
-            {formatDistanceToNow(new Date(repoDetails.pushedAt), { addSuffix: true })}
+            {formatDistanceToNow(new Date(data.pushedAt), { addSuffix: true })}
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">Issues open</span>&nbsp;(7d):&nbsp;
-            {repoDetails.issues.totalCount}
+            {data.issues.totalCount}
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">PRs</span>&nbsp;(7d):&nbsp;
-            {repoDetails.pullRequests.totalCount} open, {repoDetails.pullRequests.nodes.filter((pr) => pr.merged).length} merged
+            {data.pullRequests.totalCount} open, {data.pullRequests.nodes.filter((pr) => pr.merged).length} merged
           </p>
           <p className="text-gray-300 mb-2">
             <span className="font-semibold">
@@ -91,7 +92,7 @@ const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
             {BEGINNER_FRIENDLY} ({countBeginnerFriendly})
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">{repoDetails.contributingFile ? "✅" : "❌"}&nbsp;</span>
+            <span className="font-semibold">{data.contributingFile ? "✅" : "❌"}&nbsp;</span>
             CONTRIBUTING.md
           </p>
           <div className="flex gap-2 mt-4">

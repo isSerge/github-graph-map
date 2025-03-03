@@ -1,4 +1,5 @@
 export interface RepoDetails {
+  id: string;
   name: string;
   nameWithOwner: string;
   stargazerCount: number;

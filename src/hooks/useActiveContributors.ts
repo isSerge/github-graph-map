@@ -1,38 +1,22 @@
-import { useEffect, useState } from "react";
-import { ExploreContributor } from "../types";
+import { useQuery } from "react-query";
 import { getActiveContributors } from "../services/github";
-import { handleError } from "../utils/errorUtils";
 
-export const useActiveContributors = (): {
-  contributors: ExploreContributor[];
-  loading: boolean;
-  error: string | null;
-} => {
-  const [contributors, setContributors] = useState<ExploreContributor[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    getActiveContributors()
-      .then((data) => {
-        const contributors = data
+export const useActiveContributors = () => {
+  return useQuery(
+    "activeContributors", 
+    async () => {
+      const data = await getActiveContributors();
+      return data
         .filter((contributor) => contributor.login && contributor.avatarUrl)
         .map((contributor) => ({
-            ...contributor,
-            type: "contributor" as const,
-            name: contributor.login,
-            id: contributor.login,
+          ...contributor,
+          type: "contributor" as const,
+          name: contributor.login,
+          id: contributor.login,
         }));
-        setContributors(contributors);
-    })
-      .catch((error) => {
-        handleError("useActiveContributors", error);
-        if (error.name === "AbortError") return;
-        setError("Failed to fetch active contributors")
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { contributors, loading, error };
+    }, 
+    {
+      staleTime: 2 * 60 * 60 * 1000, // 2 hours
+    }
+  );
 };

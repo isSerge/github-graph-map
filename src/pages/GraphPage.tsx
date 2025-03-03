@@ -15,6 +15,7 @@ import { useSearchHistory } from "../hooks/useSearchHistory";
 import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
 import { EitherNode } from "../types";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
+import { getErrorMessage } from "../utils/errorUtils";
 
 interface GraphPageProps {
   query: string;
@@ -30,11 +31,9 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   const displaySettings = useDisplaySettings();
   // Get graph-related state based on the committed search value.
   const {
-    fetching,
+    isFetching,
     error,
-    graphData,
-    selectedEntity,
-    resetGraph,
+    data,
   } = useGraph(committed, displaySettings.timePeriod);
 
   const {
@@ -75,17 +74,17 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
 
   // When the selected entity changes, add it to navigation history.
   useEffect(() => {
-    if (selectedEntity) {
-      addNode(selectedEntity);
+    if (data?.selectedEntity) {
+      addNode(data.selectedEntity);
     }
-  }, [selectedEntity, addNode]);
+  }, [data?.selectedEntity, addNode]);
 
   // Add the committed query to search history once data is successfully fetched.
   useEffect(() => {
-    if (committed && !fetching && !error && graphData) {
+    if (committed && !isFetching && !error && data?.graph) {
       addSearchQuery(committed);
     }
-  }, [committed, fetching, error, graphData, addSearchQuery]);
+  }, [committed, isFetching, error, data?.graph, addSearchQuery]);
 
   const handlePrev = useCallback(() => {
     if (canGoBack) {
@@ -125,21 +124,19 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
       if (value === "") {
         commitSearch();
         resetSearch();
-        resetGraph();
       }
     },
-    [setDraft, commitSearch, resetSearch, resetGraph]
+    [setDraft, commitSearch, resetSearch]
   );
   const navigatedRef = useRef(false);
   const handleClearSearch = useCallback(() => {
     resetSearch();
     resetHistory();
-    resetGraph();
     if (!navigatedRef.current) {
       navigatedRef.current = true;
       navigate("/");
     }
-  }, [resetSearch, resetHistory, resetGraph, navigate]);
+  }, [resetSearch, resetHistory, navigate]);
 
   useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
 
@@ -156,10 +153,10 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
         />
       </header>
 
-      {fetching && <LoadingSpinner />}
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {isFetching && <LoadingSpinner />}
+      {error && <div className="text-red-500 mb-4">{getErrorMessage(error)}</div>}
 
-      {graphData && selectedEntity && !fetching && !error && (
+      {data && !isFetching && !error && (
         <div className="h-screen relative bg-gray-800 overflow-hidden">
           <div className="absolute top-4 right-4 z-20">
             <button
@@ -207,8 +204,8 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
           </div>
 
           <NetworkWithZoom
-            selectedNodeId={selectedEntity.id}
-            data={graphData}
+            selectedNodeId={data.selectedEntity.id}
+            data={data.graph}
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}
             centeringStrength={centeringStrength}
@@ -217,12 +214,12 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
         </div>
       )}
 
-      {selectedEntity && graphData && (
+      {data && (
         <div className="mt-4">
           {showJson && (
             <>
-              <JsonDisplay title="Selected Repo" data={selectedEntity} />
-              <JsonDisplay title="Graph Data" data={graphData} />
+              <JsonDisplay title="Selected Repo" data={data.selectedEntity} />
+              <JsonDisplay title="Graph Data" data={data.graph} />
             </>
           )}
         </div>

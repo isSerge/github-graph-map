@@ -20,7 +20,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = "Enter repository (e.g., facebook/react) or user (e.g., torvalds)",
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { suggestions, isLoading } = useAutocomplete(value);
+  const { suggestions, isFetching } = useAutocomplete(value);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
   // When a suggestion or history item is clicked, commit that value.
@@ -41,7 +41,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     }
   };
 
-  const hasDropdownContent = isLoading || suggestions.length > 0 || history.length > 0;
+  const hasDropdownContent = isFetching || suggestions.length > 0 || history.length > 0;
 
   return (
     <div className="relative max-w-xl mx-auto mb-4">
@@ -97,10 +97,10 @@ const SearchInput: React.FC<SearchInputProps> = ({
       {/* Dropdown: Show suggestions if available; fallback to history */}
       {showDropdown && hasDropdownContent && (
         <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
-          {isLoading && (
+          {isFetching && (
             <li className="cursor-pointer px-4 py-2 text-gray-400">Loading...</li>
           )}
-          {!isLoading && suggestions.length > 0 ? (
+          {!isFetching && suggestions.length > 0 ? (
             suggestions.map((item: Suggestion) => (
               <li
                 key={item.id}

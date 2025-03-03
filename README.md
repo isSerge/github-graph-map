@@ -16,6 +16,7 @@ A web application that visualizes GitHub repositories and contributors as an int
 - **Tailwind CSS**
 - **GraphQL & GitHub API**
 - **Nivo Network:** to render network graphs.
+- **React Query:** for data fetching and caching
 
 ## Project Structure
 
@@ -54,8 +55,7 @@ src
 │   └── useGraph.ts
 ├── assets
 └── services
-    ├── github.ts
-    └── cache.ts
+    └── github.ts
 ```
 
 ## Setup & Installation

@@ -1,38 +1,11 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import { getFreshRepositories } from "../services/github";
-import { RepoNode } from "../types";
-import { handleError } from "../utils/errorUtils";
 
-interface UseFreshReposResult {
-  repos: RepoNode[];
-  loading: boolean;
-  error: string | null;
-}
-
-export const useFreshRepos = (): UseFreshReposResult => {
-  const [repos, setRepos] = useState<RepoNode[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    getFreshRepositories()
-      .then((data) => {
-        const repos = data.map((repo) => ({
-            ...repo,
-            id: repo.nameWithOwner,
-            type: "repo" as const,
-        }));
-        setRepos(repos);
-      })
-      .catch((error) => {
-        handleError("useFreshRepos", error);
-        setError("Failed to load repositories");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  return { repos, loading, error };
+export const useFreshRepos = () => {
+  return useQuery(
+    "freshRepos", 
+    ({ signal }) => getFreshRepositories(signal),
+    {
+      staleTime: 2 * 60 * 60 * 1000, // 2 hours
+    });
 };

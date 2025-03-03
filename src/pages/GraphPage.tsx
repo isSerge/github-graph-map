@@ -1,33 +1,44 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
+import { useNavigate } from "react-router-dom";
 
-import { EitherNode } from "./types";
-import { extractGitHubPath } from "./utils/stringUtils";
-import NetworkWithZoom from "./components/NetworkWithZoom";
-import DisplaySettings from "./components/DisplaySettings";
-import JsonDisplay from "./components/JsonDisplay";
-import NodeModal from "./components/NodeModal";
-import ExploreList from "./components/ExploreList";
-import SearchInput from "./components/SearchInput";
-import LoadingSpinner from "./components/LoadingSpinner";
-import { useGraph } from "./hooks/useGraph";
-import { useDisplaySettings } from "./hooks/useDisplaySettings";
-import { useOnClickOutside } from "./hooks/useOnClickOutside";
-import { useSearchInputReducer } from "./hooks/useSearchInputReducer";
-import { useSearchHistory } from "./hooks/useSearchHistory";
-import { useNavHistoryReducer } from "./hooks/useNavHistoryReducer";
+import SearchInput from "../components/SearchInput";
+import LoadingSpinner from "../components/LoadingSpinner";
+import NetworkWithZoom from "../components/NetworkWithZoom";
+import DisplaySettings from "../components/DisplaySettings";
+import JsonDisplay from "../components/JsonDisplay";
+import NodeModal from "../components/NodeModal";
+import { useGraph } from "../hooks/useGraph";
+import { useDisplaySettings } from "../hooks/useDisplaySettings";
+import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
+import { useSearchHistory } from "../hooks/useSearchHistory";
+import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
+import { EitherNode } from "../types";
 
-const App = () => {
-  // Use search reducer to manage the search state.
+interface GraphPageProps {
+  query: string;
+}
+
+const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
+  const navigate = useNavigate();
+  // Initialize search state with the query from the URL.
+  const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
+  const { searchHistory, addSearchQuery } = useSearchHistory();
+
+  // Display settings and time period.
+  const displaySettings = useDisplaySettings();
+  // Get graph-related state based on the committed search value.
   const {
-    draft,
-    committed,
-    setDraft,
-    commitSearch,
-    resetSearch,
-  } = useSearchInputReducer();
+    fetching,
+    error,
+    graphData,
+    selectedEntity,
+    resetGraph,
+  } = useGraph(committed, displaySettings.timePeriod);
 
   const {
+    timePeriod,
+    setTimePeriod,
     showJson,
     setShowJson,
     linkDistanceMultiplier,
@@ -36,21 +47,16 @@ const App = () => {
     setLinkDistanceMultiplier,
     setRepulsivity,
     setCenteringStrength,
-    timePeriod,
-    setTimePeriod,
-  } = useDisplaySettings();
+  } = displaySettings;
 
-  // The committed value (searchState.committed) is used to fetch graph data.
-  const {
-    fetching,
-    error,
-    graphData,
-    selectedEntity,
-    resetGraph
-  } = useGraph(committed, timePeriod);
+  // Automatically commit the initial query so that fetching starts.
+  useEffect(() => {
+    if (query && !committed) {
+      commitSearch();
+    }
+  }, [query, committed, commitSearch]);
 
-  const { searchHistory, addSearchQuery } = useSearchHistory();
-
+  // Navigation history for graph nodes.
   const {
     history,
     currentIndex,
@@ -58,23 +64,22 @@ const App = () => {
     navigateTo,
     resetHistory,
     canGoBack,
-    canGoForward
+    canGoForward,
   } = useNavHistoryReducer();
 
-  // Ref for settings container.
+  // Ref and local state for settings panel and modal.
   const settingsRef = useRef<HTMLDivElement>(null);
-  useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
-
   const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
   const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
+  // When the selected entity changes, add it to navigation history.
   useEffect(() => {
     if (selectedEntity) {
       addNode(selectedEntity);
     }
   }, [selectedEntity, addNode]);
 
-  // add search query into history when we get data successfully
+  // Add the committed query to search history once data is successfully fetched.
   useEffect(() => {
     if (committed && !fetching && !error && graphData) {
       addSearchQuery(committed);
@@ -105,31 +110,35 @@ const App = () => {
 
   const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => setModalNode(node), []);
 
+  const handleSubmit = useCallback(
+    (value: string) => {
+      setDraft(value);
+      commitSearch();
+    },
+    [commitSearch, setDraft]
+  );
+
+  const handleSearchInputChange = useCallback(
+    (value: string) => {
+      setDraft(value);
+      if (value === "") {
+        commitSearch();
+        resetSearch();
+        resetGraph();
+      }
+    },
+    [setDraft, commitSearch, resetSearch, resetGraph]
+  );
+  const navigatedRef = useRef(false);
   const handleClearSearch = useCallback(() => {
     resetSearch();
     resetHistory();
     resetGraph();
-  }, [resetSearch, resetHistory, resetGraph]);
-
-  // Called when SearchInput commits a search.
-  const handleSubmit = useCallback((value: string) => {
-    // If the input is a valid GitHub URL, extract the path.
-    const gitHubPath = extractGitHubPath(value);
-    const finalValue = gitHubPath ? gitHubPath : value;
-    setDraft(finalValue);
-    commitSearch();
-  }, [commitSearch, setDraft]);
-
-  const handleSearchInputChange = useCallback((value: string) => {
-    setDraft(value);
-    if (value === "") {
-      // When the user manually deletes everything,
-      // commit an empty search and reset the graph.
-      commitSearch();
-      resetSearch();
-      resetGraph();
+    if (!navigatedRef.current) {
+      navigatedRef.current = true;
+      navigate("/");
     }
-  }, [setDraft, commitSearch, resetSearch, resetGraph]);
+  }, [resetSearch, resetHistory, resetGraph, navigate]);
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
@@ -146,10 +155,6 @@ const App = () => {
 
       {fetching && <LoadingSpinner />}
       {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      {!fetching && !error && !selectedEntity && (
-        <ExploreList onSelect={(nodeName: string) => handleSubmit(nodeName)} />
-      )}
 
       {graphData && selectedEntity && !fetching && !error && (
         <div className="h-screen relative bg-gray-800 overflow-hidden">
@@ -201,7 +206,7 @@ const App = () => {
             linkDistanceMultiplier={linkDistanceMultiplier}
             repulsivity={repulsivity}
             centeringStrength={centeringStrength}
-            onNodeClick={handleNodeClick} 
+            onNodeClick={handleNodeClick}
           />
         </div>
       )}
@@ -228,4 +233,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default GraphPage;

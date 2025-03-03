@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useCallback } from "react";
 
 export interface SearchState {
   draft: string;
@@ -27,9 +27,9 @@ export function useSearchInputReducer(initialDraft = '') {
   const initialState: SearchState = { draft: initialDraft, committed: '' };
   const [state, dispatch] = useReducer(searchInputReducer, initialState);
 
-  const setDraft = (payload: string) => dispatch({ type: 'setDraft', payload });
-  const commitSearch = () => dispatch({ type: 'commit' });
-  const resetSearch = () => dispatch({ type: 'reset' });
+  const setDraft = useCallback((payload: string) => dispatch({ type: 'setDraft', payload }),[]);
+  const commitSearch = useCallback(() => dispatch({ type: 'commit' }), []);
+  const resetSearch = useCallback(() => dispatch({ type: 'reset' }), []);
 
   return {
     draft: state.draft,

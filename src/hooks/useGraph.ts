@@ -9,7 +9,6 @@ import { handleError } from "../utils/errorUtils";
 import { createRepoGraph, createUserGraph } from "../utils/graphUtils";
 
 async function fetchRepoGraph(input: string, since: string, signal: AbortSignal) {
-  console.log('fetchRepoGraph', since)
   const [owner, name] = input.split("/");
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");

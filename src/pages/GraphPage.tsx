@@ -14,6 +14,7 @@ import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
 import { EitherNode } from "../types";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface GraphPageProps {
   query: string;
@@ -140,6 +141,8 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     }
   }, [resetSearch, resetHistory, resetGraph, navigate]);
 
+  useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
+
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
@@ -158,7 +161,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
 
       {graphData && selectedEntity && !fetching && !error && (
         <div className="h-screen relative bg-gray-800 overflow-hidden">
-          <div ref={settingsRef} className="absolute top-4 right-4 z-20">
+          <div className="absolute top-4 right-4 z-20">
             <button
               onClick={() => setShowSettingsPanel((prev) => !prev)}
               className="flex items-center p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
@@ -166,7 +169,10 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
               <span className="text-xl">⚙️</span>
             </button>
             {showSettingsPanel && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20">
+              <div 
+                ref={settingsRef}
+                className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20"
+              >
                 <DisplaySettings
                   linkDistanceMultiplier={linkDistanceMultiplier}
                   repulsivity={repulsivity}

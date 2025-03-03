@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { ActiveContributor } from "../types";
+import { ExploreContributor } from "../types";
 import { getActiveContributors } from "../services/github";
 import { handleError } from "../utils/errorUtils";
 
 export const useActiveContributors = (): {
-  contributors: ActiveContributor[];
+  contributors: ExploreContributor[];
   loading: boolean;
   error: string | null;
 } => {
-  const [contributors, setContributors] = useState<ActiveContributor[]>([]);
+  const [contributors, setContributors] = useState<ExploreContributor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

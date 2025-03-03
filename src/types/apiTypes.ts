@@ -1,5 +1,5 @@
 import { RepoDetails, RepoGraphData } from './repoTypes';
-import { ActiveContributor } from './contributorTypes';
+import { ExploreContributor } from './contributorTypes';
 
 export interface RepoDetailsResponse { 
     repository: RepoDetails;
@@ -48,7 +48,10 @@ export interface ContributorDetailsResponse {
     contributionsCollection: {
       commitContributionsByRepository: {
         repository: RepoGraphData;
-        contributions: { nodes: { occurredAt: string }[] };
+        contributions: { 
+          nodes: { occurredAt: string }[];
+          repository: { nameWithOwner: string };
+        };
       }[];
     };
   }
@@ -67,5 +70,5 @@ export interface GetFreshRepoResponse {
 }
 
 export interface GetActiveContributorsResponse { 
-  search: { nodes: ActiveContributor[] } 
+  search: { nodes: ExploreContributor[] } 
 }

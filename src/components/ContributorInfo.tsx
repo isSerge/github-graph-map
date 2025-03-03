@@ -1,12 +1,12 @@
-// import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
-import { ContributorNode } from "../types/networkTypes";
+import { ContributorDetails } from "../types";
 import { formatNumber } from "../utils/formatUtils";
 import { useContributorDetails } from "../hooks/useContributorDetails";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface ContributorInfoProps {
-  node: ContributorNode;
+  node: ContributorDetails;
   onExploreGraph: (name: string) => void;
 }
 
@@ -18,18 +18,14 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
   if (error) return <p>{error}</p>;
   if (!contributorDetails) return null;
 
-  // TODO: Uncomment this section to display the last contribution date
-  // const lastContributionDate = 
-  //   contributor.recentRepos &&
-  //   contributor.recentRepos.length > 0
-  //     ? new Date(
-  //         Math.max(
-  //           ...contributor.recentRepos.map((repo) =>
-  //             new Date(repo.pushedAt).getTime()
-  //           )
-  //         )
-  //       )
-  //     : null;
+  const lastActivityTime = contributorDetails.contributionsCollection.commitContributionsByRepository
+    .flatMap(item => item.contributions.nodes)
+    .reduce((latest, node) => {
+      const nodeTime = new Date(node.occurredAt).getTime();
+      return nodeTime > latest ? nodeTime : latest;
+    }, 0);
+
+  const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
@@ -81,12 +77,12 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
               <span className="font-semibold">Repos Contributed To: </span>
               {formatNumber(contributorDetails.recentRepos.length)}
             </p> */}
-            {/* {lastContributionDate && (
+            {lastActivityDate && (
               <p className="text-gray-300 mb-1">
-                <span className="font-semibold">Last Contribution: </span>
-                {formatDistanceToNow(lastContributionDate, { addSuffix: true })}
+                <span className="font-semibold">Last activity: </span>
+                {formatDistanceToNow(lastActivityDate, { addSuffix: true })}
               </p>
-            )} */}
+            )}
           </div>
           <div className="mt-4 flex gap-2">
             <button

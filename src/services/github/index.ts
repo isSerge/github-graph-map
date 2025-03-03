@@ -1,7 +1,7 @@
 import { graphql } from "@octokit/graphql";
 import { 
   RepoDetails, 
-  ActiveContributor, 
+  ExploreContributor, 
   ContributorGraphData, 
   RepoDetailsResponse, 
   RecentCommitsResponse,
@@ -231,7 +231,7 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoDe
   return fetchWithCache(cacheKey, fetchFn, oneDay);
 }
 
-export async function getActiveContributors(signal?: AbortSignal): Promise<ActiveContributor[]> {
+export async function getActiveContributors(signal?: AbortSignal): Promise<ExploreContributor[]> {
   // Calculate date 7 days ago in ISO format.
   const date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   date.setUTCHours(0, 0, 0, 0);

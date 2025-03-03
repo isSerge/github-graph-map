@@ -10,6 +10,18 @@ export type ContributorDetails = {
   location: string;
   login: string;
   websiteUrl: string;
+  contributionsCollection: {
+    commitContributionsByRepository: {
+      contributions: {
+        nodes: {
+          occurredAt: string;
+        }[];
+        repository: {
+          nameWithOwner: string;
+        }
+      };
+    }[];
+  };
 };
 
 export interface ContributorGraphData {
@@ -17,7 +29,7 @@ export interface ContributorGraphData {
   recentRepos: RepoGraphData[];
 }
 
-export type ActiveContributor = {
+export type ExploreContributor = {
   login: string;
   avatarUrl: string;
   id: string;

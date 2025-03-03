@@ -1,8 +1,8 @@
-import { ActiveContributor } from "../../types";
+import { ExploreContributor } from "../../types";
 import { formatNumber } from "../../utils/formatUtils";
 
 interface ExploreContributorItemProps {
-  contributor: ActiveContributor;
+  contributor: ExploreContributor;
   onSelect: (nodeName: string) => void;
 }
 

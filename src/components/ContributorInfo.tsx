@@ -18,7 +18,9 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
   if (error) return <p>{error}</p>;
   if (!contributorDetails) return null;
 
-  const lastActivityTime = contributorDetails.contributionsCollection.commitContributionsByRepository
+  const contributions = contributorDetails.contributionsCollection.commitContributionsByRepository;
+
+  const lastActivityTime = contributions
     .flatMap(item => item.contributions.nodes)
     .reduce((latest, node) => {
       const nodeTime = new Date(node.occurredAt).getTime();
@@ -26,6 +28,10 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
     }, 0);
 
   const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
+
+  const maxReposToShow = 3;
+  const displayedRepos = contributions.slice(0, maxReposToShow);
+  const additionalCount = contributions.length - maxReposToShow;
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
@@ -73,10 +79,22 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
                 </a>
               </p>
             )}
-            {/* <p className="text-gray-300 mb-1">
-              <span className="font-semibold">Repos Contributed To: </span>
-              {formatNumber(contributorDetails.recentRepos.length)}
-            </p> */}
+            {contributions.length > 0 && (
+              <div className="my-2">
+                <p className="text-gray-400 text-xs">Last repos pushed to: </p>
+                <span
+                  className="text-xs text-gray-300"
+                  title={displayedRepos
+                    .map(({ repository }) => repository.nameWithOwner)
+                    .join(", ")}
+                >
+                  {displayedRepos
+                    .map(({ repository }) => repository.nameWithOwner)
+                    .join(", ")}
+                  {additionalCount > 0 && `, +${additionalCount} more`}
+                </span>
+              </div>
+            )}
             {lastActivityDate && (
               <p className="text-gray-300 mb-1">
                 <span className="font-semibold">Last activity: </span>

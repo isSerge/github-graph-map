@@ -12,14 +12,8 @@ export type ContributorDetails = {
   websiteUrl: string;
   contributionsCollection: {
     commitContributionsByRepository: {
-      contributions: {
-        nodes: {
-          occurredAt: string;
-        }[];
-        repository: {
-          nameWithOwner: string;
-        }
-      };
+      repository: RepoGraphData;
+      contributions: { nodes: { occurredAt: string }[] };
     }[];
   };
 };
@@ -40,7 +34,7 @@ export type ExploreContributor = {
     commitContributionsByRepository: {
       repository: {
         nameWithOwner: string;
-      }
+      };
     }[];
   };
 };

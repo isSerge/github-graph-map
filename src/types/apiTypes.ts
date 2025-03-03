@@ -1,27 +1,27 @@
-import { RepoDetails, RepoGraphData } from './repoTypes';
-import { ExploreContributor } from './contributorTypes';
+import { RepoDetails, RepoGraphData } from "./repoTypes";
+import { ExploreContributor } from "./contributorTypes";
 
 export interface RepoDetailsResponse { 
-    repository: RepoDetails;
+  repository: RepoDetails;
 }
 
 export interface RecentCommitsResponse {
-    repository: {
-      defaultBranchRef: {
-        target: {
-          history: {
-            nodes: {
-              author: {
-                user: {
-                  login: string;
-                }
-              }
-            }[];
-          };
+  repository: {
+    defaultBranchRef: {
+      target: {
+        history: {
+          nodes: {
+            author: {
+              user: {
+                login: string;
+              };
+            };
+          }[];
         };
       };
     };
-  }
+  };
+}
 
 export interface ContributorGraphDataResponse {
   user: {
@@ -32,7 +32,7 @@ export interface ContributorGraphDataResponse {
         contributions: { nodes: { occurredAt: string }[] };
       }[];
     };
-  }
+  };
 }
 
 export interface ContributorDetailsResponse {
@@ -48,13 +48,10 @@ export interface ContributorDetailsResponse {
     contributionsCollection: {
       commitContributionsByRepository: {
         repository: RepoGraphData;
-        contributions: { 
-          nodes: { occurredAt: string }[];
-          repository: { nameWithOwner: string };
-        };
+        contributions: { nodes: { occurredAt: string }[] };
       }[];
     };
-  }
+  };
 }
 
 export interface SearchRepoResponse {
@@ -66,9 +63,9 @@ export interface SearchUserResponse {
 }
 
 export interface GetFreshRepoResponse { 
-  search: { nodes: RepoDetails[] } 
+  search: { nodes: RepoDetails[] }; 
 }
 
 export interface GetActiveContributorsResponse { 
-  search: { nodes: ExploreContributor[] } 
+  search: { nodes: ExploreContributor[] }; 
 }

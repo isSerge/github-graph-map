@@ -1,26 +1,53 @@
-import { EitherNode } from "../../types";
+import { ContributorNode, EitherNode, RepoNode } from "../../types";
+import { useRepoDetails } from "../../hooks/useRepoDetails";
 
 interface TooltipProps {
-  data: EitherNode; // You can type this according to your node data shape
+  node: EitherNode;
   position: { x: number; y: number };
 }
 
-const Tooltip = ({ data, position }: TooltipProps) => {
+interface ContributorTooltipProps extends TooltipProps {
+  node: ContributorNode;
+}
+
+const ContributorTooltip = ({ node, position }: ContributorTooltipProps) => {
   return (
     <div
       className="absolute bg-gray-900 text-white p-2 rounded shadow-lg text-sm pointer-events-none z-50"
       style={{ top: position.y + 10, left: position.x + 10 }}
     >
-      <p className="font-bold">{data.name}</p>
-      {/* Add more details here as needed */}
-      {data.type === "repo" && data.nameWithOwner && (
-        <p className="text-xs">Repo: {data.nameWithOwner}</p>
-      )}
-      {data.type === "contributor" && (
-        <p className="text-xs">Contributor</p>
-      )}
+      <p className="font-bold">{node.name}</p>
+      <p className="text-xs">Contributor</p>
     </div>
   );
 };
+
+interface RepoTooltipProps extends TooltipProps {
+  node: RepoNode;
+}
+
+const RepoTooltip = ({ node, position }: RepoTooltipProps) => {
+  const { data } = useRepoDetails(node.nameWithOwner);
+
+  console.log(data)
+
+  return (
+    <div
+      className="absolute bg-gray-900 text-white p-2 rounded shadow-lg text-sm pointer-events-none z-50"
+      style={{ top: position.y + 10, left: position.x + 10 }}
+    >
+      <p className="font-bold">{node.name}</p>
+      <p className="text-xs">Repo: {node.nameWithOwner}</p>
+    </div>
+  );
+};
+
+const Tooltip = ({ node, position }: TooltipProps) => {
+  if (node.type === "contributor") {
+    return <ContributorTooltip node={node} position={position} />;
+  } else {
+    return <RepoTooltip node={node} position={position} />;
+  }
+}
 
 export default Tooltip;

@@ -6,7 +6,7 @@ import {
   countBeginnerFriendlyLabels, 
   GOOD_FIRST_ISSUE,
   HELP_WANTED,
-  BEGINNER_FRIENDLY
+  BEGINNER_FRIENDLY,
 } from "../utils/repoUtils";
 import { formatNumber } from "../utils/formatUtils";
 import LoadingSpinner from "./LoadingSpinner";
@@ -97,13 +97,13 @@ const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
           </p>
           <div className="flex gap-2 mt-4">
             <button
-              onClick={() => onExploreGraph(node.nameWithOwner)}
+              onClick={() => onExploreGraph(data.nameWithOwner)}
               className="flex-1 text-center px-6 py-3 bg-yellow-500 text-white font-bold rounded shadow-lg hover:bg-yellow-400 transition-colors duration-300"
             >
               Explore Graph
             </button>
             <a
-              href={node.url}
+              href={data.url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 text-center px-6 py-3 border border-blue-500 text-blue-500 rounded shadow-lg hover:bg-blue-500 hover:text-white transition-colors duration-300"

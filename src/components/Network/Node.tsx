@@ -4,13 +4,17 @@ import networkTheme from './theme'
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
     onNodeClick?: (node: ComputedNode<EitherNode>) => void;
+    onMouseEnter?: (node: ComputedNode<EitherNode>) => void;
+    onMouseLeave?: (node: ComputedNode<EitherNode>) => void;
 }
 
-export const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => (
+export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => (
     <g
         transform={`translate(${node.x},${node.y})`}
         style={{ cursor: 'pointer' }}
         onClick={() => onNodeClick?.(node)}
+        onMouseEnter={() => onMouseEnter?.(node)}
+        onMouseLeave={() => onMouseLeave?.(node)}
     >
         <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
         <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
@@ -19,11 +23,13 @@ export const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => (
     </g>
 );
 
-export const ContributorNode = ({ node, onNodeClick }: CustomNodeProps) => (
+export const ContributorNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => (
     <g
         transform={`translate(${node.x - 12},${node.y - 18})`}
         style={{ cursor: 'pointer' }}
         onClick={() => onNodeClick?.(node)}
+        onMouseEnter={() => onMouseEnter?.(node)}
+        onMouseLeave={() => onMouseLeave?.(node)}
     >
         <circle cx="12" cy="8" r="5" fill={node.color} stroke={networkTheme.linkColor} />
         <path d="M3,21 h18 C 21,12 3,12 3,21" fill={node.color} stroke={networkTheme.linkColor} />

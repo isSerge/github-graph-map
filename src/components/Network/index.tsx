@@ -32,6 +32,8 @@ type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
     repulsivity?: number;
     centeringStrength?: number;
     onNodeClick?: (node: ComputedNode<EitherNode>) => void;
+    onNodeMouseEnter?: (node: ComputedNode<EitherNode>) => void;
+    onNodeMouseLeave?: (node: ComputedNode<EitherNode>) => void;
 };
 
 const NetworkWithZoom = ({
@@ -41,6 +43,8 @@ const NetworkWithZoom = ({
     repulsivity,
     centeringStrength,
     onNodeClick,
+    onNodeMouseEnter,
+    onNodeMouseLeave,
 }: NetworkProps) => {
     return (
         <div className="relative h-screen bg-gray-800">
@@ -62,6 +66,8 @@ const NetworkWithZoom = ({
                             repulsivity={repulsivity}
                             centeringStrength={centeringStrength}
                             onNodeClick={onNodeClick}
+                            onNodeMouseEnter={onNodeMouseEnter}
+                            onNodeMouseLeave={onNodeMouseLeave}
                         />
                     </div>
                 </TransformComponent>

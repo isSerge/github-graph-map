@@ -6,6 +6,7 @@ import { useQueryClient } from "react-query";
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
+import Tooltip from "../components/Network/Tooltip";
 import DisplaySettings from "../components/DisplaySettings";
 import JsonDisplay from "../components/JsonDisplay";
 import NodeModal from "../components/NodeModal";
@@ -130,7 +131,10 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     }
   }, [canGoForward, currentIndex, history, navigateTo, setDraft, commitSearch]);
 
-  const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => setModalNode(node), []);
+  const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => {
+    setTooltipData(null);
+    setModalNode(node)
+  }, []);
 
   const handleSubmit = useCallback(
     (value: string) => {
@@ -161,6 +165,21 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   }, [resetSearch, resetHistory, navigate]);
 
   useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
+
+  const [tooltipData, setTooltipData] = useState<ComputedNode<EitherNode> | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
+
+  const handleNodeMouseEnter = useCallback((node: ComputedNode<EitherNode>) => {
+    console.log("Node mouse enter", node);
+    setTooltipData(node);
+    // You might want to adjust these coordinates based on your layout
+    setTooltipPosition({ x: node.x, y: node.y });
+  }, []);
+
+  const handleNodeMouseLeave = useCallback(() => {
+    setTooltipData(null);
+    setTooltipPosition(null);
+  }, []);
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
@@ -232,6 +251,8 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
             repulsivity={repulsivity}
             centeringStrength={centeringStrength}
             onNodeClick={handleNodeClick}
+            onNodeMouseEnter={handleNodeMouseEnter}
+            onNodeMouseLeave={handleNodeMouseLeave}
           />
         </div>
       )}
@@ -253,6 +274,11 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
           onClose={() => setModalNode(null)}
           onExploreGraph={(nodeName) => handleSubmit(nodeName)}
         />
+      )}
+
+      {/* Render tooltip if data exists */}
+      {tooltipData && tooltipPosition && (
+        <Tooltip data={tooltipData.data} position={tooltipPosition} />
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { NetworkDataProps, ComputedNode } from '@nivo/network'
 
-import { NetworkLink, EitherNode } from '../types/networkTypes'
+import { NetworkLink, EitherNode } from '../../types/networkTypes'
 import Network from "./Network";
 
 const ZoomControls = () => {

@@ -5,7 +5,7 @@ import { useQueryClient } from "react-query";
 
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
-import NetworkWithZoom from "../components/NetworkWithZoom";
+import NetworkWithZoom from "../components/Network";
 import DisplaySettings from "../components/DisplaySettings";
 import JsonDisplay from "../components/JsonDisplay";
 import NodeModal from "../components/NodeModal";

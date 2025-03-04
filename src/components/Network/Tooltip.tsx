@@ -1,5 +1,14 @@
+import { formatDistanceToNow } from "date-fns";
+
 import { ContributorNode, EitherNode, RepoNode } from "../../types";
 import { useRepoDetails } from "../../hooks/useRepoDetails";
+import { formatNumber } from "../../utils/formatUtils";
+import {
+  countBeginnerFriendlyLabels, 
+  GOOD_FIRST_ISSUE,
+  HELP_WANTED,
+  BEGINNER_FRIENDLY,
+} from "../../utils/repoUtils";
 
 interface TooltipProps {
   node: EitherNode;
@@ -14,7 +23,7 @@ const ContributorTooltip = ({ node, position }: ContributorTooltipProps) => {
   return (
     <div
       className="absolute bg-gray-900 text-white p-2 rounded shadow-lg text-sm pointer-events-none z-50"
-      style={{ top: position.y + 10, left: position.x + 10 }}
+      style={{ top: position.y + 30, left: position.x + 50 }}
     >
       <p className="font-bold">{node.name}</p>
       <p className="text-xs">Contributor</p>
@@ -29,15 +38,59 @@ interface RepoTooltipProps extends TooltipProps {
 const RepoTooltip = ({ node, position }: RepoTooltipProps) => {
   const { data } = useRepoDetails(node.nameWithOwner);
 
-  console.log(data)
+  if (!data) return null;
+
+  const labelCounts = countBeginnerFriendlyLabels(data.labels.nodes);
+  const countGoodFirstIssue = labelCounts[GOOD_FIRST_ISSUE];
+  const countHelpWanted = labelCounts[HELP_WANTED];
+  const countBeginnerFriendly = labelCounts[BEGINNER_FRIENDLY];
 
   return (
     <div
-      className="absolute bg-gray-900 text-white p-2 rounded shadow-lg text-sm pointer-events-none z-50"
-      style={{ top: position.y + 10, left: position.x + 10 }}
+      className="absolute bg-gray-900 text-white p-3 rounded shadow-lg text-sm pointer-events-none z-50"
+      style={{ top: position.y + 30, left: position.x + 50 }}
     >
-      <p className="font-bold">{node.name}</p>
-      <p className="text-xs">Repo: {node.nameWithOwner}</p>
+      <p className="font-bold mb-2">{data.nameWithOwner}</p>
+      <p className="text-gray-300 mb-2 inline-block">
+        <span className="text-sm">⭐&nbsp;</span>
+        {formatNumber(data.stargazerCount)}
+      </p>
+      <p className="text-gray-300 mb-2 inline-block ml-4">
+        <span className="text-sm">🍴&nbsp;</span>
+        {formatNumber(data.forkCount)}
+      </p>
+      {data.primaryLanguage && (
+        <p className="text-gray-300 mb-2">
+          <span className="text-sm">Primary Language:&nbsp;</span>
+          {data.primaryLanguage.name}
+        </p>
+      )}
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">Pushed at:&nbsp;</span>
+        {formatDistanceToNow(new Date(data.pushedAt), { addSuffix: true })}
+      </p>
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">
+          {countGoodFirstIssue > 0 ? "✅" : "❌"}&nbsp;
+        </span>
+        {GOOD_FIRST_ISSUE} ({countGoodFirstIssue})
+      </p>
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">
+          {countHelpWanted > 0 ? "✅" : "❌"}&nbsp;
+        </span>
+        {HELP_WANTED} ({countHelpWanted})
+      </p>
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">
+          {countBeginnerFriendly > 0 ? "✅" : "❌"}&nbsp;
+        </span>
+        {BEGINNER_FRIENDLY} ({countBeginnerFriendly})
+      </p>
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">{data.contributingFile ? "✅" : "❌"}&nbsp;</span>
+        CONTRIBUTING.md
+      </p>
     </div>
   );
 };

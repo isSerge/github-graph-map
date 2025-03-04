@@ -148,7 +148,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
 
   const handleNodeMouseEnter = useCallback((node: ComputedNode<EitherNode>) => {
-    console.log("Node mouse enter", node);
     setTooltipData(node);
     // You might want to adjust these coordinates based on your layout
     setTooltipPosition({ x: node.x, y: node.y });
@@ -256,7 +255,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
 
       {/* Render tooltip if data exists */}
       {tooltipData && tooltipPosition && (
-        <Tooltip data={tooltipData.data} position={tooltipPosition} />
+        <Tooltip node={tooltipData.data} position={tooltipPosition} />
       )}
     </div>
   );

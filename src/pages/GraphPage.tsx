@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "react-query";
 
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -18,14 +17,12 @@ import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
 import { EitherNode } from "../types";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 import { getErrorMessage } from "../utils/errorUtils";
-import { getRepositoryDetails, getContributorDetails } from "../services/github";
 
 interface GraphPageProps {
   query: string;
 }
 
 const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   // Initialize search state with the query from the URL.
   const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
@@ -39,25 +36,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     error,
     data,
   } = useGraph(committed, displaySettings.timePeriod);
-
-  // Prefetch details for nodes in the graph.
-  useEffect(() => {
-    if (data?.graph && data.graph.nodes.length > 0) {
-      data.graph.nodes.forEach((node) => {
-        if (node.type === "repo") {
-          queryClient.prefetchQuery(
-            ["repoDetails", node.nameWithOwner],
-            () => getRepositoryDetails(data.selectedEntity.name, node.name),
-          );
-        } else if (node.type === "contributor") {
-          queryClient.prefetchQuery(
-            ["contributorDetails", node.login],
-            () => getContributorDetails(node.login)
-          );
-        }
-      });
-    }
-  }, [data, queryClient]);
 
   const {
     timePeriod,

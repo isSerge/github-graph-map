@@ -1,6 +1,8 @@
 import { NodeProps, ComputedNode } from '@nivo/network'
-import { EitherNode } from '../../types/networkTypes'
+import { EitherNode, RepoNode } from '../../types/networkTypes'
 import networkTheme from './theme'
+import { useRepoDetails } from "../../hooks/useRepoDetails";
+import { rateRepo } from '../../utils/repoUtils';
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
     onNodeClick?: (node: ComputedNode<EitherNode>) => void;
@@ -8,20 +10,38 @@ interface CustomNodeProps extends NodeProps<EitherNode> {
     onMouseLeave?: (node: ComputedNode<EitherNode>) => void;
 }
 
-export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => (
-    <g
-        transform={`translate(${node.x},${node.y})`}
-        style={{ cursor: 'pointer' }}
-        onClick={() => onNodeClick?.(node)}
-        onMouseEnter={() => onMouseEnter?.(node)}
-        onMouseLeave={() => onMouseLeave?.(node)}
-    >
-        <circle r={10} fill={node.color} stroke={networkTheme.linkColor} />
-        <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
-            {node.data.name}
-        </text>
-    </g>
-);
+function setRgbAlpha(rgb: string, alpha: number): string {
+    // Expect input like "rgb(97, 205, 187)"
+    const matches = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!matches) {
+        return rgb; // Fallback in case parsing fails.
+    }
+    const [, r, g, b] = matches;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => {
+    const { data } = useRepoDetails((node.data as RepoNode).nameWithOwner);
+    const score = data ? rateRepo(data) : 0;
+    // Map score (assumed between 0 and 20) to an alpha between 0.6 and 1.0:
+    const alpha = 0.6 + (score / 20) * 0.4;
+    const fillColor = setRgbAlpha(node.color, alpha);
+
+    return (
+        <g
+            transform={`translate(${node.x},${node.y})`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => onNodeClick?.(node)}
+            onMouseEnter={() => onMouseEnter?.(node)}
+            onMouseLeave={() => onMouseLeave?.(node)}
+        >
+            <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} />
+            <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
+                {node.data.name}
+            </text>
+        </g>
+    );
+}
 
 export const ContributorNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => (
     <g

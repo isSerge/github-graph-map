@@ -1,4 +1,4 @@
-import { RepoGraphData } from "../types";
+import { RepoGraphData, RepoDetails } from "../types";
 
 export const GOOD_FIRST_ISSUE = "good first issue";
 export const HELP_WANTED = "help wanted";
@@ -53,4 +53,35 @@ export function getTopFiveRecentRepos(contributions: Contribution[]): RepoGraphD
     .sort((a, b) => b.lastContribution - a.lastContribution)
     .slice(0, 5)
     .map(item => item.repository);
+}
+
+export function rateRepo(repo: RepoDetails): number {
+  let score = 0;
+  
+  // Beginner friendly labels
+  const labels = repo.labels.nodes;
+  labels.forEach(({ name, issues }) => {
+    const lowerName = name.toLowerCase();
+    if ([GOOD_FIRST_ISSUE, HELP_WANTED, BEGINNER_FRIENDLY].includes(lowerName)) {
+      score += issues.totalCount; // Weight issues count for each label
+    }
+  });
+  
+  // CONTRIBUTING.md check: add a fixed score if present
+  if (repo.contributingFile && repo.contributingFile.__typename !== "null") {
+    score += 10;
+  }
+  
+  // Recent activity: you can compare pushedAt date with current date.
+  const pushedAt = new Date(repo.pushedAt);
+  const now = new Date();
+  const daysSinceUpdate = (now.getTime() - pushedAt.getTime()) / (1000 * 3600 * 24);
+  if (daysSinceUpdate < 30) {
+    score += 5; // Recently active
+  }
+  
+  // Optionally, factor in stars, forks, etc.
+  score += repo.stargazerCount / 100;
+  
+  return score;
 }

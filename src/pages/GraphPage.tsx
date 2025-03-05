@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 import { useNavigate } from "react-router-dom";
+import { Tooltip } from "react-tooltip";
 
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
-import Tooltip from "../components/Network/Tooltip";
 import DisplaySettings from "../components/DisplaySettings";
 import JsonDisplay from "../components/JsonDisplay";
 import NodeModal from "../components/NodeModal";
@@ -16,7 +16,6 @@ import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
 import { EitherNode } from "../types";
-import { useOnClickOutside } from "../hooks/useOnClickOutside";
 import { getErrorMessage } from "../utils/errorUtils";
 
 interface GraphPageProps {
@@ -65,9 +64,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     canGoForward,
   } = useNavHistoryReducer();
 
-  // Ref and local state for settings panel and modal.
-  const settingsRef = useRef<HTMLDivElement>(null);
-  const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
   const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
   // When the selected entity changes, add it to navigation history.
@@ -107,7 +103,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   }, [canGoForward, currentIndex, history, navigateTo, setDraft, commitSearch]);
 
   const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => {
-    setTooltipData(null);
     setModalNode(node);
   }, []);
 
@@ -140,22 +135,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     }
   }, [resetSearch, resetHistory, navigate]);
 
-  useOnClickOutside(settingsRef, () => setShowSettingsPanel(false));
-
-  const [tooltipData, setTooltipData] = useState<ComputedNode<EitherNode> | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
-
-  const handleNodeMouseEnter = useCallback((node: ComputedNode<EitherNode>) => {
-    setTooltipData(node);
-    // You might want to adjust these coordinates based on your layout
-    setTooltipPosition({ x: node.x, y: node.y });
-  }, []);
-
-  const handleNodeMouseLeave = useCallback(() => {
-    setTooltipData(null);
-    setTooltipPosition(null);
-  }, []);
-
   return (
     <div className="p-4 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
@@ -177,35 +156,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
           {/* Sidebar for Nodes List */}
           <SidebarNodeList data={data} handleSubmit={handleSubmit} />
           {/* Graph Container */}
-          <div className="relative flex-1 bg-gray-800 overflow-hidden">
-            <div className="absolute top-4 right-4 z-20">
-              <button
-                onClick={() => setShowSettingsPanel((prev) => !prev)}
-                className="flex items-center p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
-              >
-                <span className="text-xl">⚙️</span>
-              </button>
-              {showSettingsPanel && (
-                <div
-                  ref={settingsRef}
-                  className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20"
-                >
-                  <DisplaySettings
-                    linkDistanceMultiplier={linkDistanceMultiplier}
-                    repulsivity={repulsivity}
-                    centeringStrength={centeringStrength}
-                    setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-                    setRepulsivity={setRepulsivity}
-                    setCenteringStrength={setCenteringStrength}
-                    showJson={showJson}
-                    setShowJson={setShowJson}
-                    timePeriod={timePeriod}
-                    setTimePeriod={setTimePeriod}
-                  />
-                </div>
-              )}
-            </div>
-
+          <div className="relative flex-1 bg-gray-800">
             <div className="absolute top-4 left-4 flex gap-4 z-20">
               <button
                 onClick={handlePrev}
@@ -230,10 +181,21 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
               repulsivity={repulsivity}
               centeringStrength={centeringStrength}
               onNodeClick={handleNodeClick}
-              onNodeMouseEnter={handleNodeMouseEnter}
-              onNodeMouseLeave={handleNodeMouseLeave}
             />
           </div>
+          {/* Settings Panel */}
+          <DisplaySettings
+            linkDistanceMultiplier={linkDistanceMultiplier}
+            repulsivity={repulsivity}
+            centeringStrength={centeringStrength}
+            setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+            setRepulsivity={setRepulsivity}
+            setCenteringStrength={setCenteringStrength}
+            showJson={showJson}
+            setShowJson={setShowJson}
+            timePeriod={timePeriod}
+            setTimePeriod={setTimePeriod}
+          />
         </div>
       )}
 
@@ -256,10 +218,11 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
         />
       )}
 
-      {/* Render tooltip if data exists */}
-      {tooltipData && tooltipPosition && (
-        <Tooltip node={tooltipData.data} position={tooltipPosition} />
-      )}
+      <Tooltip
+        id="global-tooltip"
+        place="top"
+        delayHide={200}
+      />
     </div>
   );
 };

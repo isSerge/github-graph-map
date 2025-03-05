@@ -7,6 +7,7 @@ import { createWebStoragePersistor } from "react-query/createWebStoragePersistor
 import ErrorBoundary from "./ErrorBoundary";
 import AppRouter from "./AppRouter";
 import "./index.css";
+import 'react-tooltip/dist/react-tooltip.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {

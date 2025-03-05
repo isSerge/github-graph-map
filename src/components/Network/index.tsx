@@ -1,79 +1,57 @@
-import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
-import { NetworkDataProps, ComputedNode } from '@nivo/network'
-
+import { ResponsiveNetwork, NetworkDataProps, NodeProps, ComputedNode } from '@nivo/network'
 import { NetworkLink, EitherNode } from '../../types/networkTypes'
-import Network from "./Network";
-
-const ZoomControls = () => {
-    const { zoomIn, zoomOut } = useControls();
-
-    return (
-        <div className="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-2">
-            {/* You can include your settings button here as well */}
-            <button
-                onClick={() => zoomIn(0.1)}
-                className="px-3 py-2 bg-blue-500 rounded text-white hover:bg-blue-400 transition"
-            >
-                +
-            </button>
-            <button
-                onClick={() => zoomOut(0.1)}
-                className="px-3 py-2 bg-blue-500 rounded text-white hover:bg-blue-400 transition"
-            >
-                -
-            </button>
-        </div>
-    );
-};
+import { RepositoryNode, ContributorNode } from './Node'
+import networkTheme from './theme'
+import { isRepoNode } from '../../utils/graphUtils'
 
 type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
-    selectedNodeId: string;
-    linkDistanceMultiplier?: number;
-    repulsivity?: number;
-    centeringStrength?: number;
-    onNodeClick?: (node: ComputedNode<EitherNode>) => void;
-    onNodeMouseEnter?: (node: ComputedNode<EitherNode>) => void;
-    onNodeMouseLeave?: (node: ComputedNode<EitherNode>) => void;
+  selectedNodeId: string;
+  linkDistanceMultiplier?: number;
+  repulsivity?: number;
+  centeringStrength?: number;
+  onNodeClick?: (node: ComputedNode<EitherNode>) => void;
 };
 
-const NetworkWithZoom = ({
-    selectedNodeId,
-    data,
-    linkDistanceMultiplier,
-    repulsivity,
-    centeringStrength,
-    onNodeClick,
-    onNodeMouseEnter,
-    onNodeMouseLeave,
+function getNodeColor(selectedNodeId: string, node: EitherNode) {
+  if (node.id === selectedNodeId) {
+    return networkTheme.selectedNodeColor;
+  } else if (isRepoNode(node)) {
+    return networkTheme.repoNodeColor;
+  }
+
+  return networkTheme.contributorNodeColor;
+}
+
+const Network = ({
+  selectedNodeId,
+  data,
+  linkDistanceMultiplier = 1,
+  repulsivity = 300,
+  centeringStrength = 0.5,
+  onNodeClick,
 }: NetworkProps) => {
-    return (
-        <div className="relative h-screen bg-gray-800">
-            <TransformWrapper
-                initialScale={1}
-                minScale={0.5}
-                maxScale={4}
-                wheel={{ disabled: true }}
-                doubleClick={{ disabled: true }}
-            >
-                <ZoomControls />
-                <TransformComponent>
-                    <div className="w-screen h-screen">
-                        <Network
-                            key={selectedNodeId}
-                            selectedNodeId={selectedNodeId}
-                            data={data}
-                            linkDistanceMultiplier={linkDistanceMultiplier}
-                            repulsivity={repulsivity}
-                            centeringStrength={centeringStrength}
-                            onNodeClick={onNodeClick}
-                            onNodeMouseEnter={onNodeMouseEnter}
-                            onNodeMouseLeave={onNodeMouseLeave}
-                        />
-                    </div>
-                </TransformComponent>
-            </TransformWrapper>
-        </div>
-    );
-};
+  const contributorNodesCount = data.nodes.filter((node) => !isRepoNode(node)).length;
 
-export default NetworkWithZoom;
+  return (
+    <ResponsiveNetwork
+      theme={networkTheme}
+      data={data}
+      margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+      // Multiply the default distance by the multiplier
+      linkDistance={(e) => e.distance * linkDistanceMultiplier}
+      nodeColor={(node) => getNodeColor(selectedNodeId, node)}
+      repulsivity={repulsivity}
+      centeringStrength={centeringStrength}
+      nodeComponent={(props: NodeProps<EitherNode>) =>
+        isRepoNode(props.node.data)
+          ? <RepositoryNode {...props} onNodeClick={onNodeClick} />
+          : <ContributorNode {...props} onNodeClick={onNodeClick} />
+      }
+      nodeSize={10}
+      linkColor={networkTheme.linkColor}
+      linkThickness={(link) => contributorNodesCount > 1 ? link.data.thickness || 1 : 1}
+    />
+  )
+}
+
+export default Network

@@ -36,13 +36,13 @@ const SidebarNodeList = ({
   data,
   handleSubmit,
 }: SidebarNodeListProps) => (
-  <aside className="w-50 bg-gray-900 p-2 overflow-y-auto">
+  <aside className="w-50 p-2 overflow-y-auto">
     <h2 className="text-xl font-bold mb-4">Nodes</h2>
     <ul>
       {data.graph.nodes.map((node) =>
         isRepoNode(node)
-          ? <RepoListItem node={node} handleSubmit={handleSubmit} />
-          : <ContributorListItem node={node} handleSubmit={handleSubmit} />
+          ? <RepoListItem node={node} handleSubmit={handleSubmit} key={node.id} />
+          : <ContributorListItem node={node} handleSubmit={handleSubmit} key={node.id} />
       )}
     </ul>
   </aside>

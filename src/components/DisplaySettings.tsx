@@ -24,7 +24,7 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({
   setTimePeriod,
 }) => {
   return (
-    <div className="mt-4 p-4">
+    <aside className="w-60 p-2">
       {/* Time Period Radio Buttons */}
       <div className="mb-4">
         <span className="block text-sm font-medium mb-2">Time Period:</span>
@@ -121,7 +121,7 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({
         </label>
         <span className="text-sm font-medium text-gray-300 ml-3">Show JSON Data</span>
       </div>
-    </div>
+    </aside>
   );
 };
 

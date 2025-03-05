@@ -16,6 +16,7 @@ export type ContributorDetails = {
       contributions: { nodes: { occurredAt: string }[] };
     }[];
   };
+  lastActivityDate: Date | null;
 };
 
 export interface ContributorGraphData {

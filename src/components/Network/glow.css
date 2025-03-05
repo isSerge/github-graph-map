@@ -1,0 +1,12 @@
+.loading-glow {
+    animation: glowingCircle 1.5s infinite ease-in-out;
+  }
+  
+  @keyframes glowingCircle {
+    0%, 100% {
+      filter: drop-shadow(0 0 0px #fff);
+    }
+    50% {
+      filter: drop-shadow(0 0 10px #fff);
+    }
+  }

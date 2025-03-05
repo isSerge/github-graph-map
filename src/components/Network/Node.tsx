@@ -3,6 +3,7 @@ import { EitherNode, RepoNode } from '../../types/networkTypes'
 import networkTheme from './theme'
 import { useRepoDetails } from "../../hooks/useRepoDetails";
 import { rateRepo } from '../../utils/repoUtils';
+import "./glow.css";
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
     onNodeClick?: (node: ComputedNode<EitherNode>) => void;
@@ -21,7 +22,7 @@ function setRgbAlpha(rgb: string, alpha: number): string {
 }
 
 export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => {
-    const { data } = useRepoDetails((node.data as RepoNode).nameWithOwner);
+    const { data, isFetching } = useRepoDetails((node.data as RepoNode).nameWithOwner);
     const score = data ? rateRepo(data) : 0;
     // Map score (assumed between 0 and 20) to an alpha between 0.6 and 1.0:
     const alpha = 0.6 + (score / 20) * 0.4;
@@ -35,7 +36,7 @@ export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }
             onMouseEnter={() => onMouseEnter?.(node)}
             onMouseLeave={() => onMouseLeave?.(node)}
         >
-            <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} />
+            <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} className={isFetching ? 'loading-glow' : ''} />
             <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
                 {node.data.name}
             </text>

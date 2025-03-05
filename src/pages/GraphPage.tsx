@@ -9,6 +9,7 @@ import Tooltip from "../components/Network/Tooltip";
 import DisplaySettings from "../components/DisplaySettings";
 import JsonDisplay from "../components/JsonDisplay";
 import NodeModal from "../components/NodeModal";
+import SidebarNodeList from "../components/SidebarNodeList";
 import { useGraph } from "../hooks/useGraph";
 import { useDisplaySettings } from "../hooks/useDisplaySettings";
 import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
@@ -31,11 +32,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   // Display settings and time period.
   const displaySettings = useDisplaySettings();
   // Get graph-related state based on the committed search value.
-  const {
-    isFetching,
-    error,
-    data,
-  } = useGraph(committed, displaySettings.timePeriod);
+  const { isFetching, error, data } = useGraph(committed, displaySettings.timePeriod);
 
   const {
     timePeriod,
@@ -111,7 +108,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
 
   const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => {
     setTooltipData(null);
-    setModalNode(node)
+    setModalNode(node);
   }, []);
 
   const handleSubmit = useCallback(
@@ -132,6 +129,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     },
     [setDraft, commitSearch, resetSearch]
   );
+
   const navigatedRef = useRef(false);
   const handleClearSearch = useCallback(() => {
     resetSearch();
@@ -159,7 +157,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   }, []);
 
   return (
-    <div className="p-8 bg-gray-900 min-h-screen text-white relative flex flex-col">
+    <div className="p-4 bg-gray-900 min-h-screen text-white relative flex flex-col">
       <header>
         <SearchInput
           value={draft}
@@ -175,62 +173,67 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
       {error && <div className="text-red-500 mb-4">{getErrorMessage(error)}</div>}
 
       {data && !isFetching && !error && (
-        <div className="h-screen relative bg-gray-800 overflow-hidden">
-          <div className="absolute top-4 right-4 z-20">
-            <button
-              onClick={() => setShowSettingsPanel((prev) => !prev)}
-              className="flex items-center p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
-            >
-              <span className="text-xl">⚙️</span>
-            </button>
-            {showSettingsPanel && (
-              <div 
-                ref={settingsRef}
-                className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20"
+        <div className="flex h-screen">
+          {/* Sidebar for Nodes List */}
+          <SidebarNodeList data={data} handleSubmit={handleSubmit} />
+          {/* Graph Container */}
+          <div className="relative flex-1 bg-gray-800 overflow-hidden">
+            <div className="absolute top-4 right-4 z-20">
+              <button
+                onClick={() => setShowSettingsPanel((prev) => !prev)}
+                className="flex items-center p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
               >
-                <DisplaySettings
-                  linkDistanceMultiplier={linkDistanceMultiplier}
-                  repulsivity={repulsivity}
-                  centeringStrength={centeringStrength}
-                  setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-                  setRepulsivity={setRepulsivity}
-                  setCenteringStrength={setCenteringStrength}
-                  showJson={showJson}
-                  setShowJson={setShowJson}
-                  timePeriod={timePeriod}
-                  setTimePeriod={setTimePeriod}
-                />
-              </div>
-            )}
-          </div>
+                <span className="text-xl">⚙️</span>
+              </button>
+              {showSettingsPanel && (
+                <div
+                  ref={settingsRef}
+                  className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20"
+                >
+                  <DisplaySettings
+                    linkDistanceMultiplier={linkDistanceMultiplier}
+                    repulsivity={repulsivity}
+                    centeringStrength={centeringStrength}
+                    setLinkDistanceMultiplier={setLinkDistanceMultiplier}
+                    setRepulsivity={setRepulsivity}
+                    setCenteringStrength={setCenteringStrength}
+                    showJson={showJson}
+                    setShowJson={setShowJson}
+                    timePeriod={timePeriod}
+                    setTimePeriod={setTimePeriod}
+                  />
+                </div>
+              )}
+            </div>
 
-          <div className="absolute top-4 left-4 flex gap-4 z-20">
-            <button
-              onClick={handlePrev}
-              disabled={!canGoBack}
-              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ← Previous
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={!canGoForward}
-              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next →
-            </button>
-          </div>
+            <div className="absolute top-4 left-4 flex gap-4 z-20">
+              <button
+                onClick={handlePrev}
+                disabled={!canGoBack}
+                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ← Previous
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={!canGoForward}
+                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next →
+              </button>
+            </div>
 
-          <NetworkWithZoom
-            selectedNodeId={data.selectedEntity.id}
-            data={data.graph}
-            linkDistanceMultiplier={linkDistanceMultiplier}
-            repulsivity={repulsivity}
-            centeringStrength={centeringStrength}
-            onNodeClick={handleNodeClick}
-            onNodeMouseEnter={handleNodeMouseEnter}
-            onNodeMouseLeave={handleNodeMouseLeave}
-          />
+            <NetworkWithZoom
+              selectedNodeId={data.selectedEntity.id}
+              data={data.graph}
+              linkDistanceMultiplier={linkDistanceMultiplier}
+              repulsivity={repulsivity}
+              centeringStrength={centeringStrength}
+              onNodeClick={handleNodeClick}
+              onNodeMouseEnter={handleNodeMouseEnter}
+              onNodeMouseLeave={handleNodeMouseLeave}
+            />
+          </div>
         </div>
       )}
 

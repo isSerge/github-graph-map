@@ -108,3 +108,7 @@ export function createUserGraph(
 
   return { nodes: Array.from(nodesMap.values()), links: Array.from(linksMap.values()) };
 }
+
+export function isRepoNode(node: EitherNode): node is RepoNode {
+  return node.type === "repo";
+}

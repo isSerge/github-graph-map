@@ -1,12 +1,12 @@
 import { formatDistanceToNow } from "date-fns";
-import { ContributorDetails } from "../types";
+import { ContributorNode } from "../types";
 import { formatNumber } from "../utils/formatUtils";
 import { useContributorDetails } from "../hooks/useContributorDetails";
 import LoadingSpinner from "./LoadingSpinner";
 import { getErrorMessage } from "../utils/errorUtils";
 
 interface ContributorInfoProps {
-  node: ContributorDetails;
+  node: ContributorNode;
   onExploreGraph: (name: string) => void;
 }
 

@@ -1,10 +1,11 @@
 import { useRef } from "react";
 import { ComputedNode } from "@nivo/network";
 
-import { ContributorNode, EitherNode, RepoNode } from "../types/networkTypes";
+import { EitherNode } from "../types/networkTypes";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 import RepoInfo from "./RepoInfo";
 import ContributorInfo from "./ContributorInfo";
+import { isRepoNode } from "../utils/graphUtils";
 
 interface NodeModalProps {
     node: ComputedNode<EitherNode>;
@@ -16,10 +17,6 @@ const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
     const modalRef = useRef<HTMLDivElement>(null);
     useOnClickOutside(modalRef, onClose);
 
-    const isRepoNode = (node: ComputedNode<EitherNode>): node is ComputedNode<RepoNode> => {
-        return node.data.type === "repo";
-    };
-
     const handleExploreGraph = (name: string) => {
         onExploreGraph(name);
         onClose();
@@ -28,10 +25,10 @@ const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
     return (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
             <div ref={modalRef} className="shadow-lg max-w-lg w-full relative">
-                {isRepoNode(node) ? (
+                {isRepoNode(node.data) ? (
                     <RepoInfo node={node.data} onExploreGraph={handleExploreGraph} />
                 ) : (
-                    <ContributorInfo node={node.data as ContributorNode} onExploreGraph={handleExploreGraph} />
+                    <ContributorInfo node={node.data} onExploreGraph={handleExploreGraph} />
                 )}
             </div>
         </div>

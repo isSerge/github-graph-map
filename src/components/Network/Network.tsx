@@ -1,11 +1,8 @@
 import { ResponsiveNetwork, NetworkDataProps, NodeProps, ComputedNode } from '@nivo/network'
-import { NetworkLink, RepoNode, EitherNode } from '../../types/networkTypes'
+import { NetworkLink, EitherNode } from '../../types/networkTypes'
 import { RepositoryNode, ContributorNode } from './Node'
 import networkTheme from './theme'
-
-function isRepoNode(node: EitherNode): node is RepoNode {
-  return node.type === "repo";
-}
+import { isRepoNode } from '../../utils/graphUtils'
 
 type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
   selectedNodeId: string;

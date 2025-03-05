@@ -26,18 +26,11 @@ const ContributorTooltip = ({ node, position }: ContributorTooltipProps) => {
 
   const contributions = data.contributionsCollection.commitContributionsByRepository;
 
-  const lastActivityTime = contributions
-    .flatMap(item => item.contributions.nodes)
-    .reduce((latest, cur) => {
-      const curTime = new Date(cur.occurredAt).getTime();
-      return curTime > latest ? curTime : latest;
-    }, 0);
-
-  const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
-
   const maxReposToShow = 3;
   const displayedRepos = contributions.slice(0, maxReposToShow);
   const additionalCount = contributions.length - maxReposToShow;
+
+  console.log(data)
 
   return (
     <div
@@ -55,10 +48,10 @@ const ContributorTooltip = ({ node, position }: ContributorTooltipProps) => {
           <p className="text-gray-300">
             <span className="font-semibold">Followers:</span> {formatNumber(data.followers.totalCount)}
           </p>
-          {lastActivityDate && (
+          {data.lastActivityDate && (
             <p className="text-gray-300 text-xs">
               <span className="font-semibold">Last activity:</span>{" "}
-              {formatDistanceToNow(lastActivityDate, { addSuffix: true })}
+              {formatDistanceToNow(data.lastActivityDate, { addSuffix: true })}
             </p>
           )}
         </div>

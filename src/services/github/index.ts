@@ -132,12 +132,28 @@ export async function getContributorGraphData(
 export async function getContributorDetails(
   username: string,
   signal?: AbortSignal,
-): Promise<ContributorDetailsResponse["user"]> {
+): Promise<ContributorDetailsResponse["user"] & { lastActivityDate: Date | null }> {
   const data = await graphqlWithAuth<ContributorDetailsResponse>(getContributorDetailsQuery, { username, signal });
   if (!data.user) {
     throw new Error("User not found");
   }
-  return data.user;
+
+  const contributions = data.user.contributionsCollection.commitContributionsByRepository;
+
+  // TODO: move this to contributorDetails hook
+  const lastActivityTime = contributions
+    .flatMap(item => item.contributions.nodes)
+    .reduce((latest, cur) => {
+      const curTime = new Date(cur.occurredAt).getTime();
+      return curTime > latest ? curTime : latest;
+    }, 0);
+
+  const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
+
+  return {
+    ...data.user,
+    lastActivityDate,
+  };
 }
 
 /**

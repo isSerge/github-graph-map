@@ -19,15 +19,6 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
 
   const contributions = data.contributionsCollection.commitContributionsByRepository;
 
-  const lastActivityTime = contributions
-    .flatMap(item => item.contributions.nodes)
-    .reduce((latest, cur) => {
-      const curTime = new Date(cur.occurredAt).getTime();
-      return curTime > latest ? curTime : latest;
-    }, 0);
-
-  const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
-
   const maxReposToShow = 3;
   const displayedRepos = contributions.slice(0, maxReposToShow);
   const additionalCount = contributions.length - maxReposToShow;
@@ -92,9 +83,9 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
                   </p>
                 </div>
               )}
-              {lastActivityDate && (
+              {data.lastActivityDate && (
                 <p className="text-gray-300 text-sm">
-                  <span className="font-semibold">Last activity:</span> {formatDistanceToNow(lastActivityDate, { addSuffix: true })}
+                  <span className="font-semibold">Last activity:</span> {formatDistanceToNow(data.lastActivityDate, { addSuffix: true })}
                 </p>
               )}
             </div>

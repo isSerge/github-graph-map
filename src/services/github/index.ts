@@ -10,7 +10,7 @@ import {
   SearchRepoResponse,
   SearchUserResponse,
   GetFreshRepoResponse, 
-  GetActiveContributorsResponse, 
+  getExploreContributorsResponse, 
 } from "../../types";
 import { getTopFiveRecentRepos } from "../../utils/repoUtils";
 import { 
@@ -21,7 +21,7 @@ import {
   searchRepoQuery, 
   searchUserQuery, 
   getFreshReposQuery, 
-  getActiveContributorsQuery, 
+  getExploreContributorsQuery, 
 } from "./queries";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
@@ -207,10 +207,10 @@ export async function getFreshRepositories(signal?: AbortSignal): Promise<RepoDe
  * @param signal - Optional AbortSignal to cancel the request.
  * @returns A promise resolving to an array of active contributors.
  */
-export async function getActiveContributors(signal?: AbortSignal): Promise<ExploreContributor[]> {
+export async function getExploreContributors(signal?: AbortSignal): Promise<ExploreContributor[]> {
   const date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   date.setUTCHours(0, 0, 0, 0);
   const since = date.toISOString().replace('.000', '');
-  const result = await graphqlWithAuth<GetActiveContributorsResponse>(getActiveContributorsQuery, { signal, since });
+  const result = await graphqlWithAuth<getExploreContributorsResponse>(getExploreContributorsQuery, { signal, since });
   return result.search.nodes;
 }

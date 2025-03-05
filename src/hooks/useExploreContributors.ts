@@ -1,11 +1,11 @@
 import { useQuery } from "react-query";
-import { getActiveContributors } from "../services/github";
+import { getExploreContributors } from "../services/github";
 
-export const useActiveContributors = () => {
+export const useExploreContributors = () => {
   return useQuery(
     "activeContributors", 
     async () => {
-      const data = await getActiveContributors();
+      const data = await getExploreContributors();
       return data
         .filter((contributor) => contributor.login && contributor.avatarUrl)
         .map((contributor) => ({

@@ -66,6 +66,6 @@ export interface GetFreshRepoResponse {
   search: { nodes: RepoDetails[] }; 
 }
 
-export interface GetActiveContributorsResponse { 
+export interface getExploreContributorsResponse { 
   search: { nodes: ExploreContributor[] }; 
 }

@@ -1,7 +1,7 @@
 import ExploreRepoItem from "./ExploreRepoItem";
 import ExploreContributorItem from "./ExploreContributorItem";
 import { useFreshRepos } from "../../hooks/useFreshRepos";
-import { useActiveContributors } from "../../hooks/useActiveContributors";
+import { useExploreContributors } from "../../hooks/useExploreContributors";
 import { getErrorMessage } from "../../utils/errorUtils";
 
 interface ExploreListsProps {
@@ -10,7 +10,7 @@ interface ExploreListsProps {
 
 const ExploreLists: React.FC<ExploreListsProps> = ({ onSelect }) => {
     const repos = useFreshRepos();
-    const contributors = useActiveContributors();
+    const contributors = useExploreContributors();
 
     return (
         <div className="flex gap-8 p-8">

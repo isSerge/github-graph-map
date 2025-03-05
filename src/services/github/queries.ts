@@ -201,8 +201,8 @@ export const getFreshReposQuery = `
   ${repositoryDetailsFragment}
 `;
 
-export const getActiveContributorsQuery = `
-  query GetActiveContributors($since: DateTime!) {
+export const getExploreContributorsQuery = `
+  query getExploreContributors($since: DateTime!) {
     search(query: "followers:>100 sort:joined-desc", type: USER, first: 5) {
       nodes {
         ... on User {

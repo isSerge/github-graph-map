@@ -44,7 +44,7 @@ src
 ├── vite-env.d.ts
 ├── hooks
 │   ├── useDisplaySettings.ts
-│   ├── useActiveContributors.ts
+│   ├── useExploreContributors.ts
 │   ├── useSearchInputReducer.ts
 │   ├── useOnClickOutside.ts
 │   ├── useFreshRepos.ts

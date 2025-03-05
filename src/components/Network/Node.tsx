@@ -1,9 +1,10 @@
 import { NodeProps, ComputedNode } from '@nivo/network'
-import { EitherNode, RepoNode } from '../../types/networkTypes'
+import { ContributorNode as ContrNode, EitherNode, RepoNode } from '../../types/networkTypes'
 import networkTheme from './theme'
 import { useRepoDetails } from "../../hooks/useRepoDetails";
 import { rateRepo } from '../../utils/repoUtils';
 import "./glow.css";
+import { useContributorDetails } from '../../hooks/useContributorDetails';
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
     onNodeClick?: (node: ComputedNode<EitherNode>) => void;
@@ -44,7 +45,11 @@ export const RepositoryNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }
     );
 }
 
-export const ContributorNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => (
+export const ContributorNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave }: CustomNodeProps) => {
+    // TODO: use data in this component
+    useContributorDetails((node.data as ContrNode).name);
+
+    return (
     <g
         transform={`translate(${node.x - 12},${node.y - 18})`}
         style={{ cursor: 'pointer' }}
@@ -58,4 +63,4 @@ export const ContributorNode = ({ node, onNodeClick, onMouseEnter, onMouseLeave 
             {node.data.name}
         </text>
     </g>
-);
+)};

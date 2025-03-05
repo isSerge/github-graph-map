@@ -15,7 +15,7 @@ import {
 import { getTopFiveRecentRepos } from "../../utils/repoUtils";
 import { 
   getContributorGraphDataQuery, 
-  getRepositoryQuery, 
+  getRepositoryDetailsQuery, 
   getRecentCommitsQuery, 
   getContributorDetailsQuery, 
   searchRepoQuery, 
@@ -48,7 +48,8 @@ export const getRepositoryDetails = async (
 ): Promise<RepoDetails> => {
   // Calculate date 7 days ago in ISO format.
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const result = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryQuery, { owner, repo, signal });
+  const result = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
+  const contributors = await getRecentCommitAuthors(owner, repo, since, signal);
   const recentIssues = result.repository.issues.nodes.filter(
     (issue) => new Date(issue.createdAt) > new Date(since)
   );
@@ -65,6 +66,7 @@ export const getRepositoryDetails = async (
       totalCount: recentPRs.length,
       nodes: recentPRs,
     },
+    contributors,
   };
 };
 

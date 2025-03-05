@@ -46,6 +46,10 @@ export interface RepoDetails {
       }
     }[];
   };
+  contributors: {
+    login: string;
+    contributionCount: number;
+  }[];
 }
 
 export interface RepoGraphData {

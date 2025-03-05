@@ -104,8 +104,8 @@ const userDetailsFragment = `
   ${repositoryGraphFragment}
 `;
 
-export const getRepositoryQuery = `
-  query getRepository($owner: String!, $repo: String!) {
+export const getRepositoryDetailsQuery = `
+  query getRepositoryDetails($owner: String!, $repo: String!) {
     repository(owner: $owner, name: $repo) {
       ...RepositoryFields
     }

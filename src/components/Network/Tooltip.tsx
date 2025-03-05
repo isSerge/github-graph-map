@@ -59,6 +59,10 @@ const RepoTooltip = ({ node, position }: RepoTooltipProps) => {
         <span className="text-sm">🍴&nbsp;</span>
         {formatNumber(data.forkCount)}
       </p>
+      <p className="text-gray-300 mb-2">
+        <span className="text-sm">Active contributors (7d):&nbsp;</span>
+        {data.contributors.length}
+      </p>
       {data.primaryLanguage && (
         <p className="text-gray-300 mb-2">
           <span className="text-sm">Primary Language:&nbsp;</span>

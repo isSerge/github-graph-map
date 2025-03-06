@@ -62,8 +62,8 @@ export function rateRepo(repo: RepoDetails): number {
   const labels = repo.labels.nodes;
   labels.forEach(({ name, issues }) => {
     const lowerName = name.toLowerCase();
-    if ([GOOD_FIRST_ISSUE, HELP_WANTED, BEGINNER_FRIENDLY].includes(lowerName)) {
-      score += issues.totalCount; // Weight issues count for each label
+    if ([GOOD_FIRST_ISSUE, HELP_WANTED, BEGINNER_FRIENDLY].includes(lowerName) && issues.totalCount > 0) {
+      score += 10;
     }
   });
   
@@ -72,16 +72,31 @@ export function rateRepo(repo: RepoDetails): number {
     score += 10;
   }
   
-  // Recent activity: you can compare pushedAt date with current date.
+  // Recent activity
   const pushedAt = new Date(repo.pushedAt);
   const now = new Date();
   const daysSinceUpdate = (now.getTime() - pushedAt.getTime()) / (1000 * 3600 * 24);
-  if (daysSinceUpdate < 30) {
-    score += 5; // Recently active
+  if (daysSinceUpdate < 7) {
+    score += 10;
+  } else if (daysSinceUpdate < 30) {
+    score += 5;
   }
   
-  // Optionally, factor in stars, forks, etc.
-  score += repo.stargazerCount / 100;
+  // Stars and forks
+  if (repo.stargazerCount > 100) {
+    score += 20;
+  }
+
+  if (repo.forkCount > 100) {
+    score += 20;
+  }
+
+  // Active contributors
+  if (repo.contributors.length > 5) {
+    score += 20;
+  } else if (repo.contributors.length > 2) {
+    score +=10;
+  }
   
   return score;
 }

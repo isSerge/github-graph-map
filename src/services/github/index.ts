@@ -23,7 +23,11 @@ import {
   getFreshReposQuery, 
   getExploreContributorsQuery, 
 } from "./queries";
-import { transformRepoDataResponse, transformCommitDataResponse, transformContributorResponse } from "./transform";
+import { 
+  transformCommitDataResponse, 
+  transformContributorResponse, 
+  transformRepoDataResponses,
+} from "./transform";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -49,14 +53,11 @@ export const getRepositoryDetails = async (
   signal?: AbortSignal
 ): Promise<RepoDetails> => {
   const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
-  const response = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
-  const contributors = await getRecentCommitAuthors(owner, repo, since, signal);
-  const repoData = transformRepoDataResponse(response, since);
+  const repoResponse = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
+  const contributorsResponse = await getRecentCommitAuthors(owner, repo, since, signal);
+  const repoData = transformRepoDataResponses(repoResponse, contributorsResponse, since);
   
-  return {
-    ...repoData,
-    contributors,
-  };
+  return repoData;
 };
 
 /**

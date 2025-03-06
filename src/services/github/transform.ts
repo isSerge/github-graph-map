@@ -1,7 +1,11 @@
 import { RepoDetailsResponse, RepoDetails, RecentCommitsResponse, ContributorDetailsResponse } from '../../types';
 import { rateRepo } from '../../utils/repoUtils';
 
-export const transformRepoDataResponse = (response: RepoDetailsResponse, since: string): RepoDetails => {
+export const transformRepoDataResponses = (
+  response: RepoDetailsResponse,
+  contributors: { login: string; contributionCount: number }[],
+  since: string
+): RepoDetails => {
   const recentIssues = response.repository.issues.nodes.filter(
     (issue) => new Date(issue.createdAt) > new Date(since)
   );
@@ -9,9 +13,9 @@ export const transformRepoDataResponse = (response: RepoDetailsResponse, since: 
     (pr) => new Date(pr.createdAt) > new Date(since)
   );
 
-  return {
+  const repoDetails = {
     ...response.repository,
-    score: rateRepo(response.repository),
+    contributors,
     issues: {
       totalCount: recentIssues.length,
       nodes: recentIssues,
@@ -20,6 +24,11 @@ export const transformRepoDataResponse = (response: RepoDetailsResponse, since: 
       totalCount: recentPRs.length,
       nodes: recentPRs,
     },
+  }
+
+  return {
+    ...repoDetails,
+    score: rateRepo(repoDetails),
   };
 };
 

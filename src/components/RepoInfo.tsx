@@ -67,11 +67,11 @@ const RepoInfo = ({ node, onExploreGraph, timePeriod }: RepoInfoProps) => {
             {formatDistanceToNow(new Date(data.pushedAt), { addSuffix: true })}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">Issues open</span>&nbsp;(7d):&nbsp;
+            <span className="font-semibold">Issues open</span>&nbsp;({timePeriod}d):&nbsp;
             {data.issues.totalCount}
           </p>
           <p className="text-gray-300 mb-2">
-            <span className="font-semibold">PRs</span>&nbsp;(7d):&nbsp;
+            <span className="font-semibold">PRs</span>&nbsp;({timePeriod}d):&nbsp;
             {data.pullRequests.totalCount} open, {data.pullRequests.nodes.filter((pr) => pr.merged).length} merged
           </p>
           <p className="text-gray-300 mb-2">

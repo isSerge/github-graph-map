@@ -4,7 +4,7 @@ import { HELP_WANTED, countBeginnerFriendlyLabels, GOOD_FIRST_ISSUE, BEGINNER_FR
 import { ContributorDetails, RepoDetails } from '../types';
 import { formatNumber } from './formatUtils';
 
-export const getRepoTooltipContent = (data: RepoDetails | undefined) => {
+export const getRepoTooltipContent = (data: RepoDetails | undefined, timePeriod: number) => {
     if (!data) return null;
 
     const labelCounts = countBeginnerFriendlyLabels(data.labels.nodes);
@@ -22,7 +22,7 @@ export const getRepoTooltipContent = (data: RepoDetails | undefined) => {
         <span class="text-sm">🍴 </span>${formatNumber(data.forkCount)}
       </p>
       <p class="text-gray-300 mb-2">
-        <span class="text-sm">Active contributors (7d): </span>${data.contributors.length}
+        <span class="text-sm">Active contributors (${timePeriod}d): </span>${data.contributors.length}
       </p>
       ${data.primaryLanguage ? `<p class="text-gray-300 mb-2">
         <span class="text-sm">Primary Language: </span>${data.primaryLanguage.name}

@@ -25,7 +25,7 @@ const RepoListItem = ({ node, handleSubmit, timePeriod }: ListItemProps) => {
       className="mb-2 cursor-pointer hover:underline text-nowrap"
       onClick={() => handleSubmit((node as RepoNode).nameWithOwner)}
       data-tooltip-id="global-tooltip"
-      data-tooltip-html={getRepoTooltipContent(data)}
+      data-tooltip-html={getRepoTooltipContent(data, timePeriod)}
     >
       📦 {node.name} ({data?.score.toFixed(1)})
     </li>
@@ -63,7 +63,7 @@ const SidebarNodeList = ({
   );
 
   return (
-    <aside className="w-60 p-2 overflow-y-auto">
+    <aside className="w-60 p-2 overflow-y-auto overflow-x-hidden">
       <h2 className="text-xl font-bold mb-2">Contributors</h2>
       <ul className="mb-4">
         {contributors.map((node) =>

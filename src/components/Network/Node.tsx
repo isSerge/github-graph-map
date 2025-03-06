@@ -48,7 +48,7 @@ export const RepositoryNode = ({ node, onNodeClick, timePeriod, isMain }: Custom
       data-tooltip-html={getRepoTooltipContent(data, timePeriod)}
       data-tooltip-id="global-tooltip"
     >
-      <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} className={`${isFetching ? 'loading-glow' : ''} ${glowClass}`} />
+      <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} className={`${isFetching ? 'loading-pulse' : ''} ${glowClass}`} />
       <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
         {node.data.name}
       </text>

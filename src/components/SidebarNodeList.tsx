@@ -51,17 +51,33 @@ const SidebarNodeList = ({
   data,
   handleSubmit,
   timePeriod,
-}: SidebarNodeListProps) => (
-  <aside className="w-60 p-2 overflow-y-auto">
-    <h2 className="text-xl font-bold mb-4">Nodes</h2>
-    <ul>
-      {data.graph.nodes.map((node) =>
-        isRepoNode(node)
-          ? <RepoListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
-          : <ContributorListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
-      )}
-    </ul>
-  </aside>
-);
+}: SidebarNodeListProps) => {
+  // Split nodes into repositories and contributors.
+  const [repositories, contributors] = data.graph.nodes.reduce(
+    ([repos, contrs], node) => {
+      return isRepoNode(node)
+        ? [[...repos, node], contrs]
+        : [repos, [...contrs, node]];
+    },
+    [[], []] as [RepoNode[], ContributorNode[]]
+  );
+
+  return (
+    <aside className="w-60 p-2 overflow-y-auto">
+      <h2 className="text-xl font-bold mb-2">Contributors</h2>
+      <ul className="mb-4">
+        {contributors.map((node) =>
+          <ContributorListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
+        )}
+      </ul>
+      <h2 className="text-xl font-bold mb-2">Repositories</h2>
+      <ul className="mb-4">
+        {repositories.map((node) =>
+          <RepoListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
+        )}
+      </ul>
+    </aside>
+  )
+};
 
 export default SidebarNodeList;

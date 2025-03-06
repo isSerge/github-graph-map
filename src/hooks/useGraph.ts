@@ -62,7 +62,6 @@ export function useGraph(input: string, timePeriod: number) {
     },
     {
       enabled: Boolean(input),
-      staleTime: 2 * 60 * 60 * 1000, // 2 hour
     }
   );
 }

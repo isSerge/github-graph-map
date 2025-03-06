@@ -14,9 +14,6 @@ export const useExploreContributors = () => {
           name: contributor.login,
           id: contributor.login,
         }));
-    }, 
-    {
-      staleTime: 2 * 60 * 60 * 1000, // 2 hours
-    }
+    },
   );
 };

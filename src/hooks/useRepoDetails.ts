@@ -8,7 +8,6 @@ export function useRepoDetails(nameWithOwner: string, timePeriod: number) {
     () => getRepositoryDetails(owner, name, timePeriod),
     {
       enabled: Boolean(nameWithOwner),
-      staleTime: 2 * 60 * 60 * 1000, // 2 hours
     }
   );
 }

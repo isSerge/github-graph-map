@@ -7,7 +7,6 @@ export function useContributorDetails(login: string) {
     () => getContributorDetails(login),
     {
       enabled: Boolean(login),
-      staleTime: 2 * 60 * 60 * 1000, // 2 hours
     }
   );
 }

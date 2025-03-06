@@ -9,6 +9,7 @@ import "./glow.css";
 interface CustomNodeProps extends NodeProps<EitherNode> {
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
   timePeriod: number;
+  isMain?: boolean;
 }
 
 function setRgbAlpha(rgb: string, alpha: number): string {
@@ -21,11 +22,23 @@ function setRgbAlpha(rgb: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export const RepositoryNode = ({ node, onNodeClick, timePeriod }: CustomNodeProps) => {
+export const RepositoryNode = ({ node, onNodeClick, timePeriod, isMain }: CustomNodeProps) => {
   const { data, isFetching } = useRepoDetails((node.data as RepoNode).nameWithOwner, timePeriod);
-  // Map score (assumed between 0 and 20) to an alpha between 0.6 and 1.0:
-  const alpha = 0.6 + ((data?.score || 0) / 20) * 0.4;
+  // Assume data.score is between 0 and 100; default to 0 if not available.
+  const score = data?.score ?? 0;
+
+  // For non-main nodes, adjust opacity:
+  let alpha = 1.0;
+  let glowClass = "";
+  if (!isMain) {
+    // If score is below 50, map from 0.5 (at 0) to 1.0 (at 50)
+    alpha = score < 50 ? 0.5 + (score / 50) * 0.5 : 1.0;
+    // If score is 70 or above, add a glow effect
+    glowClass = score >= 70 ? "glow-effect" : "";
+  }
+
   const fillColor = setRgbAlpha(node.color, alpha);
+
 
   return (
     <g
@@ -35,7 +48,7 @@ export const RepositoryNode = ({ node, onNodeClick, timePeriod }: CustomNodeProp
       data-tooltip-html={getRepoTooltipContent(data, timePeriod)}
       data-tooltip-id="global-tooltip"
     >
-      <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} className={isFetching ? 'loading-glow' : ''} />
+      <circle r={10} fill={fillColor} stroke={networkTheme.linkColor} className={`${isFetching ? 'loading-glow' : ''} ${glowClass}`} />
       <text y="20" textAnchor="middle" fontSize="12" fill={networkTheme.textColor}>
         {node.data.name}
       </text>

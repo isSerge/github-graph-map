@@ -46,7 +46,7 @@ const Network = ({
       centeringStrength={centeringStrength}
       nodeComponent={(props: NodeProps<EitherNode>) =>
         isRepoNode(props.node.data)
-          ? <RepositoryNode {...props} onNodeClick={onNodeClick} timePeriod={timePeriod} />
+          ? <RepositoryNode {...props} onNodeClick={onNodeClick} timePeriod={timePeriod} isMain={props.node.id === selectedNodeId} />
           : <ContributorNode {...props} onNodeClick={onNodeClick} timePeriod={timePeriod} />
       }
       nodeSize={10}

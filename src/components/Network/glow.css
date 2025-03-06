@@ -10,3 +10,7 @@
     filter: drop-shadow(0 0 10px #fff);
   }
 }
+
+.glow-effect {
+  filter: drop-shadow(0 0 10px #fff);
+}

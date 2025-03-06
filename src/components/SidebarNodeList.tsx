@@ -15,7 +15,7 @@ interface ListItemProps {
 const RepoListItem = ({ node, handleSubmit }: ListItemProps) => (
   <li
     key={node.id}
-    className="mb-2 cursor-pointer hover:underline"
+    className="mb-2 cursor-pointer hover:underline text-nowrap"
     onClick={() => handleSubmit((node as RepoNode).nameWithOwner)}
   >
     📦 {node.name}
@@ -25,7 +25,7 @@ const RepoListItem = ({ node, handleSubmit }: ListItemProps) => (
 const ContributorListItem = ({ node, handleSubmit }: ListItemProps) => (
   <li
     key={node.id}
-    className="mb-2 cursor-pointer hover:underline"
+    className="mb-2 cursor-pointer hover:underline text-nowrap"
     onClick={() => handleSubmit(node.name)}
   >
     👤 {node.name}
@@ -36,7 +36,7 @@ const SidebarNodeList = ({
   data,
   handleSubmit,
 }: SidebarNodeListProps) => (
-  <aside className="w-50 p-2 overflow-y-auto">
+  <aside className="w-60 p-2 overflow-y-auto">
     <h2 className="text-xl font-bold mb-4">Nodes</h2>
     <ul>
       {data.graph.nodes.map((node) =>

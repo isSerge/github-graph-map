@@ -4,7 +4,6 @@ export interface DisplaySettingsState {
   linkDistanceMultiplier: number;
   repulsivity: number;
   centeringStrength: number;
-  showJson: boolean;
   timePeriod: number;
 }
 
@@ -12,7 +11,6 @@ type Action =
   | { type: "SET_LINK_DISTANCE_MULTIPLIER"; payload: number }
   | { type: "SET_REPULSIVITY"; payload: number }
   | { type: "SET_CENTERING_STRENGTH"; payload: number }
-  | { type: "SET_SHOW_JSON"; payload: boolean }
   | { type: "SET_TIME_PERIOD"; payload: number }
   | { type: "RESET"; payload?: DisplaySettingsState };
 
@@ -29,8 +27,6 @@ function settingsReducer(
       return { ...state, repulsivity: action.payload };
     case "SET_CENTERING_STRENGTH":
       return { ...state, centeringStrength: action.payload };
-    case "SET_SHOW_JSON":
-      return { ...state, showJson: action.payload };
     case "SET_TIME_PERIOD":
       return { ...state, timePeriod: action.payload };
     case "RESET":
@@ -59,7 +55,6 @@ export function useDisplaySettings(
     linkDistanceMultiplier: 1,
     repulsivity: 300,
     centeringStrength: 0.5,
-    showJson: false,
     timePeriod: 7,
   }
 ) {
@@ -81,8 +76,6 @@ export function useDisplaySettings(
       dispatch({ type: "SET_REPULSIVITY", payload: value }),
     setCenteringStrength: (value: number) =>
       dispatch({ type: "SET_CENTERING_STRENGTH", payload: value }),
-    setShowJson: (value: boolean) =>
-      dispatch({ type: "SET_SHOW_JSON", payload: value }),
     setTimePeriod: (value: number) =>
       dispatch({ type: "SET_TIME_PERIOD", payload: value }),
     reset: (newState?: DisplaySettingsState) =>

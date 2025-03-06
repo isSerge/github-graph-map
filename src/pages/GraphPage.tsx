@@ -7,7 +7,6 @@ import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
 import DisplaySettings from "../components/DisplaySettings";
-import JsonDisplay from "../components/JsonDisplay";
 import NodeModal from "../components/NodeModal";
 import SidebarNodeList from "../components/SidebarNodeList";
 import { useGraph } from "../hooks/useGraph";
@@ -29,22 +28,19 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   const { searchHistory, addSearchQuery } = useSearchHistory();
 
   // Display settings and time period.
-  const displaySettings = useDisplaySettings();
-  // Get graph-related state based on the committed search value.
-  const { isFetching, error, data } = useGraph(committed, displaySettings.timePeriod);
-
   const {
     timePeriod,
     setTimePeriod,
-    showJson,
-    setShowJson,
     linkDistanceMultiplier,
     repulsivity,
     centeringStrength,
     setLinkDistanceMultiplier,
     setRepulsivity,
     setCenteringStrength,
-  } = displaySettings;
+  } = useDisplaySettings();
+  
+  // Get graph-related state based on the committed search value.
+  const { isFetching, error, data } = useGraph(committed, timePeriod);
 
   // Automatically commit the initial query so that fetching starts.
   useEffect(() => {
@@ -191,22 +187,9 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
             setLinkDistanceMultiplier={setLinkDistanceMultiplier}
             setRepulsivity={setRepulsivity}
             setCenteringStrength={setCenteringStrength}
-            showJson={showJson}
-            setShowJson={setShowJson}
             timePeriod={timePeriod}
             setTimePeriod={setTimePeriod}
           />
-        </div>
-      )}
-
-      {data && (
-        <div className="mt-4">
-          {showJson && (
-            <>
-              <JsonDisplay title="Selected Repo" data={data.selectedEntity} />
-              <JsonDisplay title="Graph Data" data={data.graph} />
-            </>
-          )}
         </div>
       )}
 

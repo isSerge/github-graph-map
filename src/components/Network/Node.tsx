@@ -2,10 +2,10 @@ import { NodeProps, ComputedNode } from '@nivo/network'
 import { ContributorNode as ContrNode, EitherNode, RepoNode } from '../../types/networkTypes'
 import networkTheme from './theme'
 import { useRepoDetails } from "../../hooks/useRepoDetails";
+import { useContributorDetails } from '../../hooks/useContributorDetails';
+import { getRepoTooltipContent, getContributorTooltipContent } from '../../utils/tooltipsUtils';
 import { rateRepo } from '../../utils/repoUtils';
 import "./glow.css";
-import { useContributorDetails } from '../../hooks/useContributorDetails';
-import { getRepoTooltipContent, getContributorTooltipContent } from './tooltips';
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
@@ -45,7 +45,6 @@ export const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => {
 }
 
 export const ContributorNode = ({ node, onNodeClick }: CustomNodeProps) => {
-  // TODO: use data in this component
   const { data } = useContributorDetails((node.data as ContrNode).name);
 
   return (

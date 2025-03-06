@@ -1,8 +1,8 @@
 import { formatDistanceToNow } from 'date-fns';
 
-import { HELP_WANTED, countBeginnerFriendlyLabels, GOOD_FIRST_ISSUE, BEGINNER_FRIENDLY } from '../../utils/repoUtils';
-import { ContributorDetails, RepoDetails } from '../../types';
-import { formatNumber } from '../../utils/formatUtils';
+import { HELP_WANTED, countBeginnerFriendlyLabels, GOOD_FIRST_ISSUE, BEGINNER_FRIENDLY } from './repoUtils';
+import { ContributorDetails, RepoDetails } from '../types';
+import { formatNumber } from './formatUtils';
 
 export const getRepoTooltipContent = (data: RepoDetails | undefined) => {
     if (!data) return null;

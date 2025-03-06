@@ -1,6 +1,9 @@
 import { GraphResponse } from "../hooks/useGraph";
-import { EitherNode, RepoNode } from "../types";
+import { ContributorNode, EitherNode, RepoNode } from "../types";
 import { isRepoNode } from '../utils/graphUtils'
+import { useRepoDetails } from "../hooks/useRepoDetails";
+import { useContributorDetails } from '../hooks/useContributorDetails';
+import { getRepoTooltipContent, getContributorTooltipContent } from '../utils/tooltipsUtils';
 
 interface SidebarNodeListProps {
   data: GraphResponse;
@@ -12,25 +15,35 @@ interface ListItemProps {
   handleSubmit: (value: string) => void;
 }
 
-const RepoListItem = ({ node, handleSubmit }: ListItemProps) => (
-  <li
-    key={node.id}
-    className="mb-2 cursor-pointer hover:underline text-nowrap"
-    onClick={() => handleSubmit((node as RepoNode).nameWithOwner)}
-  >
-    📦 {node.name}
-  </li>
-);
+const RepoListItem = ({ node, handleSubmit }: ListItemProps) => {
+  const { data } = useRepoDetails((node as RepoNode).nameWithOwner);
+  return (
+    <li
+      key={node.id}
+      className="mb-2 cursor-pointer hover:underline text-nowrap"
+      onClick={() => handleSubmit((node as RepoNode).nameWithOwner)}
+      data-tooltip-id="global-tooltip"
+      data-tooltip-html={getRepoTooltipContent(data)}
+    >
+      📦 {node.name}
+    </li>
+  );
+}
 
-const ContributorListItem = ({ node, handleSubmit }: ListItemProps) => (
-  <li
-    key={node.id}
-    className="mb-2 cursor-pointer hover:underline text-nowrap"
-    onClick={() => handleSubmit(node.name)}
-  >
-    👤 {node.name}
-  </li>
-);
+const ContributorListItem = ({ node, handleSubmit }: ListItemProps) => {
+  const { data } = useContributorDetails((node as ContributorNode).name);
+  return (
+    <li
+      key={node.id}
+      className="mb-2 cursor-pointer hover:underline text-nowrap"
+      onClick={() => handleSubmit(node.name)}
+      data-tooltip-id="global-tooltip"
+      data-tooltip-html={getContributorTooltipContent(data)}
+    >
+      👤 {node.name}
+    </li>
+  )
+};
 
 const SidebarNodeList = ({
   data,

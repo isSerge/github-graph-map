@@ -203,8 +203,9 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
 
       <Tooltip
         id="global-tooltip"
-        place="top"
+        place="right-start"
         delayHide={200}
+        className="z-50"
       />
     </div>
   );

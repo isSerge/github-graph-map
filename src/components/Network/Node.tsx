@@ -103,10 +103,10 @@ const getContributorTooltipContent = (data: ContributorDetails | undefined) => {
 
     return `
     <div class="p-4">
-      <p class="font-bold text-lg mb-2">${data.login}</p>
-      <div class="flex items-center mb-3">
+    <div class="flex items-center mb-3">
         <img src="${data.avatarUrl}" alt="${data.login}" class="w-16 h-16 rounded-full border-2 border-gray-700 object-cover" />
         <div class="ml-4">
+          <p class="font-bold text-lg">${data.login}</p>
           <p class="text-gray-300">
             <span class="font-semibold">Followers:</span> ${formatNumber(data.followers.totalCount)}
           </p>

@@ -50,6 +50,7 @@ export interface RepoDetails {
     login: string;
     contributionCount: number;
   }[];
+  score: number;
 }
 
 export interface RepoGraphData {

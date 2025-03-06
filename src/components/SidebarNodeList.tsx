@@ -27,7 +27,7 @@ const RepoListItem = ({ node, handleSubmit, timePeriod }: ListItemProps) => {
       data-tooltip-id="global-tooltip"
       data-tooltip-html={getRepoTooltipContent(data)}
     >
-      📦 {node.name}
+      📦 {node.name} ({data?.score.toFixed(1)})
     </li>
   );
 }

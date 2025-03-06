@@ -4,7 +4,6 @@ import networkTheme from './theme'
 import { useRepoDetails } from "../../hooks/useRepoDetails";
 import { useContributorDetails } from '../../hooks/useContributorDetails';
 import { getRepoTooltipContent, getContributorTooltipContent } from '../../utils/tooltipsUtils';
-import { rateRepo } from '../../utils/repoUtils';
 import "./glow.css";
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
@@ -24,9 +23,8 @@ function setRgbAlpha(rgb: string, alpha: number): string {
 
 export const RepositoryNode = ({ node, onNodeClick, timePeriod }: CustomNodeProps) => {
   const { data, isFetching } = useRepoDetails((node.data as RepoNode).nameWithOwner, timePeriod);
-  const score = data ? rateRepo(data) : 0;
   // Map score (assumed between 0 and 20) to an alpha between 0.6 and 1.0:
-  const alpha = 0.6 + (score / 20) * 0.4;
+  const alpha = 0.6 + ((data?.score || 0) / 20) * 0.4;
   const fillColor = setRgbAlpha(node.color, alpha);
 
   return (

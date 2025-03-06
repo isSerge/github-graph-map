@@ -1,4 +1,5 @@
 import { RepoDetailsResponse, RepoDetails, RecentCommitsResponse, ContributorDetailsResponse } from '../../types';
+import { rateRepo } from '../../utils/repoUtils';
 
 export const transformRepoDataResponse = (response: RepoDetailsResponse, since: string): RepoDetails => {
   const recentIssues = response.repository.issues.nodes.filter(
@@ -10,6 +11,7 @@ export const transformRepoDataResponse = (response: RepoDetailsResponse, since: 
 
   return {
     ...response.repository,
+    score: rateRepo(response.repository),
     issues: {
       totalCount: recentIssues.length,
       nodes: recentIssues,

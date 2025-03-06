@@ -73,11 +73,11 @@ const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {
                   <p
                     className="text-sm text-gray-300"
                     title={displayedRepos
-                      .map(({repository}) => repository.nameWithOwner)
+                      .map(({ repository }) => repository.nameWithOwner)
                       .join(", ")}
                   >
                     {displayedRepos
-                      .map(({repository}) => repository.nameWithOwner)
+                      .map(({ repository }) => repository.nameWithOwner)
                       .join(", ")}
                     {additionalCount > 0 && `, +${additionalCount} more`}
                   </p>

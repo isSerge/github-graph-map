@@ -10,6 +10,7 @@ type NetworkProps = NetworkDataProps<EitherNode, NetworkLink> & {
   repulsivity?: number;
   centeringStrength?: number;
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
+  timePeriod: number;
 };
 
 function getNodeColor(selectedNodeId: string, node: EitherNode) {
@@ -29,6 +30,7 @@ const Network = ({
   repulsivity = 300,
   centeringStrength = 0.5,
   onNodeClick,
+  timePeriod,
 }: NetworkProps) => {
   const contributorNodesCount = data.nodes.filter((node) => !isRepoNode(node)).length;
 
@@ -44,8 +46,8 @@ const Network = ({
       centeringStrength={centeringStrength}
       nodeComponent={(props: NodeProps<EitherNode>) =>
         isRepoNode(props.node.data)
-          ? <RepositoryNode {...props} onNodeClick={onNodeClick} />
-          : <ContributorNode {...props} onNodeClick={onNodeClick} />
+          ? <RepositoryNode {...props} onNodeClick={onNodeClick} timePeriod={timePeriod} />
+          : <ContributorNode {...props} onNodeClick={onNodeClick} timePeriod={timePeriod} />
       }
       nodeSize={10}
       linkColor={networkTheme.linkColor}

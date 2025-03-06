@@ -11,9 +11,10 @@ interface NodeModalProps {
   node: ComputedNode<EitherNode>;
   onClose: () => void;
   onExploreGraph: (nodeName: string) => void;
+  timePeriod: number;
 }
 
-const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
+const NodeModal = ({ node, onClose, onExploreGraph, timePeriod }: NodeModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(modalRef, onClose);
 
@@ -26,9 +27,9 @@ const NodeModal = ({ node, onClose, onExploreGraph }: NodeModalProps) => {
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50">
       <div ref={modalRef} className="shadow-lg max-w-lg w-full relative">
         {isRepoNode(node.data) ? (
-          <RepoInfo node={node.data} onExploreGraph={handleExploreGraph} />
+          <RepoInfo node={node.data} onExploreGraph={handleExploreGraph} timePeriod={timePeriod} />
         ) : (
-          <ContributorInfo node={node.data} onExploreGraph={handleExploreGraph} />
+          <ContributorInfo node={node.data} onExploreGraph={handleExploreGraph} timePeriod={timePeriod} />
         )}
       </div>
     </div>

@@ -24,11 +24,9 @@ async function fetchRepoGraph(input: string, timePeriod: number, signal: AbortSi
   if (!owner || !name) {
     throw new Error("Please enter a valid repository in the format 'owner/repo'.");
   }
-  // Calculate "since" based on timePeriod (days)
-  const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
   // getRepositoryDetails returns a RepoDetails; we spread it into a new object for the graph node.
-  const repository: RepoDetails = await getRepositoryDetails(owner, name, signal!);
-  const contributors = await getRepoContributorsWithContributedRepos(owner, name, since, signal!);
+  const repository: RepoDetails = await getRepositoryDetails(owner, name, timePeriod, signal!);
+  const contributors = await getRepoContributorsWithContributedRepos(owner, name, timePeriod, signal!);
   const selectedEntity: RepoNode = {
     ...repository,
     id: repository.nameWithOwner,  // use a unique id (for example, nameWithOwner)

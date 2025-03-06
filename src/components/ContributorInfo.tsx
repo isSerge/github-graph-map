@@ -8,6 +8,7 @@ import { getErrorMessage } from "../utils/errorUtils";
 interface ContributorInfoProps {
   node: ContributorNode;
   onExploreGraph: (name: string) => void;
+  timePeriod: number;
 }
 
 const ContributorInfo = ({ node, onExploreGraph }: ContributorInfoProps) => {

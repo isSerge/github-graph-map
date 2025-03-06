@@ -44,10 +44,10 @@ const graphqlWithAuth = graphql.defaults({
 export const getRepositoryDetails = async (
   owner: string,
   repo: string,
+  timePeriod: number,
   signal?: AbortSignal
 ): Promise<RepoDetails> => {
-  // Calculate date 7 days ago in ISO format.
-  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
   const result = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
   const contributors = await getRecentCommitAuthors(owner, repo, since, signal);
   const recentIssues = result.repository.issues.nodes.filter(
@@ -170,9 +170,10 @@ export async function getContributorDetails(
 export async function getRepoContributorsWithContributedRepos(
   repoOwner: string,
   repoName: string,
-  since: string,
+  timePeriod: number,
   signal?: AbortSignal,
 ): Promise<(ContributorGraphData & { contributionCount: number })[]> {
+  const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString(); 
   const contributors = await getRecentCommitAuthors(repoOwner, repoName, since, signal);
   const results = await Promise.all(
     contributors

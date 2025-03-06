@@ -38,7 +38,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     setRepulsivity,
     setCenteringStrength,
   } = useDisplaySettings();
-  
+
   // Get graph-related state based on the committed search value.
   const { isFetching, error, data } = useGraph(committed, timePeriod);
 
@@ -150,7 +150,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
       {data && !isFetching && !error && (
         <div className="flex h-screen">
           {/* Sidebar for Nodes List */}
-          <SidebarNodeList data={data} handleSubmit={handleSubmit} />
+          <SidebarNodeList data={data} handleSubmit={handleSubmit} timePeriod={timePeriod} />
           {/* Graph Container */}
           <div className="relative flex-1 bg-gray-800">
             <div className="absolute top-4 left-4 flex gap-4 z-20">
@@ -177,6 +177,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
               repulsivity={repulsivity}
               centeringStrength={centeringStrength}
               onNodeClick={handleNodeClick}
+              timePeriod={timePeriod}
             />
           </div>
           {/* Settings Panel */}
@@ -198,6 +199,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
           node={modalNode}
           onClose={() => setModalNode(null)}
           onExploreGraph={(nodeName) => handleSubmit(nodeName)}
+          timePeriod={timePeriod}
         />
       )}
 

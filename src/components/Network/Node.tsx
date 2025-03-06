@@ -9,6 +9,7 @@ import "./glow.css";
 
 interface CustomNodeProps extends NodeProps<EitherNode> {
   onNodeClick?: (node: ComputedNode<EitherNode>) => void;
+  timePeriod: number;
 }
 
 function setRgbAlpha(rgb: string, alpha: number): string {
@@ -21,8 +22,8 @@ function setRgbAlpha(rgb: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export const RepositoryNode = ({ node, onNodeClick }: CustomNodeProps) => {
-  const { data, isFetching } = useRepoDetails((node.data as RepoNode).nameWithOwner);
+export const RepositoryNode = ({ node, onNodeClick, timePeriod }: CustomNodeProps) => {
+  const { data, isFetching } = useRepoDetails((node.data as RepoNode).nameWithOwner, timePeriod);
   const score = data ? rateRepo(data) : 0;
   // Map score (assumed between 0 and 20) to an alpha between 0.6 and 1.0:
   const alpha = 0.6 + (score / 20) * 0.4;

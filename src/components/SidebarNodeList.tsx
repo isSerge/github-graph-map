@@ -8,15 +8,17 @@ import { getRepoTooltipContent, getContributorTooltipContent } from '../utils/to
 interface SidebarNodeListProps {
   data: GraphResponse;
   handleSubmit: (value: string) => void;
+  timePeriod: number;
 }
 
 interface ListItemProps {
   node: EitherNode;
   handleSubmit: (value: string) => void;
+  timePeriod: number;
 }
 
-const RepoListItem = ({ node, handleSubmit }: ListItemProps) => {
-  const { data } = useRepoDetails((node as RepoNode).nameWithOwner);
+const RepoListItem = ({ node, handleSubmit, timePeriod }: ListItemProps) => {
+  const { data } = useRepoDetails((node as RepoNode).nameWithOwner, timePeriod);
   return (
     <li
       key={node.id}
@@ -48,14 +50,15 @@ const ContributorListItem = ({ node, handleSubmit }: ListItemProps) => {
 const SidebarNodeList = ({
   data,
   handleSubmit,
+  timePeriod,
 }: SidebarNodeListProps) => (
   <aside className="w-60 p-2 overflow-y-auto">
     <h2 className="text-xl font-bold mb-4">Nodes</h2>
     <ul>
       {data.graph.nodes.map((node) =>
         isRepoNode(node)
-          ? <RepoListItem node={node} handleSubmit={handleSubmit} key={node.id} />
-          : <ContributorListItem node={node} handleSubmit={handleSubmit} key={node.id} />
+          ? <RepoListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
+          : <ContributorListItem node={node} handleSubmit={handleSubmit} key={node.id} timePeriod={timePeriod} />
       )}
     </ul>
   </aside>

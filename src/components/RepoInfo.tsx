@@ -15,10 +15,11 @@ import { getErrorMessage } from "../utils/errorUtils";
 interface RepoInfoProps {
   node: RepoNode;
   onExploreGraph: (name: string) => void;
+  timePeriod: number;
 }
 
-const RepoInfo = ({ node, onExploreGraph }: RepoInfoProps) => {
-  const { isFetching, error, data } = useRepoDetails(node.nameWithOwner);
+const RepoInfo = ({ node, onExploreGraph, timePeriod }: RepoInfoProps) => {
+  const { isFetching, error, data } = useRepoDetails(node.nameWithOwner, timePeriod);
 
   if (isFetching) return <LoadingSpinner />;
   // TODO: proper component for error state

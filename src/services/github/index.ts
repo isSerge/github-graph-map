@@ -23,6 +23,7 @@ import {
   getFreshReposQuery, 
   getExploreContributorsQuery, 
 } from "./queries";
+import { transformRepoDataResponse, transformCommitDataResponse, transformContributorResponse } from "./transform";
 
 const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
@@ -48,24 +49,12 @@ export const getRepositoryDetails = async (
   signal?: AbortSignal
 ): Promise<RepoDetails> => {
   const since = new Date(Date.now() - timePeriod * 24 * 60 * 60 * 1000).toISOString();
-  const result = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
+  const response = await graphqlWithAuth<RepoDetailsResponse>(getRepositoryDetailsQuery, { owner, repo, signal });
   const contributors = await getRecentCommitAuthors(owner, repo, since, signal);
-  const recentIssues = result.repository.issues.nodes.filter(
-    (issue) => new Date(issue.createdAt) > new Date(since)
-  );
-  const recentPRs = result.repository.pullRequests.nodes.filter(
-    (pr) => new Date(pr.createdAt) > new Date(since)
-  );
+  const repoData = transformRepoDataResponse(response, since);
+  
   return {
-    ...result.repository,
-    issues: {
-      totalCount: recentIssues.length,
-      nodes: recentIssues,
-    },
-    pullRequests: {
-      totalCount: recentPRs.length,
-      nodes: recentPRs,
-    },
+    ...repoData,
     contributors,
   };
 };
@@ -87,15 +76,7 @@ export async function getRecentCommitAuthors(
   signal?: AbortSignal,
 ): Promise<{ login: string; contributionCount: number }[]> {
   const result = await graphqlWithAuth<RecentCommitsResponse>(getRecentCommitsQuery, { owner, name, since, signal });
-  const nodes = result.repository?.defaultBranchRef?.target?.history?.nodes || [];
-  const contributorMap = new Map<string, number>();
-  nodes.forEach((commit) => {
-    const login = commit.author?.user?.login;
-    if (login) {
-      contributorMap.set(login, (contributorMap.get(login) || 0) + 1);
-    }
-  });
-  return Array.from(contributorMap.entries()).map(([login, contributionCount]) => ({ login, contributionCount }));
+  return transformCommitDataResponse(result);
 }
 
 /**
@@ -133,27 +114,11 @@ export async function getContributorDetails(
   username: string,
   signal?: AbortSignal,
 ): Promise<ContributorDetailsResponse["user"] & { lastActivityDate: Date | null }> {
-  const data = await graphqlWithAuth<ContributorDetailsResponse>(getContributorDetailsQuery, { username, signal });
-  if (!data.user) {
+  const response = await graphqlWithAuth<ContributorDetailsResponse>(getContributorDetailsQuery, { username, signal });
+  if (!response.user) {
     throw new Error("User not found");
   }
-
-  const contributions = data.user.contributionsCollection.commitContributionsByRepository;
-
-  // TODO: move this to contributorDetails hook
-  const lastActivityTime = contributions
-    .flatMap(item => item.contributions.nodes)
-    .reduce((latest, cur) => {
-      const curTime = new Date(cur.occurredAt).getTime();
-      return curTime > latest ? curTime : latest;
-    }, 0);
-
-  const lastActivityDate = lastActivityTime ? new Date(lastActivityTime) : null;
-
-  return {
-    ...data.user,
-    lastActivityDate,
-  };
+  return transformContributorResponse(response);
 }
 
 /**

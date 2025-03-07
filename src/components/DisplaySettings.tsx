@@ -27,24 +27,24 @@ const DisplaySettings: React.FC<DisplaySettingsProps> = ({
         <div className="flex rounded-md shadow-sm gap-2">
           <button
             onClick={() => setTimePeriod(1)}
-            className={`w-1/3 border border-gray-300 text-xs font-medium focus:outline-none ${
-              timePeriod === 1 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            className={`w-1/3 border border-blue-300 text-xs font-medium focus:outline-none rounded-md ${
+              timePeriod === 1 ? "bg-blue-400 text-white" : "bg-gray-50 text-gray-500"
             }`}
           >
             1 day
           </button>
           <button
             onClick={() => setTimePeriod(7)}
-            className={`w-1/3 border-t border-b border-gray-300 text-xs font-medium focus:outline-none ${
-              timePeriod === 7 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            className={`w-1/3 border-t border-b border-blue-300 text-xs font-medium focus:outline-none rounded-md ${
+              timePeriod === 7 ? "bg-blue-400 text-white" : "bg-gray-50 text-gray-500"
             }`}
           >
             7 days
           </button>
           <button
             onClick={() => setTimePeriod(30)}
-            className={`w-1/3 border border-gray-300 text-xs font-medium focus:outline-none ${
-              timePeriod === 30 ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            className={`w-1/3 border border-blue-300 text-xs font-medium focus:outline-none rounded-md ${
+              timePeriod === 30 ? "bg-blue-400 text-white" : "bg-gray-50 text-gray-500"
             }`}
           >
             30 days

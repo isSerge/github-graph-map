@@ -2,7 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
+import { useAtom } from "jotai";
 
+import {
+  timePeriodAtom,
+  linkDistanceMultiplierAtom,
+  repulsivityAtom,
+  centeringStrengthAtom,
+} from "../atoms/displaySettings";
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
@@ -10,7 +17,6 @@ import DisplaySettings from "../components/DisplaySettings";
 import NodeModal from "../components/NodeModal";
 import SidebarNodeList from "../components/SidebarNodeList";
 import { useGraph } from "../hooks/useGraph";
-import { useDisplaySettings } from "../hooks/useDisplaySettings";
 import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
@@ -22,22 +28,15 @@ interface GraphPageProps {
 }
 
 const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
+  const [timePeriod] = useAtom(timePeriodAtom);
+  const [linkDistanceMultiplier] = useAtom(linkDistanceMultiplierAtom);
+  const [repulsivity] = useAtom(repulsivityAtom);
+  const [centeringStrength] = useAtom(centeringStrengthAtom);
+
   const navigate = useNavigate();
   // Initialize search state with the query from the URL.
   const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
   const { searchHistory, addSearchQuery } = useSearchHistory();
-
-  // Display settings and time period.
-  const {
-    timePeriod,
-    setTimePeriod,
-    linkDistanceMultiplier,
-    repulsivity,
-    centeringStrength,
-    setLinkDistanceMultiplier,
-    setRepulsivity,
-    setCenteringStrength,
-  } = useDisplaySettings();
 
   // Get graph-related state based on the committed search value.
   const { isFetching, error, data } = useGraph(committed, timePeriod);
@@ -181,16 +180,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
             />
           </div>
           {/* Settings Panel */}
-          <DisplaySettings
-            linkDistanceMultiplier={linkDistanceMultiplier}
-            repulsivity={repulsivity}
-            centeringStrength={centeringStrength}
-            setLinkDistanceMultiplier={setLinkDistanceMultiplier}
-            setRepulsivity={setRepulsivity}
-            setCenteringStrength={setCenteringStrength}
-            timePeriod={timePeriod}
-            setTimePeriod={setTimePeriod}
-          />
+          <DisplaySettings />
         </div>
       )}
 

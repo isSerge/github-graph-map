@@ -1,24 +1,16 @@
-interface DisplaySettingsProps {
-  linkDistanceMultiplier: number;
-  repulsivity: number;
-  centeringStrength: number;
-  setLinkDistanceMultiplier: (value: number) => void;
-  setRepulsivity: (value: number) => void;
-  setCenteringStrength: (value: number) => void;
-  timePeriod: number;
-  setTimePeriod: (value: number) => void;
-}
+import { useAtom } from "jotai";
+import {
+  linkDistanceMultiplierAtom,
+  repulsivityAtom,
+  centeringStrengthAtom,
+  timePeriodAtom,
+} from "../atoms/displaySettings";
 
-const DisplaySettings: React.FC<DisplaySettingsProps> = ({
-  linkDistanceMultiplier,
-  repulsivity,
-  centeringStrength,
-  setLinkDistanceMultiplier,
-  setRepulsivity,
-  setCenteringStrength,
-  timePeriod,
-  setTimePeriod,
-}) => {
+const DisplaySettings = () => {
+  const [linkDistanceMultiplier, setLinkDistanceMultiplier] = useAtom(linkDistanceMultiplierAtom);
+  const [repulsivity, setRepulsivity] = useAtom(repulsivityAtom);
+  const [centeringStrength, setCenteringStrength] = useAtom(centeringStrengthAtom);
+  const [timePeriod, setTimePeriod] = useAtom(timePeriodAtom);
   return (
     <aside className="w-60 p-2">
       {/* Time Period Radio Buttons */}

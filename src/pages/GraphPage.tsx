@@ -10,6 +10,14 @@ import {
   repulsivityAtom,
   centeringStrengthAtom,
 } from "../atoms/displaySettings";
+import {
+  navigateHistoryAtom,
+  canNavigateForwardAtom,
+  canNavigateBackAtom,
+  resetHistoryAtom,
+  addNavNodeAtom,
+  currentNavNodeAtom,
+} from "../atoms/navHistory";
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
@@ -19,7 +27,6 @@ import SidebarNodeList from "../components/SidebarNodeList";
 import { useGraph } from "../hooks/useGraph";
 import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
 import { useSearchHistory } from "../hooks/useSearchHistory";
-import { useNavHistoryReducer } from "../hooks/useNavHistoryReducer";
 import { EitherNode } from "../types";
 import { getErrorMessage } from "../utils/errorUtils";
 
@@ -28,12 +35,20 @@ interface GraphPageProps {
 }
 
 const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
+  // display settings atoms
   const [timePeriod] = useAtom(timePeriodAtom);
   const [linkDistanceMultiplier] = useAtom(linkDistanceMultiplierAtom);
   const [repulsivity] = useAtom(repulsivityAtom);
   const [centeringStrength] = useAtom(centeringStrengthAtom);
 
-  const navigate = useNavigate();
+  // navigation history atoms
+  const [, addNavNode] = useAtom(addNavNodeAtom);
+  const [, navigateHistory] = useAtom(navigateHistoryAtom);
+  const [canGoBack] = useAtom(canNavigateBackAtom);
+  const [canGoForward] = useAtom(canNavigateForwardAtom);
+  const [, resetHistory] = useAtom(resetHistoryAtom);
+  const [currentNode] = useAtom(currentNavNodeAtom);
+
   // Initialize search state with the query from the URL.
   const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
   const { searchHistory, addSearchQuery } = useSearchHistory();
@@ -48,25 +63,14 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     }
   }, [query, committed, commitSearch]);
 
-  // Navigation history for graph nodes.
-  const {
-    history,
-    currentIndex,
-    addNode,
-    navigateTo,
-    resetHistory,
-    canGoBack,
-    canGoForward,
-  } = useNavHistoryReducer();
-
   const [modalNode, setModalNode] = useState<ComputedNode<EitherNode> | null>(null);
 
   // When the selected entity changes, add it to navigation history.
   useEffect(() => {
     if (data?.selectedEntity) {
-      addNode(data.selectedEntity);
+      addNavNode(data.selectedEntity);
     }
-  }, [data?.selectedEntity, addNode]);
+  }, [data?.selectedEntity, addNavNode]);
 
   // Add the committed query to search history once data is successfully fetched.
   useEffect(() => {
@@ -75,27 +79,19 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
     }
   }, [committed, isFetching, error, data?.graph, addSearchQuery]);
 
-  const handlePrev = useCallback(() => {
-    if (canGoBack) {
-      const newIndex = currentIndex - 1;
-      navigateTo(newIndex);
-      const prevNode = history[newIndex];
-      const newInput = prevNode.type === "repo" ? prevNode.nameWithOwner : prevNode.name;
-      setDraft(newInput);
-      commitSearch();
-    }
-  }, [canGoBack, currentIndex, history, navigateTo, setDraft, commitSearch]);
+  const handlePrev = () => navigateHistory("prev");
+  const handleNext = () => navigateHistory("next");
 
-  const handleNext = useCallback(() => {
-    if (canGoForward) {
-      const newIndex = currentIndex + 1;
-      navigateTo(newIndex);
-      const nextNode = history[newIndex];
-      const newInput = nextNode.type === "repo" ? nextNode.nameWithOwner : nextNode.name;
+  const navigate = useNavigate();
+  // Synchronize navigation with URL and input
+  useEffect(() => {
+    if (currentNode) {
+      const newInput = currentNode.type === "repo" ? currentNode.nameWithOwner : currentNode.name;
       setDraft(newInput);
       commitSearch();
+      navigate(`/${newInput}`, { replace: true });
     }
-  }, [canGoForward, currentIndex, history, navigateTo, setDraft, commitSearch]);
+  }, [currentNode, setDraft, commitSearch, navigate]);
 
   const handleNodeClick = useCallback((node: ComputedNode<EitherNode>) => {
     setModalNode(node);
@@ -177,6 +173,7 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
               centeringStrength={centeringStrength}
               onNodeClick={handleNodeClick}
               timePeriod={timePeriod}
+              key={data.selectedEntity.id}
             />
           </div>
           {/* Settings Panel */}

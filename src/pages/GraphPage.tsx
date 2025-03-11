@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComputedNode } from "@nivo/network";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 
 import {
   timePeriodAtom,
@@ -18,6 +18,13 @@ import {
   addNavNodeAtom,
   currentNavNodeAtom,
 } from "../atoms/navHistory";
+import {
+  searchInputAtom,
+  committedSearchAtom,
+  commitSearchAtom,
+  resetSearchAtom,
+  searchHistoryAtom,
+} from "../atoms/search";
 import SearchInput from "../components/SearchInput";
 import LoadingSpinner from "../components/LoadingSpinner";
 import NetworkWithZoom from "../components/Network";
@@ -25,8 +32,6 @@ import DisplaySettings from "../components/DisplaySettings";
 import NodeModal from "../components/NodeModal";
 import SidebarNodeList from "../components/SidebarNodeList";
 import { useGraph } from "../hooks/useGraph";
-import { useSearchInputReducer } from "../hooks/useSearchInputReducer";
-import { useSearchHistory } from "../hooks/useSearchHistory";
 import { EitherNode } from "../types";
 import { getErrorMessage } from "../utils/errorUtils";
 
@@ -49,9 +54,16 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   const [, resetHistory] = useAtom(resetHistoryAtom);
   const [currentNode] = useAtom(currentNavNodeAtom);
 
+  // search state atoms
+  const [draft, setDraft] = useAtom(searchInputAtom);
+  const [committed] = useAtom(committedSearchAtom);
+  const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
+  const commitSearch = useSetAtom(commitSearchAtom);
+  const resetSearch = useSetAtom(resetSearchAtom);
+
   // Initialize search state with the query from the URL.
-  const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
-  const { searchHistory, addSearchQuery } = useSearchHistory();
+  // const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
+  // const { searchHistory, addSearchQuery } = useSearchHistory();
 
   // Get graph-related state based on the committed search value.
   const { isFetching, error, data } = useGraph(committed, timePeriod);
@@ -75,9 +87,12 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   // Add the committed query to search history once data is successfully fetched.
   useEffect(() => {
     if (committed && !isFetching && !error && data?.graph) {
-      addSearchQuery(committed);
+      setSearchHistory((prev) => {
+        const filtered = prev.filter((item) => item !== committed);
+        return [committed, ...filtered];
+      });
     }
-  }, [committed, isFetching, error, data?.graph, addSearchQuery]);
+  }, [committed, isFetching, error, data?.graph, setSearchHistory]);
 
   const handlePrev = () => navigateHistory("prev");
   const handleNext = () => navigateHistory("next");

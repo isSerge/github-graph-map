@@ -61,10 +61,6 @@ const GraphPage: React.FC<GraphPageProps> = ({ query }) => {
   const commitSearch = useSetAtom(commitSearchAtom);
   const resetSearch = useSetAtom(resetSearchAtom);
 
-  // Initialize search state with the query from the URL.
-  // const { draft, committed, setDraft, commitSearch, resetSearch } = useSearchInputReducer(query);
-  // const { searchHistory, addSearchQuery } = useSearchHistory();
-
   // Get graph-related state based on the committed search value.
   const { isFetching, error, data } = useGraph(committed, timePeriod);
 
